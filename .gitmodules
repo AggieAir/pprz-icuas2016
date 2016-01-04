@@ -16,3 +16,6 @@
 [submodule "sw/ext/mavlink"]
 	path = sw/ext/mavlink
 	url = https://github.com/paparazzi/mavlink.git
+[submodule "sw/ext/chibios"]
+	path = sw/ext/chibios
+	url = https://github.com/ChibiOS/ChibiOS.git
