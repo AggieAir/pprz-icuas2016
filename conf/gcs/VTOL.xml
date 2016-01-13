@@ -1,0 +1,13 @@
+<layout width="1280" height="709">
+  <columns>
+    <rows SIZE="600">
+      <widget NAME="strips" SIZE="225"/>
+      <widget NAME="aircraft" SIZE="350"/>
+      <widget NAME="alarms"/>
+    </rows>
+    <rows>
+      <widget NAME="map2d">
+      </widget>
+    </rows>
+  </columns>
+</layout>

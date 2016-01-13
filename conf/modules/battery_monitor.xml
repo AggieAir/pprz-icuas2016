@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="battery_monitor" dir="adcs">
+	<doc>
+   <description>ADC 7997/8 I2C driver for battery monitoring. Use with the power board.</description>
+  </doc>
+  <header>
+    <file name="batmon.h"/>
+  </header>
+  <init fun="batmon_init()"/>
+  <periodic fun="batmon_read_bus()" freq="10"/>
+  <periodic fun="batmon_read_ports()" freq="10"/>
+  <makefile target="ap">
+     <file name="batmon.c"/>
+     <define name="USE_I2C2"/>
+     <define name="USE_BATTERY_MONITOR"/>
+     <define name="BATTE_MON_I2C_DEV" value="i2c2" description="device bus"/>
+  </makefile>
+</module>

@@ -1,0 +1,110 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan name="VTOL Standard" alt="1353" ground_alt="1333" lat0="41.812821" lon0="-111.969363" max_dist_from_home="1500" name="Basic" qfu="90" security_height="10">
+  	<header>
+		#include "subsystems/datalink/datalink.h"
+	</header>
+  	<waypoints>
+		<waypoint name="HOME" x="0" y="0"/>
+		<waypoint name="STDBY" x="5" y="5"/>
+		<waypoint name="E_LAND" x="64.5" y="-14.2"/>
+		<waypoint name="VTOL_Idle" x="64.5" y="0"/>
+		<waypoint name="OZ1" x="-50" y="50"/>
+		<waypoint name="OZ2" x="50" y="50"/>
+		<waypoint name="OZ3" x="50" y="-50"/>
+		<waypoint name="OZ4" x="-50" y="-50"/>
+		<waypoint name="blackBody" x="1" y="1"/>
+		<waypoint name="T1" x="20" y="-5"/>
+		<waypoint name="T2" x="30" y="15"/>
+  	</waypoints>
+
+  	<sectors>
+    	<sector name="Operating_Zone" color="red">
+      	<corner name="OZ1"/>
+      	<corner name="OZ2"/>
+      	<corner name="OZ3"/>
+      	<corner name="OZ4"/>
+    	</sector>
+  	</sectors>
+
+  	<exceptions>
+  		<!--exception cond="AND (! InsideOperating_Zone(GetPosX(), GetPosY()), LessThan(30, NavBlockTime()))" deroute="Standby"/-->
+  		<!--exception cond="datalink_time > 30" deroute="Standby"/-->
+  	</exceptions>
+
+	<blocks>
+		<block name="Wait GPS">
+		  	<call fun="NavKillThrottle()"/>
+		  	<while cond="!GpsFixValid()"/>
+		</block>
+
+		<block name="Geo init">
+		  	<while cond="LessThan(NavBlockTime(), 10)"/>
+		  	<call fun="NavSetGroundReferenceHere()"/>
+		</block>
+
+		<block name="Ground Check">
+			<call fun="NavKillThrottle()"/>
+			<attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+		</block>
+
+		<block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+			<call fun="NavResurrect()"/>
+			<call fun="NavSetWaypointHere(WP_STDBY)"/>
+			<while cond="LessThan(NavBlockTime(), 4)"/>
+			<stay climb="0.5" vmode="climb" wp="STDBY" until="(GetPosAlt() > ground_alt+2)"/>
+			<stay climb="0.3125" vmode="climb" wp="STDBY" until="(GetPosAlt() > ground_alt+20)"/> 
+		</block>
+
+		<block name="Standby" strip_button="Standby" strip_icon="home.png">
+		  	<stay wp="STDBY"/>
+		</block>
+
+    <block name="Transect Out">
+      <go from="STDBY" wp="blackBody" hmode="route"/>
+      <stay wp="blackBody" until="(stage_time > 8)"/>
+      <go from="blackBody" wp="T1" hmode="route"/>
+      <stay wp="T1" until="(stage_time > 5)"/>
+      <go from="T1" wp="T2" hmode="route"/>
+      <deroute block="Transect Return"/>
+    </block>
+
+    <block name="Transect Return">
+      <stay wp="T2" until="(stage_time > 5)"/>
+      <go from="T2" wp="T1" hmode="route"/>
+      <stay wp="T1" until="(stage_time > 5)"/>
+      <go from="T1" wp="blackBody" hmode="route"/>
+      <stay wp="blackBody" until="(stage_time > 8)"/>
+      <go from="blackBody" wp="STDBY" hmode="route"/>
+      <deroute block="Standby"/>
+    </block>
+
+		<block name="VTOL_Idle" strip_button="VTOL Idle" strip_icon="stop_thing_scaled.png">
+			<call fun="NavSetWaypointHere(WP_VTOL_Idle)"/>
+			<stay wp="VTOL_Idle"/>
+		</block>
+
+		<block name="E_land" strip_button="Emergency_Land" strip_icon="parachute.png">
+			<call fun="NavSetWaypointHere(WP_E_LAND)"/>
+			<stay climb="-0.25" until="(ground_alt+0.2 > GetPosAlt())" vmode="climb" wp="E_LAND"/>
+			<while cond="LessThan(NavBlockTime(), 44)"/>
+	  	<deroute block="Ground Check"/>
+		</block>
+
+		<block name="Prepare_Landing" strip_button="Lock_on_Landing" strip_icon="cam_lock.png">
+		  	<go wp="STDBY"/>
+		</block>
+
+		<block name="Ready_to_Land">
+			<stay wp="STDBY"/>
+		</block>
+
+		<block name="Land" strip_button="Land" strip_icon="downdown.png">
+			<stay climb="-0.25" vmode="climb" wp="STDBY" until="(ground_alt+5 > GetPosAlt())"/>
+			<stay climb="-0.1" vmode="climb" wp="STDBY" until="(ground_alt > GetPosAlt())"/>
+			<!--Should the motors at this point be set to idle?-->
+		</block>
+
+	</blocks>
+</flight_plan>
+

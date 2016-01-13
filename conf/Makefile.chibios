@@ -61,6 +61,7 @@ $(TARGET).CFLAGS += \
 	-DCH_DBG_THREADS_PROFILING=TRUE
 USE_OPT = -std=gnu99 -O0 -ggdb3 -fomit-frame-pointer -falign-functions \
 	 -W -Wall -DUSE_CHIBIOS_RTOS
+$(TARGET).CFLAGS += -DRTOS_DEBUG=1
 else
 $(info DEBUGGING OFF)
 $(TARGET).CFLAGS += -DCH_DBG_THREADS_PROFILING=TRUE

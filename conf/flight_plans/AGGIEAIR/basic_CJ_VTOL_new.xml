@@ -1,0 +1,113 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1373" ground_alt="1358" lat0="41.815640" lon0="-111.981760" max_dist_from_home="1500" name="Basic" qfu="90" security_height="5">
+  <header>
+#include "subsystems/navigation/nav_line.h"
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/navigation/OSAMNav.h"
+#include "subsystems/ins.h"
+</header>
+  <waypoints>
+    <waypoint alt="1365.0" name="HOME" x="962.8" y="-1514.4"/>
+    <waypoint name="STDBY" x="965.4" y="-1516.5"/>
+    <waypoint name="p1" x="997.9" y="-1481.1"/>
+    <waypoint name="p2" x="1000.3" y="-1484.0"/>
+    <waypoint name="p3" x="994.1" y="-1482.0"/>
+    <waypoint name="p4" x="997.6" y="-1486.4"/>
+    <waypoint alt="1380.0" name="p5" x="992.6" y="-1488.7"/>
+    <waypoint alt="1400.0" name="l1" x="969.3" y="-1528.3"/>
+    <waypoint alt="1400.0" name="l2" x="986.3" y="-1528.1"/>
+    <waypoint alt="1400.0" name="l3" x="985.2" y="-1507.1"/>
+    <waypoint alt="1400.0" name="l4" x="968.8" y="-1506.6"/>
+    <waypoint name="LAUNCH" x="994.3" y="-1515.0"/>
+    <waypoint name="LAND" x="992.1" y="-1514.4"/>
+    <waypoint name="STOP" x="1026.2" y="-1631.9"/>
+    <waypoint name="m1" x="1778.1" y="-2460.9"/>
+    <waypoint name="m2" x="1976.9" y="-612.6"/>
+    <waypoint name="m3" x="-23.9" y="-631.7"/>
+    <waypoint name="m4" x="83.6" y="-2460.1"/>
+    <waypoint name="E_LAND" x="990.3" y="-1514.6"/>
+  </waypoints>
+  <exceptions>
+    <exception cond="datalink_time > 30" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 45)"/>
+    </block>
+    <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <call fun="NavResurrect()"/>
+      <call fun="NavSetWaypointHere(WP_LAUNCH)"/>
+      <while cond="LessThan(NavBlockTime(), 6)"/>
+      <go climb="0.5" vmode="climb" wp="LAUNCH"/>
+      <stay wp="LAUNCH"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="stay_p1">
+      <stay wp="p1"/>
+    </block>
+    <block name="stay_p2">
+      <stay wp="p2"/>
+    </block>
+    <block name="stay_p3">
+      <stay wp="p4"/>
+    </block>
+    <block name="stay_p4">
+      <stay wp="p4"/>
+    </block>
+    <block name="stay_p5">
+      <stay wp="p5"/>
+    </block>
+    <block name="STOP" strip_button="Stop" strip_icon="mob.png">
+      <call fun="NavSetWaypointHere(WP_STOP)"/>
+      <stay wp="STOP"/>
+    </block>
+    <block name="Patrol_L1_L2" strip_button="Patrol" strip_icon="observe.png">
+      <while cond="TRUE">
+        <go from="l1" hmode="route" wp="l2"/>
+        <go from="l2" hmode="route" wp="l1"/>
+        <while cond="30 > stage_time">
+          <stay wp="l1"/>
+        </while>
+      </while>
+    </block>
+    <block name="lines" strip_button="Lines" strip_icon="path.png">
+      <go from="STDBY" hmode="route" wp="l1"/>
+      <go from="l1" hmode="route" wp="l2"/>
+      <go from="l2" hmode="route" wp="l3"/>
+      <go from="l3" hmode="route" wp="l4"/>
+      <go from="l4" hmode="route" wp="STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="E_land" strip_button="Emergency_Land" strip_icon="parachute.png">
+      <call fun="NavSetWaypointHere(WP_E_LAND)"/>
+      <while cond="15 > stage_time">
+        <stay wp="E_LAND"/>
+      </while>
+      <go climb="-0.1" vmode="climb" wp="E_LAND"/>
+      <call fun="NavKillThrottle()"/>
+      <deroute block="Holding point"/>
+    </block>
+    <block name="Prepare_Landing" strip_button="Lock_on_Landing" strip_icon="cam_lock.png">
+      <go wp="LAND"/>
+    </block>
+    <block name="Ready_to_Land">
+      <stay wp="LAND"/>
+    </block>
+    <block name="Land" strip_button="Land" strip_icon="downdown.png">
+      <go climb="-0.1" vmode="climb" wp="LAND"/>
+      <call fun="NavKillThrottle()"/>
+      <deroute block="Holding point"/>
+    </block>
+  </blocks>
+</flight_plan>

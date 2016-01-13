@@ -1,0 +1,10 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="Xgear">
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="xgear_flag_sysid" shortname="sysid" values="OFF|ON" module="modules/loggers/xgear"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="xgear_flag_ctrsys" shortname="ctrlsys" values="OFF|ON" module="modules/loggers/xgear"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

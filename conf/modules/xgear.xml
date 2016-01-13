@@ -6,19 +6,72 @@
 
   <header>
     <file name="xgear.h"/>
+    <file name="xgear_lidar.h"/>
+    <file name="xgear_status.h"/>
   </header>
   <init     fun="xgear_init()"               />
   <periodic fun="xgear_periodic()" freq="PERIODIC_FREQUENCY"/>
 
   <makefile target="ap">
     <file name="xgear.c"/>
-       <raw>
-       XGEAR_VTOL ?= 0
-       XGEAR_PORT ?= UART1
-       XGEAR_BAUD ?= 921600
-       XGEAR_PORT_LOWER=$(shell echo $(XGEAR_PORT) | tr A-Z a-z)
-       ap.CFLAGS += -DUSE_$(XGEAR_PORT) -D$(XGEAR_PORT)_BAUD=$(XGEAR_BAUD)
-       ap.CFLAGS += -DXGEAR_PORT=$(XGEAR_PORT_LOWER) -DXGEAR_VTOL=$(XGEAR_VTOL)
+    <file name="xgear_lidar.c"/>
+    <file name="xgear_status.c"/>
+      <raw>
+      XGEAR_VTOL ?= 0
+      
+      XGEAR_PORT ?= UART1
+      XGEAR_BAUD ?= B3000000
+
+      # Chibios checks
+      ifneq (,$(findstring USE_CHIBIOS_RTOS,$($(TARGET).CFLAGS)))
+      # $(info ********* ChibiOS ********)
+      # Now check which serial port are we using
+      # UART1
+      ifneq (,$(findstring UART1,$(XGEAR_PORT)))
+      #$(info ********* UART1 ********)
+      XGEAR_PORT = UARTD1
+      else
+      # UART2
+      ifneq (,$(findstring UART2,$(XGEAR_PORT)))
+      #$(info ********* UART2 ********)
+      XGEAR_PORT = UARTD2
+      else
+      # UART3
+      ifneq (,$(findstring UART3,$(XGEAR_PORT)))
+      #$(info ********* UART3 ********)
+      XGEAR_PORT = UARTD3
+      else
+      # UART4
+      ifneq (,$(findstring UART4,$(XGEAR_PORT)))
+      #$(info ********* UART4 ********)
+      XGEAR_PORT = UARTD4
+      else
+      # UART5
+      ifneq (,$(findstring UART5,$(XGEAR_PORT)))
+      #$(info ********* UART5 ********)
+      XGEAR_PORT = UARTD5
+      else
+      ifneq (,$(findstring UART6,$(XGEAR_PORT)))
+      #$(info ********* UART6 ********)
+      XGEAR_PORT = UARTD6
+      else
+      # otherwise
+      $(info ********* Warning: Unknown XGEAR serial port! ********)
+      endif
+      endif
+      endif
+      endif
+      endif
+      endif
+      XGEAR_CFLAGS += -DXGEAR_PORT=$(XGEAR_PORT)
+      XGEAR_CFLAGS += -DXGEAR_BAUD=$(XGEAR_BAUD)
+      XGEAR_CFLAGS += -DXGEAR_VTOL=$(XGEAR_VTOL)
+      XGEAR_CFLAGS += -DUSE_$(XGEAR_PORT)
+      
+      ap.CFLAGS += $(XGEAR_CFLAGS)
+      else
+      $(error ********* Xgear is for RT Paparazzi only ********)
+      endif
    </raw>
   </makefile>
 

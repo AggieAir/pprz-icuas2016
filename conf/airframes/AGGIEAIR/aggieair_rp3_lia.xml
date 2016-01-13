@@ -60,6 +60,8 @@ RP3 Lisa MX
 
   <modules>
     <load name="nav_line.xml"/>
+    <!--load name="xgear.xml"/-->
+    <load name="battery_monitor.xml"/>
   </modules>
 
   <!-- commands section -->

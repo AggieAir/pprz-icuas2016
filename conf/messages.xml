@@ -867,8 +867,33 @@
     <field name="data_rate" type="uint32" unit="bytes/s"/>
   </message>
 
-  <!--107 is free -->
-  <!--108 is free -->
+  <message name="XGEAR_INFO" id="107">
+    <field name="tx_msg"  type="uint32"/>
+    <field name="tx_rate" type="uint16" unit="packets/s"/>
+    <field name="rx_msg"  type="uint32"/>
+    <field name="rx_rate" type="uint16" unit="packets/s"/>
+    <field name="rx_chk_err"   type="uint32"/>
+    <field name="rx_hdr_err"  type="uint32" />
+    <field name="rx_status"  type="uint8" values="MsgSync0|MsgSync1|MsgType|MsgSize|MsgHdrChksum|MsgData"/>
+    <field name="rx_msg_type"  type="uint8" values="NONE|SYSID|LIDAR|MOVE_WP|ISAAC_STATUS|PAYLOAD_STATUS"/>
+    <field name="rx_msg_datalength"  type="uint16" />
+    <field name="calc_chksum"  type="uint16" />
+    <field name="rx_chksum"  type="uint16" />
+    <field name="overrrun_error" 	type="uint16"/>
+    <field name="noise_error" 	type="uint16"/>
+    <field name="framing_error" 	type="uint16"/>
+  </message>
+
+   <message name="BATTERY_MONITOR" id="108">
+    <field name="bus_current"	type="uint16" unit="mA" alt_unit="V" alt_unit_coef="0.001"/>
+    <field name="bus_voltage"	type="uint16" unit="mV" alt_unit="V" alt_unit_coef="0.001"/>
+    <field name="current"	type="float" unit="A"/>
+    <field name="bus_trans_stat"	type="uint8" values="Pending|Running|Success|Failed|Done"/>
+    <field name="port_trans_stat"	type="uint8" values="Pending|Running|Success|Failed|Done"/>
+    <field name="min_cell_volt"	type="uint16" unit="mV" alt_unit="V" alt_unit_coef="0.001"/>
+    <field name="max_cell_volt"	type="uint16" unit="mV" alt_unit="V" alt_unit_coef="0.001"/>
+    <field name="cell_voltages" type="uint16[]" unit="mV" />
+  </message>
 
   <message name="MULTIGAZE_METERS" id="109">
     <field name="multigaze_meters" type="float[]"/>

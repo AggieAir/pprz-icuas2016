@@ -1,0 +1,100 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan name="VTOL Standard" alt="1353" ground_alt="1333" lat0="41.812821" lon0="-111.969363" max_dist_from_home="1500" name="Basic" qfu="90" security_height="10">
+  	<header>
+		#include "subsystems/datalink/datalink.h"
+	</header>
+  	<waypoints>
+		<waypoint name="HOME" x="0" y="0"/>
+		<waypoint name="STDBY" x="5" y="5"/>
+		<waypoint name="E_LAND" x="64.5" y="-14.2"/>
+		<waypoint name="VTOL_Idle" x="64.5" y="0"/>
+		<waypoint name="OZ1" x="-50" y="50"/>
+		<waypoint name="OZ2" x="50" y="50"/>
+		<waypoint name="OZ3" x="50" y="-50"/>
+		<waypoint name="OZ4" x="-50" y="-50"/>
+  	</waypoints>
+
+   <!--This section creates the boundary within which the VTOL must reside while in flight-->
+  	<sectors>
+    	<sector name="Operating_Zone" color="red">
+      	<corner name="OZ1"/>
+      	<corner name="OZ2"/>
+      	<corner name="OZ3"/>
+      	<corner name="OZ4"/>
+    	</sector>
+  	</sectors>
+
+  <!--This section contains the commands to return to standby if the craft is outside the operating zone or if telemetry link is lost-->
+  	<exceptions>
+  		<!--exception cond="AND (! InsideOperating_Zone(GetPosX(), GetPosY()), LessThan(30, NavBlockTime()))" deroute="Standby"/-->
+  		<!--exception cond="datalink_time > 30" deroute="Standby"/-->
+  	</exceptions>
+
+  <!--This block will wait until there is a valid GPS lock before moving on to the next block-->
+	<blocks>
+		<block name="Wait GPS">
+		  	<call fun="NavKillThrottle()"/>
+		  	<while cond="!GpsFixValid()"/>
+		</block>
+
+  <!--This block supposedly sets all the waypoints of the flight plan in reference to the craft's position after it is powered-up ***(not verified/tested)***-->
+		<block name="Geo init">
+		  	<while cond="LessThan(NavBlockTime(), 10)"/>
+		  	<call fun="NavSetGroundReferenceHere()"/>
+		</block>
+
+  <!--This block makes sure that the motors cannot turn on automatically while performing ground checks on the craft-->
+		<block name="Ground Check">
+			<call fun="NavKillThrottle()"/>
+			<attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+		</block>
+
+	<!--This block sets the standby waypoint to where the craft currently is located, activates the motors for autonomous use, and commands the VTOL to take off autonomously-->
+		<block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+			<call fun="NavResurrect()"/>
+			<call fun="NavSetWaypointHere(WP_STDBY)"/>
+			<while cond="LessThan(NavBlockTime(), 4)"/>
+			<stay climb="0.5" vmode="climb" wp="STDBY" until="(GetPosAlt() > ground_alt+2)"/>
+			<stay climb="0.3125" vmode="climb" wp="STDBY" until="(GetPosAlt() > ground_alt+20)"/> 
+		</block>
+
+	<!--This block commands the VTOL to go to/stay at the "STDBY" waypoint-->
+		<block name="Standby" strip_button="Standby" strip_icon="home.png">
+		  	<stay wp="STDBY"/>
+		</block>
+
+	<!--This block sets the waypoint "VTOL_Idle" to where the VTOL is currently and commands it to stay there ***(not tested)***-->
+		<block name="VTOL_Idle" strip_button="VTOL Idle" strip_icon="stop_thing_scaled.png">
+			<call fun="NavSetWaypointHere(WP_VTOL_Idle)"/>
+			<stay wp="VTOL_Idle"/>
+		</block>
+
+	<!--This block sets the waypoint "E_land" to where the VTOL is currently positioned, commands it to descend, and thereafter to go to the "Ground Check" block-->
+		<block name="E_land" strip_button="Emergency_Land" strip_icon="parachute.png">
+			<call fun="NavSetWaypointHere(WP_E_LAND)"/>
+			<stay climb="-0.25" until="(ground_alt+0.2 > GetPosAlt())" vmode="climb" wp="E_LAND"/>
+			<while cond="LessThan(NavBlockTime(), 44)"/>
+	  	<deroute block="Ground Check"/>
+		</block>
+
+  <!--This block commands the VTOL to go to the "STDBY" waypoint-->
+		<block name="Prepare_Landing" strip_button="Lock_on_Landing" strip_icon="cam_lock.png">
+		  	<go wp="STDBY"/>
+		</block>
+
+  <!--This block is entered when the VTOL has reached the "STDBY" waypoint and is ready for the "Land" block-->
+		<block name="Ready_to_Land">
+			<stay wp="STDBY"/>
+		</block>
+
+  <!--This block commands the VTOL to autonomously land at the "STDBY" waypoint-->
+		<block name="Land" strip_button="Land" strip_icon="downdown.png">
+			<stay climb="-0.25" vmode="climb" wp="STDBY" until="(ground_alt+5 > GetPosAlt())"/>
+			<stay climb="-0.1" vmode="climb" wp="STDBY" until="(ground_alt > GetPosAlt())"/>
+			<!--Should the motors at this point be set to idle?-->
+		</block>
+
+	</blocks>
+</flight_plan>
+

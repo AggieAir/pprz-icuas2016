@@ -45,15 +45,40 @@
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
 
+// for CtrlSys
+// we expect stabilization/stabilization_attitude_euler_float.h
+#include STABILIZATION_ATTITUDE_TYPE_H
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
+#include "firmwares/rotorcraft/stabilization.h"
+
+// for xgear rx messages
+#include "modules/loggers/xgear_lidar.h"
+#include "modules/loggers/xgear_status.h"
+
+
+// Module settings
+extern uint8_t xgear_flag_sysid;
+extern uint8_t xgear_flag_ctrsys;
+
 
 /*
  * Message headers
  */
 #define XGEAR_SYNC0 0xBE
 #define XGEAR_SYNC1 0xEF
-#define XGEAR_MSG_TYPE 1 // == SysIDA
-#define XGEAR_PAYLOAD_LENGTH 165 // comes from the Xgear SysIDA specifications
+#define XGEAR_MSG_TYPE_SYSID 1
+#define XGEAR_MSG_TYPE_LIDAR 2
+#define XGEAR_MSG_TYPE_MOVE_WAYPOINT 3
+#define XGEAR_MSG_TYPE_ISAAC_STATUS 4
+#define XGEAR_MSG_TYPE_PAYLOAD_STATUS 5
+#define XGEAR_MSG_TYPE_CONTROL_SYS 6
+#define XGEAR_SYSID_PAYLOAD_LENGTH 165 // comes from the Xgear specifications
+#define XGEAR_CTRLSYS_PAYLOAD_LENGTH 208 // comes from the Xgear specifications
 //note: should be at some point taken from XGEAR conf file
+
+
+#define XGEAR_RX_DATA_LENGTH 31
 
 /*
  * 2 Bytes Sync(0xBEEF) + 1 Byte   Message Type + 2 Bytes Size
@@ -71,20 +96,62 @@
 
 #define XGEAR_AP_MODE_BITSHIFT 4
 #define XGEAR_LAUNCH_BITSHIFT 12
+#define XGEAR_CHK_LEN 2
 
+#ifndef USE_CHIBIOS_RTOS
+#error "Xgear module is for RT Paparazzi only!"
+#endif
+
+#include "ch.h"
+#include "hal.h"
+
+#define CH_THREAD_AREA_XGEAR_RX 1024
+extern Mutex xgear_rx_mutex_flag;
+extern __attribute__((noreturn)) msg_t thd_xgear_rx(void *arg);
+
+/*
+ * Message status for parsing
+ */
+enum MsgStatus {
+  MsgSync0,
+  MsgSync1,
+  MsgType,
+  MsgSize,
+  MsgHdrChksum,
+  MsgData,
+  MsgDataChksum
+};
 
 struct Xgear {
   uint8_t msg_buf[XGEAR_BUFFER_SIZE];
   uint32_t msg_cnt;
-  uint16_t chk_err;
   uint16_t good_msg;
+  uint16_t idx;
+
+  enum MsgStatus status;
+  bool_t msg_available;
+  uint8_t type;
+  uint16_t datalength;
+
+  uint32_t chksm_error;
+  uint32_t hdr_error;
+  uint16_t rx_chksum;
+  uint16_t calc_chksum;
+
+  uint16_t overrun_error;
+  uint16_t noise_error;
+  uint16_t framing_error;
 };
 
-extern struct Xgear xgear;
+extern struct Xgear xgear_tx;
+extern struct Xgear xgear_rx;
 
 void xgear_init(void);
-
 void xgear_periodic(void);
+void xgear_send_sysid(void);
+void xgear_send_ctrlsys(void);
+void xgear_parse(uint8_t c);
+void xgear_read_message(void);
 
 uint16_t calculate_checksum(uint8_t* data, uint16_t data_len);
 

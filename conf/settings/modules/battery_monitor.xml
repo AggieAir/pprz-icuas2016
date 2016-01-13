@@ -1,0 +1,10 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+	<dl_settings>
+		<dl_settings NAME="Power Board">
+			<dl_setting MAX="5000" MIN="-5000" STEP="1" VAR="bm_current_offset" shortname="current_offset" module="modules/adcs/batmon"/>
+			<dl_setting MAX="100" MIN="1" STEP="1" VAR="bm_current_sensitivity" shortname="sensitivity" module="modules/adcs/batmon"/>
+		</dl_settings>
+	</dl_settings>
+</settings>
