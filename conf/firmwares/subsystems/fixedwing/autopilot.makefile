@@ -113,15 +113,24 @@ ifeq ($(ARCH), stm32)
   ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
 
+ifeq ($(ARCH), chibios)
+  ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
+endif
+
 
 #
 # Main
 #
+ifeq ($(RTOS), chibios)
+ ns_srcs += $(SRC_FIRMWARE)/main_chibios.c $(SRC_FIRMWARE)/main_threads.c
+ ns_CFLAGS += -DUSE_CHIBIOS_RTOS
+else
 ifeq ($(RTOS), chibios-libopencm3)
  ns_srcs += $(SRC_FIRMWARE)/main_chibios_libopencm3.c
  ns_srcs += $(SRC_FIRMWARE)/chibios-libopencm3/chibios_init.c
 else
  ns_srcs += $(SRC_FIRMWARE)/main.c
+endif
 endif
 
 #
