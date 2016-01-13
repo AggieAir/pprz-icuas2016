@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="xgear" dir="loggers">
+  <doc>
+    <description>XGear SysID Hardware in the loop (HITL) module, currently sending servo commands back to ground</description>
+  </doc>
+
+  <header>
+    <file name="xgear.h"/>
+  </header>
+  <init     fun="xgear_init()"               />
+  <periodic fun="xgear_periodic()" freq="PERIODIC_FREQUENCY"/>
+
+  <makefile target="ap">
+    <file name="xgear.c"/>
+       <raw>
+       XGEAR_VTOL ?= 0
+       XGEAR_PORT ?= UART1
+       XGEAR_BAUD ?= 921600
+       XGEAR_PORT_LOWER=$(shell echo $(XGEAR_PORT) | tr A-Z a-z)
+       ap.CFLAGS += -DUSE_$(XGEAR_PORT) -D$(XGEAR_PORT)_BAUD=$(XGEAR_BAUD)
+       ap.CFLAGS += -DXGEAR_PORT=$(XGEAR_PORT_LOWER) -DXGEAR_VTOL=$(XGEAR_VTOL)
+   </raw>
+  </makefile>
+
+</module>
+

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<PropertyList>
+
+ <path>minion.ac</path>
+
+<!-- Register transparent objects for Rembrandt effects -->
+ <effect>
+   <inherits-from>Effects/model-transparent</inherits-from>
+   <object-name>screen</object-name>
+   <object-name>propeller_fast</object-name>
+   <object-name>propeller_slow</object-name>
+ </effect>
+   
+
+<!--  BASIC AIRCRAFT FEATURES  **********************************************************  -->
+
+<!-- propeller -->
+
+  <animation>
+    <type>select</type>
+    <object-name>propeller</object-name>
+    <condition>
+      <less-than>
+        <property>engines/engine[0]/rpm</property>
+        <value>300</value>
+      </less-than>
+    </condition>
+  </animation>
+
+  <animation>
+    <type>select</type>
+    <object-name>propeller_slow</object-name>
+    <condition>
+      <less-than>
+        <property>engines/engine/rpm</property>
+        <value>1500</value>
+      </less-than>
+      <greater-than>
+        <property>engines/engine[0]/rpm</property>
+        <value>200</value>
+      </greater-than>
+    </condition>
+  </animation>
+
+  <animation>
+    <type>select</type>
+    <object-name>propeller_fast</object-name>
+    <condition>
+      <greater-than>
+        <property>engines/engine[0]/rpm</property>
+        <value>1500</value>
+      </greater-than>
+    </condition>
+  </animation>
+
+  <animation>
+    <type>spin</type>
+    <object-name>propeller</object-name>
+    <object-name>propeller_slow</object-name>
+    <object-name>propeller_fast</object-name>
+    <property>engines/engine[0]/rpm</property>
+    <factor>-1</factor>
+    <center>
+    <x-m>-0.536</x-m>
+    <y-m>0.00</y-m>
+    <z-m>0.00</z-m>
+  </center>
+   <axis>
+    <x>1.0</x>
+    <y>0.0</y>
+    <z>0.0</z>
+   </axis>
+  </animation>
+
+<!--  control surfaces   -->
+
+ <animation>
+  <type>rotate</type>
+  <object-name>aileron_l</object-name>
+  <property>surface-positions/left-aileron-pos-norm</property>
+  <factor>-20.0</factor>
+  <axis>
+    <x1-m>-0.021</x1-m>
+    <y1-m>-1.128</y1-m>
+    <z1-m>0.140</z1-m>
+    <x2-m>0.007</x2-m>
+    <y2-m>-0.389</y2-m>
+    <z2-m>0.063</z2-m>
+  </axis>
+ </animation>
+
+ <animation>
+  <type>rotate</type>
+  <object-name>aileron_r</object-name>
+  <property>surface-positions/right-aileron-pos-norm</property>
+  <factor>20.0</factor>
+  <axis>
+    <x1-m>-0.021</x1-m>
+    <y1-m>1.128</y1-m>
+    <z1-m>0.140</z1-m>
+    <x2-m>0.007</x2-m>
+    <y2-m>0.389</y2-m>
+    <z2-m>0.063</z2-m>
+  </axis>
+ </animation>
+
+ <animation>
+  <type>rotate</type>
+  <object-name>elevator</object-name>
+  <property>surface-positions/elevator-pos-norm</property>
+  <interpolation>
+   <entry>
+    <ind>-1</ind>
+    <dep>-29</dep>
+   </entry>
+   <entry>
+    <ind>1</ind>
+    <dep>34</dep>
+   </entry>
+  </interpolation>
+  <center>
+  <x-m>0.568</x-m>
+  <y-m>0</y-m>
+  <z-m>0.284</z-m>
+  </center>
+  <axis>
+   <x>0.0</x>
+   <y>1.0</y>
+   <z>0.0</z>
+  </axis>
+ </animation>
+
+
+ <animation>
+  <type>rotate</type>
+  <object-name>flaps</object-name>
+  <property>surface-positions/flap-pos-norm</property>
+  <factor>50.0</factor>
+  <center>
+    <x-m>-0.006</x-m>
+    <y-m>0</y-m>
+    <z-m>0.052</z-m>
+  </center>
+  <axis>
+   <x>0.0</x>
+   <y>1.0</y>
+   <z>0.0</z>
+  </axis>
+ </animation>
+
+
+
+ <animation>
+  <type>rotate</type>
+  <object-name>rudder</object-name>
+  <property>surface-positions/rudder-pos-norm</property>
+  <factor>30.0</factor>
+  <center>
+    <x-m>0.555</x-m>
+    <y-m>0</y-m>
+    <z-m>0.279</z-m>
+  </center>
+  <axis>
+   <x>0.0</x>
+   <y>0.0</y>
+   <z>1.0</z>
+  </axis>
+</animation>
+
+
+
+<!--  ground shadow  -->
+<!-- needs some more work -->
+<!--model>
+  <path>Models/Aircraft/paparazzi/Effects/minion_shadow.xml</path>
+</model-->
+
+
+</PropertyList>

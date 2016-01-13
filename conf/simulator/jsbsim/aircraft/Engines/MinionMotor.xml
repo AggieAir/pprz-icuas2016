@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!-- HB2815-2000 -->
+
+<electric_engine name="electric_925watt">
+  <power unit="WATTS">  925 </power>
+</electric_engine>
