@@ -879,6 +879,7 @@
     <field name="rx_msg_datalength"  type="uint16" />
     <field name="calc_chksum"  type="uint16" />
     <field name="rx_chksum"  type="uint16" />
+    <field name="rxchar_cnt"  type="uint16" />
     <field name="overrrun_error" 	type="uint16"/>
     <field name="noise_error" 	type="uint16"/>
     <field name="framing_error" 	type="uint16"/>
@@ -920,7 +921,15 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
-  <!--112 is free -->
+  <message name="LIDAR" id="112">
+    <field name="first" type="float" unit="m"/>
+    <field name="second" type="float" unit="m"/>
+    <field name="third" type="float" unit="m"/>
+    <field name="strongest" type="float" unit="m"/>
+    <field name="last" type="float" unit="m"/>
+    <field name="error" type="uint8"/>
+    <field name="counter" type="uint32" />
+  </message>
 
   <message name="MLX_SERIAL" id="113">
     <field name="serial0" type="uint32"/>
@@ -1934,7 +1943,12 @@
     <field name="g2_r" type="float"/>
   </message>
 
-  <!--217 is free -->
+  <message name="ISAAC_STATUS" id="217">
+    <field name="black_box" type="uint8" values="STOPPED|RUNNING"/>
+    <field name="used_memory" type="uint16"  alt_unit="%" alt_unit_coef="0.0015259"/>
+    <field name="used_disk_space" type="uint16" alt_unit="%" alt_unit_coef="0.0015259"/>
+    <field name="counter" type="uint32" unit="packets"/>
+  </message>
 
   <message name="BEBOP_ACTUATORS" id="218">
     <field name="cmd_thrust" type="int32"/>
@@ -1983,7 +1997,18 @@
     <field name="AMSL_GPS" type="float" unit="ft" alt_unit="m"/>
   </message>
 
- <!--224 is free -->
+  <message name="PAYLOAD_STATUS" id="224">
+    <field name="status" type="uint8" values="INACTIVE|ACTIVE"/>
+    <field name="used_memory" type="uint16" alt_unit="%" alt_unit_coef="0.0015259"/>
+    <field name="used_disk_space" type="uint16" alt_unit="%" alt_unit_coef="0.0015259"/>
+    <field name="counter" type="uint32" unit="packets"/>
+    <field name="byte1" type="uint8"/>
+    <field name="byte2" type="uint8"/>
+    <field name="byte3" type="uint8"/>
+    <field name="byte4" type="uint8"/>
+    <field name="byte5" type="uint8"/>
+    <field name="byte6" type="uint8"/>
+  </message>
 
   <message name="VIDEO_SYNC" id="225">
     <field name="id" type="uint8"/>

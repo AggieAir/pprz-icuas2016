@@ -45,22 +45,13 @@
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
 
-// for CtrlSys
-// we expect stabilization/stabilization_attitude_euler_float.h
-#include STABILIZATION_ATTITUDE_TYPE_H
-#include "firmwares/rotorcraft/guidance/guidance_h.h"
-#include "firmwares/rotorcraft/guidance/guidance_v.h"
-#include "firmwares/rotorcraft/stabilization.h"
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
 
 // for xgear rx messages
 #include "modules/loggers/xgear_lidar.h"
 #include "modules/loggers/xgear_status.h"
-
-
-// Module settings
-extern uint8_t xgear_flag_sysid;
-extern uint8_t xgear_flag_ctrsys;
-
 
 /*
  * Message headers
@@ -72,13 +63,14 @@ extern uint8_t xgear_flag_ctrsys;
 #define XGEAR_MSG_TYPE_MOVE_WAYPOINT 3
 #define XGEAR_MSG_TYPE_ISAAC_STATUS 4
 #define XGEAR_MSG_TYPE_PAYLOAD_STATUS 5
-#define XGEAR_MSG_TYPE_CONTROL_SYS 6
-#define XGEAR_SYSID_PAYLOAD_LENGTH 165 // comes from the Xgear specifications
-#define XGEAR_CTRLSYS_PAYLOAD_LENGTH 208 // comes from the Xgear specifications
+#define XGEAR_SYSID_PAYLOAD_LENGTH 165 // comes from the Xgear SysIDA specifications
 //note: should be at some point taken from XGEAR conf file
 
-
+// max length of rx data
 #define XGEAR_RX_DATA_LENGTH 31
+
+// number of rx buffers to switch between
+#define XGEAR_NUM_RX_BUFFERS 2
 
 /*
  * 2 Bytes Sync(0xBEEF) + 1 Byte   Message Type + 2 Bytes Size
@@ -105,9 +97,13 @@ extern uint8_t xgear_flag_ctrsys;
 #include "ch.h"
 #include "hal.h"
 
+
+/*
+ * Mutex guard
+ */
+extern mutex_t mtx_xgear;
 #define CH_THREAD_AREA_XGEAR_RX 1024
-extern Mutex xgear_rx_mutex_flag;
-extern __attribute__((noreturn)) msg_t thd_xgear_rx(void *arg);
+void thd_xgear_rx(void *arg);
 
 /*
  * Message status for parsing
@@ -124,6 +120,14 @@ enum MsgStatus {
 
 struct Xgear {
   uint8_t msg_buf[XGEAR_BUFFER_SIZE];
+  uint8_t rx_buf[XGEAR_NUM_RX_BUFFERS][XGEAR_RX_DATA_LENGTH];
+  //volatile uint8_t rx_buf_full[XGEAR_NUM_RX_BUFFERS];
+  uint8_t* prev_rx_buf;
+  uint8_t* cur_rx_buf;
+  volatile uint8_t rx_buf_cnt;
+  uint16_t rxchar_cnt;
+
+
   uint32_t msg_cnt;
   uint16_t good_msg;
   uint16_t idx;
@@ -148,8 +152,6 @@ extern struct Xgear xgear_rx;
 
 void xgear_init(void);
 void xgear_periodic(void);
-void xgear_send_sysid(void);
-void xgear_send_ctrlsys(void);
 void xgear_parse(uint8_t c);
 void xgear_read_message(void);
 

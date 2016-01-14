@@ -61,8 +61,8 @@ static boost::asio::serial_port *vpt;
 void init_ap() {
   try {
     apt->open("/dev/ttyUSB2");
-    apt->set_option(boost::asio::serial_port_base::baud_rate(AP_BAUD));
-    //apt->set_option(boost::asio::serial_port_base::baud_rate(3000000));
+    //apt->set_option(boost::asio::serial_port_base::baud_rate(AP_BAUD));
+    apt->set_option(boost::asio::serial_port_base::baud_rate(3000000));
   }
   catch (const std::exception& e)
   {

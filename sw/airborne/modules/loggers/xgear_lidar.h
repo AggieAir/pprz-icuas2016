@@ -31,7 +31,6 @@
 #ifndef XGEAR_LIDAR_H
 #define XGEAR_LIDAR_H
 
-//#include "std.h"
 #include "modules/loggers/xgear.h"
 
 struct XgearLidar {

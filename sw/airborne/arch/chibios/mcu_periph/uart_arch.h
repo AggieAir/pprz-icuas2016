@@ -77,4 +77,4 @@
     }                                                           \
 }
 
-#endif /* STM32_UART_ARCH_H */
+#endif /* CHIBIOS_UART_ARCH_H */

@@ -32,10 +32,9 @@
 
 struct XgearLidar lidar;
 
-#if DOWNLINK
-#include "subsystems/datalink/telemetry.h"
-static void send_lidar(void) {
-  DOWNLINK_SEND_LIDAR(DefaultChannel, DefaultDevice,
+#if PERIODIC_TELEMETRY
+static void send_lidar(struct transport_tx *trans, struct link_device *dev){
+  pprz_msg_send_LIDAR(trans, dev, AC_ID,
       &lidar.first,
       &lidar.second,
       &lidar.third,
@@ -60,8 +59,8 @@ void xgear_lidar_init(void) {
   lidar.err_flag = 0;
   lidar.msg_cnt = 0;
 
-#if DOWNLINK
-  register_periodic_telemetry(DefaultPeriodic, "LIDAR", send_lidar);
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LIDAR, send_lidar);
 #endif
 }
 

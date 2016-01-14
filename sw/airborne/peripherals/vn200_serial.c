@@ -86,6 +86,7 @@ void vn200_event(struct VNPacket *vnp)
 }
 #endif /* USE_CHIBIOS_RTOS */
 
+
 /**
  *  Packet Collection & state machine
  */

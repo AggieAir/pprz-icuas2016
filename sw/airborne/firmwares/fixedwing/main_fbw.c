@@ -343,6 +343,7 @@ static void send_fbw_status(struct transport_tx *trans, struct link_device *dev)
 #endif /* RADIO_CONTROL */
 
 #ifdef ACTUATORS
+#pragma message "ACTUUUUAAATORS def"
 static void send_actuators(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, actuators);
@@ -405,10 +406,12 @@ void init_fbw(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_COMMANDS, send_commands);
 
 #ifdef ACTUATORS
+#pragma message "ACTUUUUAAATORS register"
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATORS, send_actuators);
 #endif /* ACTUATORS */
 
 #ifdef RADIO_CONTROL
+#pragma message "RC REGISTER"
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC, send_rc);
 #endif /* RADIO_CONTROL */
 

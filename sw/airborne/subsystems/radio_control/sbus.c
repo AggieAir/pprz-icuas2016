@@ -51,6 +51,7 @@ void radio_control_impl_init(void)
 
   // Register telemetry message
 #if PERIODIC_TELEMETRY
+#pragma message "SBUS register"
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPM, send_sbus);
 #endif
 }

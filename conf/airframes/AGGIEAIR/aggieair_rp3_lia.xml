@@ -27,7 +27,7 @@ RP3 Lisa MX
 
     <subsystem name="telemetry"   type="transparent">
       <configure name="MODEM_PORT"        value="UART3"/>
-      <configure name="MODEM_BAUD"        value="B57600"/>
+      <configure name="MODEM_BAUD"        value="B115200"/>
     </subsystem>
 
     <subsystem name="ins"       type="vectornav">
@@ -60,7 +60,10 @@ RP3 Lisa MX
 
   <modules>
     <load name="nav_line.xml"/>
-    <!--load name="xgear.xml"/-->
+    <load name="xgear.xml">
+      <configure name="XGEAR_PORT" value="UART1"/>
+      <configure name="XGEAR_BAUD" value="B3000000"/>
+    </load>
     <load name="battery_monitor.xml"/>
   </modules>
 

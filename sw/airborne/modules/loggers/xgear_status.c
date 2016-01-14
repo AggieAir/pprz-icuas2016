@@ -31,26 +31,18 @@
 struct IsaacStatus isaac_status;
 struct PayloadStatus payload_status;
 
-#if DOWNLINK
-#include "subsystems/datalink/telemetry.h"
+#if PERIODIC_TELEMETRY
 
-static void send_isaac_status(void) {
-  // guard with mutex
-  chMtxLock(&xgear_rx_mutex_flag);
-
-  DOWNLINK_SEND_ISAAC_STATUS(DefaultChannel, DefaultDevice,
+static void send_isaac_status(struct transport_tx *trans, struct link_device *dev){
+  pprz_msg_send_ISAAC_STATUS(trans, dev, AC_ID,
       &isaac_status.black_box,
       &isaac_status.used_mem,
       &isaac_status.used_disk,
       &isaac_status.msg_cnt);
-  chMtxUnlock();
 }
 
-static void send_payload_status(void) {
-  // guard with mutex
-  chMtxLock(&xgear_rx_mutex_flag);
-
-  DOWNLINK_SEND_PAYLOAD_STATUS(DefaultChannel, DefaultDevice,
+static void send_payload_status(struct transport_tx *trans, struct link_device *dev){
+  pprz_msg_send_PAYLOAD_STATUS(trans, dev, AC_ID,
       &payload_status.active,
       &payload_status.used_mem,
       &payload_status.used_disk,
@@ -61,9 +53,6 @@ static void send_payload_status(void) {
       &payload_status.byte4,
       &payload_status.byte5,
       &payload_status.byte6);
-
-  chMtxUnlock();
-
 }
 #endif
 
@@ -90,9 +79,9 @@ void xgear_status_init(void) {
   payload_status.byte6 = 0;
 
 
-#if DOWNLINK
-  register_periodic_telemetry(DefaultPeriodic, "ISAAC_STATUS", send_isaac_status);
-  register_periodic_telemetry(DefaultPeriodic, "PAYLOAD_STATUS", send_payload_status);
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ISAAC_STATUS, send_isaac_status);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PAYLOAD_STATUS, send_payload_status);
 #endif
 }
 
