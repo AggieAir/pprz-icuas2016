@@ -138,4 +138,8 @@ extern void ins_vectornav_propagate(void);
 extern void ins_vectornav_yaw_pitch_roll_to_attitude(struct FloatEulers *vn_attitude);
 extern void ins_init_origin_from_flightplan(void);
 
+void insMtxLock(void);
+void insMtxUnlock(void);
+void insMtxInit(void);
+
 #endif /* INS_VECTORNAV_H */

@@ -36,7 +36,7 @@ struct XgearLidar lidar;
 static void send_lidar(struct transport_tx *trans, struct link_device *dev){
 
 	// guard with mutex
-	    //chMtxLock(&mtx_xgear);
+	chMtxLock(&mtx_xgear);
 
   pprz_msg_send_LIDAR(trans, dev, AC_ID,
       &lidar.first,
@@ -48,7 +48,7 @@ static void send_lidar(struct transport_tx *trans, struct link_device *dev){
       &lidar.msg_cnt);
 
   // Mutex guard
-  //chMtxUnlock(&mtx_xgear);
+  chMtxUnlock(&mtx_xgear);
 }
 #endif
 

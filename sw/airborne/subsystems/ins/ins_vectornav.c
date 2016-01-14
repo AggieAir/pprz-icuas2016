@@ -35,51 +35,56 @@ struct InsVectornav ins_vn;
 #if USE_CHIBIOS_RTOS
   mutex_t mtx_ins;
   static THD_WORKING_AREA(wa_thd_ins_rx, CH_THREAD_AREA_INS);
-#endif
+  void insMtxLock(void){
+    chMtxLock(&mtx_ins);
+  }
+
+  void insMtxUnlock(void){
+    chMtxUnlock(&mtx_ins);
+  }
+
+  void insMtxInit(void){
+    chMtxObjectInit(&mtx_ins);
+  }
+#else /* no RTOS */
+  void insMtxLock(void){}
+  void insMtxUnlock(void){}
+  void insMtxInit(void){}
+#endif /* USE_CHIBIOS_RTOS */
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_ins(struct transport_tx *trans, struct link_device *dev)
 {
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxLock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxLock();
 
   pprz_msg_send_INS(trans, dev, AC_ID,
                     &ins_vn.ltp_pos_i.x, &ins_vn.ltp_pos_i.y, &ins_vn.ltp_pos_i.z,
                     &ins_vn.ltp_speed_i.x, &ins_vn.ltp_speed_i.y, &ins_vn.ltp_speed_i.z,
                     &ins_vn.ltp_accel_i.x, &ins_vn.ltp_accel_i.y, &ins_vn.ltp_accel_i.z);
 
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxUnlock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxUnlock();
 }
 
 static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 {
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxLock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxLock();
 
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
                       &ins_vn.baro_z, &ins_vn.ltp_pos_i.z, &ins_vn.ltp_speed_i.z, &ins_vn.ltp_accel_i.z);
 
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxUnlock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxUnlock();
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxLock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxLock();
 
   if (ins_vn.ltp_initialized) {
     pprz_msg_send_INS_REF(trans, dev, AC_ID,
@@ -88,10 +93,8 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
                           &ins_vn.ltp_def.hmsl, &ins_vn.qfe);
   }
 
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxUnlock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxUnlock();
 }
 
 static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
@@ -101,10 +104,8 @@ static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
 
   sec_cnt = ins_vn.vn_packet.counter -  last_cnt;
 
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxLock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxLock();
 
   pprz_msg_send_VECTORNAV_INFO(trans, dev, AC_ID,
                                &ins_vn.timestamp,
@@ -120,10 +121,9 @@ static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
                                &ins_vn.vn_packet.overrun_error,
                                &ins_vn.vn_packet.noise_error,
                                &ins_vn.vn_packet.framing_error);
-#if USE_CHIBIOS_RTOS
+
   // Mutex guard
-  //chMtxUnlock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxUnlock();
 
   // update counter
   last_cnt = ins_vn.vn_packet.counter;
@@ -134,66 +134,50 @@ static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
 
 static void send_accel(struct transport_tx *trans, struct link_device *dev)
 {
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxLock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxLock();
 
   pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID,
                           &ins_vn.accel.x, &ins_vn.accel.y, &ins_vn.accel.z);
 
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxUnlock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxUnlock();
 }
 
 static void send_gyro(struct transport_tx *trans, struct link_device *dev)
 {
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxLock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxLock();
 
   pprz_msg_send_IMU_GYRO(trans, dev, AC_ID,
                          &ins_vn.gyro.p, &ins_vn.gyro.q, &ins_vn.gyro.r);
 
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxUnlock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxUnlock();
 }
 
 static void send_accel_scaled(struct transport_tx *trans, struct link_device *dev)
 {
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxLock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxLock();
 
   pprz_msg_send_IMU_ACCEL_SCALED(trans, dev, AC_ID,
                                  &ins_vn.accel_i.x, &ins_vn.accel_i.y, &ins_vn.accel_i.z);
 
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxUnlock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxUnlock();
 }
 
 static void send_gyro_scaled(struct transport_tx *trans, struct link_device *dev)
 {
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxLock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxLock();
 
   pprz_msg_send_IMU_GYRO_SCALED(trans, dev, AC_ID,
                                  &ins_vn.gyro_i.p, &ins_vn.gyro_i.q, &ins_vn.gyro_i.r);
 
-#if USE_CHIBIOS_RTOS
   // Mutex guard
-  //chMtxUnlock(&mtx_ins);
-#endif /* USE_CHIBIOS_RTOS */
+  insMtxUnlock();
 }
 #endif
 
@@ -309,11 +293,12 @@ void thd_ins_rx(void *args __attribute__((unused)))
     chEvtWaitOne(EVENT_MASK(EVT_INS_RX));
     chEvtGetAndClearFlags(&elInsEvRx);
     // Mutex guard
-    //chMtxLock(&mtx_ins);
+    insMtxLock();
+
     ins_vectornav_read_message();
-    //ins.status = INS_RUNNING;
+
     // Mutex guard
-    //chMtxUnlock(&mtx_ins);
+    insMtxUnlock();
   }
 }
 
@@ -378,7 +363,9 @@ void ins_vectornav_init(void)
 
 #if USE_CHIBIOS_RTOS
   // init mutex
-  chMtxObjectInit(&mtx_ins);
+  insMtxInit();
+
+  // start thread
   chThdCreateStatic(wa_thd_ins_rx, sizeof(wa_thd_ins_rx),
         HIGHPRIO, thd_ins_rx, NULL);
 #endif /* USE_CHIBIOS_RTOS */

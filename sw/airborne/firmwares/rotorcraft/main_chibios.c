@@ -138,13 +138,13 @@ static void send_chibios_info(struct transport_tx *trans,
   time_now = chVTGetSystemTime() / CH_CFG_ST_FREQUENCY;
 
   // Mutex guard
-  //chMtxLock(&mtx_sys_time);
+  chMtxLock(&mtx_sys_time);
 
   pprz_msg_send_CHIBIOS_INFO(trans, dev, AC_ID, &core_free_memory, &time_now,
       &thread_counter, &cpu_frequency);
 
   // Mutex guard
-  //chMtxUnlock(&mtx_sys_time);
+  chMtxUnlock(&mtx_sys_time);
 }
 #endif
 

@@ -138,7 +138,7 @@ static __attribute__((noreturn)) void thd_sys_tick(void *arg)
 static void sys_tick_handler(void)
 {
   // Mutex guard
-  //chMtxLock(&mtx_sys_time);
+  chMtxLock(&mtx_sys_time);
 
   // current time in sys_ticks
   sys_time.nb_tick = chVTGetSystemTime();
@@ -147,7 +147,7 @@ static void sys_tick_handler(void)
   sys_time.nb_sec_rem = sys_time.nb_tick - sys_time_ticks_of_sec(sys_time.nb_sec);
 
   // Mutex guard
-  //chMtxUnlock(&mtx_sys_time);
+  chMtxUnlock(&mtx_sys_time);
 }
 
 

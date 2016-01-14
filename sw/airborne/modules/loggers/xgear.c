@@ -55,7 +55,7 @@ static void send_xgear_info(struct transport_tx *trans, struct link_device *dev)
   tx_sec_cnt = xgear_tx.msg_cnt -  tx_last_cnt;
 
     // guard with mutex
-    //chMtxLock(&mtx_xgear);
+    chMtxLock(&mtx_xgear);
 
     pprz_msg_send_XGEAR_INFO(trans, dev, AC_ID,
               &xgear_tx.msg_cnt,
@@ -75,7 +75,7 @@ static void send_xgear_info(struct transport_tx *trans, struct link_device *dev)
               &xgear_rx.framing_error);
 
     // Mutex guard
-    //chMtxUnlock(&mtx_xgear);
+    chMtxUnlock(&mtx_xgear);
 
       // update counters
         rx_last_cnt = xgear_rx.msg_cnt;
@@ -202,12 +202,13 @@ void thd_xgear_rx(void *arg)
       if (xgear_rx.msg_available) {
 
         // guard with mutex
-        //chMtxLock(&mtx_xgear);
+        chMtxLock(&mtx_xgear);
 
         xgear_read_message();
 
         // Mutex guard
-        //chMtxUnlock(&mtx_xgear);
+        chMtxUnlock(&mtx_xgear);
+
         xgear_rx.msg_available  = FALSE;
       }
     }
