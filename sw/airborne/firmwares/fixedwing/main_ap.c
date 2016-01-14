@@ -482,10 +482,9 @@ void reporting_task(void)
   }
   /* then report periodicly */
   else {
-    //PeriodicSendAp(DefaultChannel, DefaultDevice);
 #if PERIODIC_TELEMETRY
     periodic_telemetry_send_Ap(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
-#endif
+#endif /* PERIODIC_TELEMETRY */
   }
 }
 

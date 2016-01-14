@@ -173,7 +173,8 @@ void thd_telemetry_tx(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE) {
     time += US2ST(1000000 / TELEMETRY_FREQUENCY);
-    reporting_task();
+    reporting_task(); // periodic_telemetry_send_Ap
+    periodic_telemetry_handle(); // periodic_telemetry_send_Fbw
     chThdSleepUntil(time);
   }
 }
