@@ -155,7 +155,8 @@ void thd_radio_event(void *arg)
     chEvtWaitOne(EVENT_MASK(EVT_RADIO_FRAME));
     rc_flags = chEvtGetAndClearFlags(&elRadioEvt);
     if (rc_flags & EVT_RADIO_FRAME) {
-      radio_control_event();
+      //radio_control_event();
+    	RadioControlEvent(handle_rc_frame);
       chEvtBroadcastFlags(&eventRadioData, EVT_RADIO_DATA);
     }
   }
@@ -173,8 +174,14 @@ void thd_telemetry_tx(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE) {
     time += US2ST(1000000 / TELEMETRY_FREQUENCY);
+#if RTOS_DEBUG
+    LED_ON(3);
+#endif
     reporting_task(); // periodic_telemetry_send_Ap
     periodic_telemetry_handle(); // periodic_telemetry_send_Fbw
+#if RTOS_DEBUG
+    LED_OFF(3);
+#endif
     chThdSleepUntil(time);
   }
 }
@@ -224,7 +231,13 @@ void thd_modules_periodic(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE) {
     time += US2ST(1000000/MODULES_FREQUENCY);
+#if RTOS_DEBUG
+    LED_ON(5);
+#endif
     modules_periodic_task();
+#if RTOS_DEBUG
+    LED_OFF(5);
+#endif
     chThdSleepUntil(time);
   }
 }

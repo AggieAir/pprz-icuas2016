@@ -78,7 +78,11 @@ void radio_control_periodic_task(void)
 
 #if defined RADIO_CONTROL_LED
   if (radio_control.status == RC_OK) {
-    LED_ON(RADIO_CONTROL_LED);
+#if RTOS_DEBUG
+	LED_TOGGLE(RADIO_CONTROL_LED);
+#else /* Default */
+	LED_ON(RADIO_CONTROL_LED);
+#endif /* RTOS_DEBUG */
   } else {
     LED_OFF(RADIO_CONTROL_LED);
   }

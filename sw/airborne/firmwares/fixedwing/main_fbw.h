@@ -45,11 +45,11 @@ void periodic_task_fbw(void);
 void event_task_fbw(void);
 
 void radio_control_event(void);
+void radio_control_periodic_handle(void);
+extern void handle_rc_frame(void);
 
 void fbw_datalink_periodic_handle(void);
 void fbw_datalink_event_handle(void);
-
-void radio_control_periodic_handle(void);
 
 void inter_mcu_periodic_handle(void);
 void inter_mcu_event_handle(void);

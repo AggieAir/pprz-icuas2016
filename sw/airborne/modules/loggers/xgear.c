@@ -55,7 +55,7 @@ static void send_xgear_info(struct transport_tx *trans, struct link_device *dev)
   tx_sec_cnt = xgear_tx.msg_cnt -  tx_last_cnt;
 
     // guard with mutex
-    chMtxLock(&mtx_xgear);
+    //chMtxLock(&mtx_xgear);
 
     pprz_msg_send_XGEAR_INFO(trans, dev, AC_ID,
               &xgear_tx.msg_cnt,
@@ -75,7 +75,7 @@ static void send_xgear_info(struct transport_tx *trans, struct link_device *dev)
               &xgear_rx.framing_error);
 
     // Mutex guard
-    chMtxUnlock(&mtx_xgear);
+    //chMtxUnlock(&mtx_xgear);
 
       // update counters
         rx_last_cnt = xgear_rx.msg_cnt;
@@ -185,12 +185,6 @@ void thd_xgear_rx(void *arg)
   chRegSetThreadName("module_xgear_rx");
   (void) arg;
 
-  // UART settings
-  uartStart(&XGEAR_PORT, &uart_cfg_xgear);
-  uartStopSend(&XGEAR_PORT);
-  uartStopReceive(&XGEAR_PORT);
-
-
   event_listener_t elXgearRx;
   chEvtRegister(&eventXgearRx, &elXgearRx, EVT_XGEAR_RX);
 
@@ -208,12 +202,12 @@ void thd_xgear_rx(void *arg)
       if (xgear_rx.msg_available) {
 
         // guard with mutex
-        chMtxLock(&mtx_xgear);
+        //chMtxLock(&mtx_xgear);
 
         xgear_read_message();
 
         // Mutex guard
-        chMtxUnlock(&mtx_xgear);
+        //chMtxUnlock(&mtx_xgear);
         xgear_rx.msg_available  = FALSE;
       }
     }
@@ -275,6 +269,12 @@ void xgear_init(void)
   //Payload and Isaac status init
   xgear_status_init();
 
+  // UART settings
+  uartStart(&XGEAR_PORT, &uart_cfg_xgear);
+  uartStopSend(&XGEAR_PORT);
+  uartStopReceive(&XGEAR_PORT);
+
+  // thread init
   chThdCreateStatic(wa_thd_xgear_rx, sizeof(wa_thd_xgear_rx), HIGHPRIO-1, thd_xgear_rx, NULL);
 
 #if PERIODIC_TELEMETRY
@@ -589,9 +589,8 @@ void xgear_periodic(void)
   if (xgear_flag_tx == 0) {
     xgear_flag_tx = 1;
     uartStartSend(&XGEAR_PORT, (size_t)(xgear_tx.idx), xgear_tx.msg_buf);
+    xgear_tx.msg_cnt++;
   }
-
-  xgear_tx.msg_cnt++;
 }
 
 

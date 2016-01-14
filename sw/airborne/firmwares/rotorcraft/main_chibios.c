@@ -138,13 +138,13 @@ static void send_chibios_info(struct transport_tx *trans,
   time_now = chVTGetSystemTime() / CH_CFG_ST_FREQUENCY;
 
   // Mutex guard
-  chMtxLock(&mtx_sys_time);
+  //chMtxLock(&mtx_sys_time);
 
   pprz_msg_send_CHIBIOS_INFO(trans, dev, AC_ID, &core_free_memory, &time_now,
       &thread_counter, &cpu_frequency);
 
   // Mutex guard
-  chMtxUnlock(&mtx_sys_time);
+  //chMtxUnlock(&mtx_sys_time);
 }
 #endif
 
@@ -295,7 +295,13 @@ void thd_telemetry_tx(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE) {
     time += US2ST(1000000 / TELEMETRY_FREQUENCY);
+#if RTOS_DEBUG
+    LED_ON(3);
+#endif
     telemetry_periodic();
+#if RTOS_DEBUG
+    LED_OFF(3);
+#endif
     chThdSleepUntil(time);
   }
 }
@@ -344,7 +350,13 @@ void thd_modules_periodic(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE) {
     time += US2ST(1000000/MODULES_FREQUENCY);
+#if RTOS_DEBUG
+    LED_ON(5);
+#endif
     modules_periodic_task();
+#if RTOS_DEBUG
+    LED_OFF(5);
+#endif
     chThdSleepUntil(time);
   }
 }
@@ -512,6 +524,11 @@ int main(void)
 
   while (TRUE) {
     main_time += US2ST(1000000 / PERIODIC_FREQUENCY);
+
+#if RTOS_DEBUG
+    LED_ON(2);
+#endif
+
 #if USE_IMU
     imu_periodic();
     ImuEvent();
@@ -547,6 +564,10 @@ int main(void)
     /* set actuators     */
     //actuators_set(autopilot_motors_on);
     SetActuatorsFromCommands(commands, autopilot_mode);
+
+#if RTOS_DEBUG
+    LED_OFF(2);
+#endif
 
     chThdSleepUntil(main_time);
   }

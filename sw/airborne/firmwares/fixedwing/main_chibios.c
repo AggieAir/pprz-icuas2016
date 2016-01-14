@@ -37,7 +37,7 @@
 #include "link_mcu.h"
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
-
+#include "led.h"
 
 #if PERIODIC_TELEMETRY
 static void send_chibios_info(struct transport_tx *trans,
@@ -47,13 +47,13 @@ static void send_chibios_info(struct transport_tx *trans,
   time_now = chVTGetSystemTime() / CH_CFG_ST_FREQUENCY;
 
   // Mutex guard
-  chMtxLock(&mtx_sys_time);
+  //chMtxLock(&mtx_sys_time);
 
   pprz_msg_send_CHIBIOS_INFO(trans, dev, AC_ID, &core_free_memory, &time_now,
       &thread_counter, &cpu_frequency);
 
   // Mutex guard
-  chMtxUnlock(&mtx_sys_time);
+  //chMtxUnlock(&mtx_sys_time);
 }
 #endif
 
@@ -87,6 +87,9 @@ int main(void)
   while (TRUE) {
     main_time += US2ST(1000000/PERIODIC_FREQUENCY);
 
+    // START
+    LED_ON(2);
+
 #ifdef INTER_MCU
   inter_mcu_periodic_task();
   //if (fbw_mode == FBW_MODE_AUTO && !ap_ok) {
@@ -102,6 +105,10 @@ int main(void)
     attitude_loop(); // control loops
     // maybe other tasks?
     event_task_fbw();
+
+    // END
+    LED_OFF(2);
+
     chThdSleepUntil(main_time);
   }
 

@@ -47,7 +47,7 @@ HAS_LUFTBOOT = FALSE
 # default LED configuration
 #
 RADIO_CONTROL_LED  ?= 4
-BARO_LED           ?= none
+BARO_LED           ?= 5
 AHRS_ALIGNER_LED   ?= 2
 GPS_LED            ?= 3
 SYS_TIME_LED       ?= 1

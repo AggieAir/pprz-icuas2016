@@ -109,7 +109,8 @@ void radio_lost_mode(void)
 #endif /* OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP_IRREVERSIBLE */
 
 
-static inline void handle_rc_frame(void)
+//static inline void handle_rc_frame(void)
+void handle_rc_frame(void)
 {
   fbw_mode = FBW_MODE_OF_PPRZ(radio_control.values[RADIO_MODE]);
   if (fbw_mode == FBW_MODE_MANUAL) {
@@ -133,6 +134,7 @@ void radio_control_periodic_handle(void)
 #else /* no RADIO_CONTROL */
 void radio_control_event(void) {}
 void radio_control_periodic_handle(void) {}
+void handle_rc_frame(void) {}
 #endif /* RADIO_CONTROL */
 
 /********** FBW_DATALINK defines ************************************************/

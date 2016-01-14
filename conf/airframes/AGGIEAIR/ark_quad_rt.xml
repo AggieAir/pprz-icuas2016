@@ -12,6 +12,7 @@
 
   <firmware name="rotorcraft">
     <configure name="PERIODIC_FREQUENCY" value="400"/>
+    <configure name="TELEMETRY_FREQUENCY" value="60"/>
 
     <!--target name="ap" board="lisa_mx_2.0"-->
     <target name="ap" board="lisa_mx_2.0_chibios">

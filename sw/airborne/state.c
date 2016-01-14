@@ -37,11 +37,11 @@ struct State state;
 
 #if USE_CHIBIOS_RTOS
   void stateMtxLock(void){
-    chMtxLock(&(state.mutex));
+    //chMtxLock(&(state.mutex));
   }
 
   void stateMtxUnlock(void){
-    chMtxUnlock(&(state.mutex));
+    //chMtxUnlock(&(state.mutex));
   }
 
   void stateMtxInit(void){

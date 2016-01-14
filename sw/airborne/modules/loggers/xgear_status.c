@@ -34,14 +34,24 @@ struct PayloadStatus payload_status;
 #if PERIODIC_TELEMETRY
 
 static void send_isaac_status(struct transport_tx *trans, struct link_device *dev){
+	// guard with mutex
+	    //chMtxLock(&mtx_xgear);
+
   pprz_msg_send_ISAAC_STATUS(trans, dev, AC_ID,
       &isaac_status.black_box,
       &isaac_status.used_mem,
       &isaac_status.used_disk,
       &isaac_status.msg_cnt);
+
+  // Mutex guard
+  //chMtxUnlock(&mtx_xgear);
 }
 
 static void send_payload_status(struct transport_tx *trans, struct link_device *dev){
+
+	// guard with mutex
+	//    chMtxLock(&mtx_xgear);
+
   pprz_msg_send_PAYLOAD_STATUS(trans, dev, AC_ID,
       &payload_status.active,
       &payload_status.used_mem,
@@ -53,6 +63,9 @@ static void send_payload_status(struct transport_tx *trans, struct link_device *
       &payload_status.byte4,
       &payload_status.byte5,
       &payload_status.byte6);
+
+  // Mutex guard
+  //chMtxUnlock(&mtx_xgear);
 }
 #endif
 

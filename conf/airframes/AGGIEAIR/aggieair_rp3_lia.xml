@@ -9,6 +9,7 @@ RP3 Lisa MX
   <firmware name="fixedwing">
     <define name="CONTROL_FREQUENCY" value="400"/>
     <configure name="PERIODIC_FREQUENCY" value="400"/>
+    <configure name="TELEMETRY_FREQUENCY" value="60"/>
     <define name="SERVO_HZ" value="400"/>
 
     <target name="ap" board="lisa_mx_2.0_chibios">
