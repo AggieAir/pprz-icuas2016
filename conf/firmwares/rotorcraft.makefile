@@ -114,7 +114,12 @@ $(TARGET).CFLAGS += -DFBW=1
 endif
 
 ifneq ($(TARGET), fbw)
-$(TARGET).srcs += $(SRC_FIRMWARE)/main.c
+ifeq ($(RTOS), chibios)
+ns_srcs += $(SRC_FIRMWARE)/main_chibios.c
+ns_CFLAGS += -DUSE_CHIBIOS_RTOS
+else
+ns_srcs += $(SRC_FIRMWARE)/main.c
+endif
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
 else
 $(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
@@ -160,6 +165,10 @@ ns_srcs += $(SRC_ARCH)/armVIC.c
 endif
 
 ifeq ($(ARCH), stm32)
+ns_srcs += $(SRC_ARCH)/mcu_periph/gpio_arch.c
+endif
+
+ifeq ($(ARCH), chibios)
 ns_srcs += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
 
