@@ -1,58 +1,50 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame in X-configuration equiped with
-     * Autopilot:   Lisa/MX 2.1 with STM32F4  http://wiki.paparazziuav.org/wiki/Lisa/M_v21
-     * IMU:         Integrated Aspirin 2.2    http://wiki.paparazziuav.org/wiki/AspirinIMU
-     * Actuators:   PWM motor controllers     http://wiki.paparazziuav.org/wiki/Subsystem/actuators#PWM
-     * GPS:         Ublox                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
-     * RC:          two Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
+<!--
+Lisa MX Quad for testing
 -->
 
 <airframe name="Quadrotor LisaMX_2.1 pwm">
 
   <firmware name="rotorcraft">
-    <configure name="PERIODIC_FREQUENCY" value="400"/>
-    <configure name="TELEMETRY_FREQUENCY" value="60"/>
-
-    <!--target name="ap" board="lisa_mx_2.0"-->
-    <target name="ap" board="lisa_mx_2.0_chibios">
-      <subsystem name="radio_control" type="sbus">
-        <configure name="SBUS_PORT" value="UART5"/>
-      </subsystem>
+    <target name="ap" board="lisa_mx_2.1">
+      <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="spektrum"/>
     </target>
+
+    <subsystem name="radio_control" type="spektrum">
+      <define name="RADIO_MODE" value="RADIO_AUX1"/>
+      <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+    </subsystem>
 
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
     </subsystem>
 
-      <subsystem name="telemetry"     type="transparent">
-        <configure name="MODEM_PORT" value="UART3"/>
-        <configure name="MODEM_BAUD" value="B57600"/>
-      </subsystem>
-      
-    <subsystem name="stabilization" type="float_euler"/>
-    
-      <subsystem name="ins"           type="vectornav">
-        <configure name="VN_PORT" value="UART2"/>
-        <configure name="VN_BAUD" value="B921600"/>
-      </subsystem>
+    <subsystem name="telemetry"     type="transparent"/>
+    <subsystem name="imu"           type="lisa_mx_v2.1"/>
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="stabilization" type="int_quat"/>
+    <subsystem name="ahrs"          type="float_mlkf">
+	    <!-- Uncomment to enable all axis update from the Magnetometer. Do
+		 it only if you have a very well calibrated and tested
+		 magnetometer otherwise your attitude will drift. -->
+	    <!--define name="AHRS_MAG_UPDATE_ALL_AXES" value="1"/-->
+    </subsystem>
+    <subsystem name="ins" type="hff"/>
 
-    <configure name="RTOS_DEBUG" value="1"/>
+    <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
 
+
   <modules>
-    <load name="battery_monitor.xml"/>
-    <load name="xgear.xml">
-      <configure name="XGEAR_PORT" value="UART1"/>
-      <configure name="XGEAR_BAUD" value="B3000000"/>
-      <configure name="XGEAR_VTOL" value="1"/>
-    </load>
+    <load name="gps_ubx_ucenter.xml"/>
+    <load name="geo_mag.xml"/>
+    <load name="air_data.xml"/>
   </modules>
 
   <servos driver="Pwm">
@@ -109,13 +101,12 @@
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
     <!-- setpoints -->
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
+    <define name="SP_MAX_P" value="140" unit="deg/s"/>
+    <define name="SP_MAX_Q" value="140" unit="deg/s"/>
+    <define name="SP_MAX_R" value="140" unit="deg/s"/>
     <define name="DEADBAND_P" value="20"/>
     <define name="DEADBAND_Q" value="20"/>
     <define name="DEADBAND_R" value="200"/>
-    <define name="REF_TAU" value="4"/>
 
     <!-- feedback -->
     <define name="GAIN_P" value="400"/>
@@ -125,11 +116,6 @@
     <define name="IGAIN_P" value="75"/>
     <define name="IGAIN_Q" value="75"/>
     <define name="IGAIN_R" value="50"/>
-
-    <!-- feedforward -->
-    <define name="DDGAIN_P" value="300"/>
-    <define name="DDGAIN_Q" value="300"/>
-    <define name="DDGAIN_R" value="300"/>
   </section>
 
 
@@ -195,7 +181,7 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->

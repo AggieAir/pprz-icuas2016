@@ -1,23 +1,34 @@
 <conf>
   <aircraft
    name="Ark_Quad"
-   ac_id="2"
-   airframe="airframes/AGGIEAIR/ark_quad_rt.xml"
+   ac_id="3"
+   airframe="airframes/AGGIEAIR/ark_quad.xml"
    radio="radios/AGGIEAIR/aggieair_taranis.xml"
    telemetry="telemetry/AggieAir_rotorcraft.xml"
    flight_plan="flight_plans/AGGIEAIR/CJ_rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/nps.xml settings/control/stabilization_att_float_euler.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_rate.xml] settings/nps.xml [settings/control/stabilization_att_float_euler.xml]"
    settings_modules=""
    gui_color="#ffff954c0000"
   />
   <aircraft
-   name="Minion_Lia"
+   name="Ark_RT"
+   ac_id="2"
+   airframe="airframes/AGGIEAIR/ark_hexa_rt.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
+   telemetry="telemetry/AggieAir_rotorcraft.xml"
+   flight_plan="flight_plans/AGGIEAIR/CJ_rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/nps.xml settings/control/stabilization_att_float_euler.xml [settings/modules/xgear.xml] [settings/modules/battery_monitor.xml]"
+   settings_modules=""
+   gui_color="#ffff954c0000"
+  />
+  <aircraft
+   name="Minion_RT"
    ac_id="1"
    airframe="airframes/AGGIEAIR/aggieair_rp3_lia.xml"
    radio="radios/AGGIEAIR/aggieair_taranis.xml"
    telemetry="telemetry/AggieAir_fixedwing.xml"
    flight_plan="flight_plans/AGGIEAIR/CachJct_HITL_TEST_Cal.xml"
-   settings="settings/fixedwing_basic.xml settings/nps.xml settings/control/ctl_basic.xml [settings/modules/xgear.xml] settings/modules/battery_monitor.xml"
+   settings="settings/fixedwing_basic.xml settings/nps.xml settings/control/ctl_basic.xml [settings/modules/battery_monitor.xml] [settings/modules/xgear.xml]"
    settings_modules=""
    gui_color="#00009e93ffff"
   />

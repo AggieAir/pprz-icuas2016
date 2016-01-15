@@ -8,7 +8,6 @@
 # INS defines
 #
 VN_CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_vectornav_wrapper.h\"
-
 VN_SRCS += $(SRC_SUBSYSTEMS)/ins.c
 VN_SRCS += $(SRC_SUBSYSTEMS)/ins/ins_vectornav.c
 VN_SRCS += subsystems/ins/ins_vectornav_wrapper.c

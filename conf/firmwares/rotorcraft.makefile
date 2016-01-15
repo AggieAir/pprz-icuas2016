@@ -118,7 +118,7 @@ ifeq ($(RTOS), chibios)
 ns_srcs += $(SRC_FIRMWARE)/main_chibios.c
 ns_CFLAGS += -DUSE_CHIBIOS_RTOS
 else
-ns_srcs += $(SRC_FIRMWARE)/main.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/main.c
 endif
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
 else

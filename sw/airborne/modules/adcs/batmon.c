@@ -188,12 +188,11 @@ void batmon_read_ports(void){
 
   //update electrical subsystem
 #if RTOS_DEBUG
-// debug mode - use constant voltage
+  // debug mode - use constant voltage
   electrical.vsupply = MAX_BAT_LEVEL*10;
 #else
-// normal operation
-  //electrical.vsupply = batmon.cells[BATTERY_CELL_NB-1]/100; // mV to deci Volts
-  electrical.vsupply = MAX_BAT_LEVEL*10;
+  // normal operation
+  electrical.vsupply = batmon.cells[BATTERY_CELL_NB-1]/100; // mV to deci Volts
 #endif
 
   // update transaction status

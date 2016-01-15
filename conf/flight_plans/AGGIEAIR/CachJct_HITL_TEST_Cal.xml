@@ -41,6 +41,24 @@
     <exception cond="InsideFlightArea(GetPosX(), GetPosY()) == FALSE" deroute="Standby"/>
   </exceptions>
   <blocks>
+      <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+      <!--call fun="NavSetAltitudeReferenceHere()"/-->
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_icon="takeoff.png" strip_button="Takeoff (wp CLIMB)">
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
+      <set value="0" var="kill_throttle"/>
+      <go wp="CLIMB"/>
+    </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="200" wp="STDBY"/>
     </block>
