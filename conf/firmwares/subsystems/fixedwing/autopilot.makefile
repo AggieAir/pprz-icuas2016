@@ -35,8 +35,10 @@ $(TARGET).CFLAGS 	+= -DBOARD_CONFIG=$(BOARD_CFG)
 $(TARGET).CFLAGS 	+= -DPERIPHERALS_AUTO_INIT
 $(TARGET).CFLAGS 	+= $(FIXEDWING_INC)
 
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs 	+= mcu.c
 $(TARGET).srcs 	+= $(SRC_ARCH)/mcu_arch.c
+endif
 
 #
 # Common Options
@@ -70,7 +72,9 @@ endif
 #
 # Sys-time
 #
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+endif
 ifeq ($(ARCH), linux)
 # seems that we need to link against librt for glibc < 2.17
 $(TARGET).LDFLAGS += -lrt
@@ -79,8 +83,10 @@ endif
 #
 # InterMCU & Commands
 #
+ifneq ($(TARGET),hitl)
 $(TARGET).CFLAGS 	+= -DINTER_MCU
 $(TARGET).srcs 		+= $(SRC_FIXEDWING)/inter_mcu.c
+endif
 
 #
 # Math functions
@@ -93,8 +99,10 @@ endif
 # I2C
 #
 ifneq ($(TARGET),fbw)
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs += mcu_periph/i2c.c
 $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+endif
 endif
 
 ######################################################################

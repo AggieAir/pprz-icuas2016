@@ -152,7 +152,7 @@ public:
     * Send data to port
     */
    void send_data(){
-     static uint8_t cksum0, cksum1;
+     //static uint8_t cksum0, cksum1;
      static uint16_t idx;
 
      buffer_[0] = VN_SYNC;
@@ -242,6 +242,7 @@ public:
      //int len = port_.write_some(boost::asio::buffer(buffer_, idx));
      int len = boost::asio::write(port_,
              boost::asio::buffer((char*) buffer_, idx));
+     (void)len;
      //cout << "VN: Written " << len << " bytes\n";
    }
 };

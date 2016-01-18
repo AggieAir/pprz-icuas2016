@@ -58,6 +58,8 @@ using boost::asio::ip::udp;
 class Sender
 {
 private:
+  boost::asio::io_service& io_service_;
+
   /*
    * When running Minion, we have 60Hz control loops and 100Hz VN but it seems to be working just fine, so
    * take it in account in future development
@@ -78,7 +80,7 @@ private:
   bool fg_udp_active;
   Autopilot *ap_;
   VectorNav *vn_;
-  FDM fdm_;
+
   timeval start_time_;
   int fdm_counter_;
 
@@ -107,8 +109,8 @@ private:
                              "ap_time", "COMMANDS_NB", "COMMAND_THROTTLE",
                              "COMMAND_ROLL", "COMMAND_PITCH", "COMMAND_YAW", "COMMAND_FLAPS",
                              "alpha", "beta", "airspeed", "ap_settings"} };
+  FDM fdm_;
 
-  boost::asio::io_service& io_service_;
 
 void fg_prepare_data(){
   memset(&gui_, 0, sizeof(gui_));
@@ -401,7 +403,7 @@ public:
     buf = (uint8_t*)&gui_;
 
     boost::array<uint8_t, sizeof(gui_)> send_buf_ = {0};
-    for (int i = 0; i<sizeof(gui_); i++){
+    for (uint32_t i = 0; i<sizeof(gui_); i++){
       send_buf_[i] = buf[i];
     }
 
@@ -448,12 +450,13 @@ public:
   void handle_send(const boost::system::error_code& e/*error*/,
       std::size_t t /*bytes_transferred*/)
   {
-    /*
 #if DEBUG_SENDER
     std::cerr << "Status: " << e.message() << endl;
     std::cerr << "Send  " << t << " bytes" << endl;
+#else
+    (void)t;
+    (void)e;
 #endif
-    */
   }
 
   /**
@@ -493,6 +496,8 @@ public:
    */
   void handle_sim_step(const boost::system::error_code& error)
   {
+    (void)error;
+
     static timeval t1, t2;
     gettimeofday(&t1, NULL);
     static int cnt;

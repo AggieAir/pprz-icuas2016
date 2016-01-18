@@ -23,6 +23,16 @@ RP3 Lisa MX
       <subsystem name="radio_control" type="ppm"/>
     </target>
 
+    <target name="hitl" board="pc">
+      <subsystem name="fdm" type="jsbsim_hitl">
+      <!--
+        <configure name="VN_PORT" value="/dev/ttyUSB1"/>
+        <configure name="XGEAR_PORT" value="/dev/ttyUSB2"/>
+        -->
+      </subsystem>
+      <subsystem name="radio_control" type="ppm"/>
+    </target>
+
     <subsystem name="control"/>
     <subsystem name="navigation"/>
 

@@ -272,8 +272,8 @@ public:
    * @param commands_nb Number of commands (length of array)
    */
   void feed_jsbsim(double* commands, int commands_nb) {
-    char buf[64];
 #ifdef NPS_ACTUATOR_NAMES
+    char buf[64];
     const char* names[] = NPS_ACTUATOR_NAMES;
     string property;
     for (int i=0; i < commands_nb; i++) {
@@ -282,6 +282,7 @@ public:
       FDMExec_->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
     }
 #else
+    (void)commands_nb;
     feed_jsbsim(commands[0], commands[1], commands[2], commands[3]);
 #endif /* NPS_ACTUATOR_NAMES */
   }
@@ -296,7 +297,7 @@ public:
   void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
   {
     FGFCS* FCS = FDMExec_->GetFCS();
-    FGPropulsion* FProp = FDMExec_->GetPropulsion();
+    //FGPropulsion* FProp = FDMExec_->GetPropulsion();
 
     /*
      * TRIM
@@ -590,7 +591,7 @@ public:
      */
     VectorNavData data;
     FGPropagate* propagate = FDMExec_->GetPropagate();
-    FGAccelerations* accelerations = FDMExec_->GetAccelerations();
+    //FGAccelerations* accelerations = FDMExec_->GetAccelerations();
 
     // Timer - in nanoseconds since startup
     double sim_time;

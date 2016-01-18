@@ -32,8 +32,10 @@ endif
 
 ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))
 # Single MCU's run RC on ap target
+ifneq ($(TARGET),hitl)
 $(TARGET).CFLAGS += $(RC_CFLAGS) $(RC_FBW_CFLAGS)
 $(TARGET).srcs   += $(RC_SRCS)
+endif
 else
 # Dual MCU case
 fbw.CFLAGS += $(RC_CFLAGS) $(RC_FBW_CFLAGS)

@@ -421,6 +421,7 @@ public:
     lidar_.getLidarData();
     int length_write = boost::asio::write(port_,
         boost::asio::buffer((char*) lidar_.buffer, lidar_.getIdx()));
+    (void)length_write;
     //cout << "Lidar sent " << length_write << " bytes." << endl;
   }
 
@@ -432,6 +433,7 @@ public:
     lidar_.getIsaacData();
     int length_write = boost::asio::write(port_,
         boost::asio::buffer((char*) lidar_.buffer, lidar_.getIdx()));
+    (void)length_write;
     //cout << "Isaac sent " << length_write << " bytes." << endl;
   }
 
@@ -443,6 +445,7 @@ public:
     lidar_.getPayloadData();
     int length_write = boost::asio::write(port_,
         boost::asio::buffer((char*) lidar_.buffer, lidar_.getIdx()));
+    (void)length_write;
     //cout << "Payload sent " << length_write << " bytes." << endl;
   }
 
