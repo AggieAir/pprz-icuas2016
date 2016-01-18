@@ -246,7 +246,7 @@ public:
     fg_udp_active = fg_bind; // will be fg binding
 
     // Open file
-    filename_ = LogTime::get() + "." + ext_;
+    filename_ = "var/logs/" + LogTime::get() + "." + ext_;
     cout << "Sender: Opening " << filename_ << endl;
     try {
       file_.open(filename_.c_str());

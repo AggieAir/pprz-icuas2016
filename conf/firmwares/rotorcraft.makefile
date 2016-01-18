@@ -45,8 +45,10 @@ ap.ARCHDIR = $(ARCH)
 $(TARGET).CFLAGS += $(ROTORCRAFT_INC)
 $(TARGET).CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 $(TARGET).CFLAGS += -DPERIPHERALS_AUTO_INIT
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs   += mcu.c
 $(TARGET).srcs   += $(SRC_ARCH)/mcu_arch.c
+endif
 
 # frequency of main periodic
 PERIODIC_FREQUENCY ?= 512
@@ -68,7 +70,9 @@ endif
 #
 # Systime
 #
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+endif
 ifeq ($(ARCH), linux)
 # seems that we need to link against librt for glibc < 2.17
 $(TARGET).LDFLAGS += -lrt
@@ -79,24 +83,30 @@ endif
 # Math functions
 #
 ifneq ($(TARGET), fbw)
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
 
 $(TARGET).srcs += subsystems/settings.c
 $(TARGET).srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 endif
+endif
 
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs += subsystems/actuators.c
 $(TARGET).srcs += subsystems/commands.c
+endif
 
 ifneq ($(TARGET), fbw)
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs += state.c
+endif
 
 #
 # BARO_BOARD (if existing/configured)
 #
 include $(CFG_SHARED)/baro_board.makefile
 
-
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
@@ -107,6 +117,7 @@ $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_flip.c
+endif
 
 include $(CFG_ROTORCRAFT)/navigation.makefile
 else
@@ -114,6 +125,7 @@ $(TARGET).CFLAGS += -DFBW=1
 endif
 
 ifneq ($(TARGET), fbw)
+ifneq ($(TARGET),hitl)
 ifeq ($(RTOS), chibios)
 ns_srcs += $(SRC_FIRMWARE)/main_chibios.c
 ns_CFLAGS += -DUSE_CHIBIOS_RTOS
@@ -121,6 +133,7 @@ else
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c
 endif
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
+endif
 else
 $(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
 endif
@@ -131,19 +144,25 @@ endif
 ##
 
 ifneq ($(TARGET), fbw)
+ifneq ($(TARGET),hitl)
 $(TARGET).srcs += mcu_periph/i2c.c
 $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
-endif
 
 include $(CFG_SHARED)/uart.makefile
+endif
+endif
+
+
 
 
 #
 # Electrical subsystem / Analog Backend
 #
+ifneq ($(TARGET),hitl)
 $(TARGET).CFLAGS += -DUSE_ADC
 $(TARGET).srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 $(TARGET).srcs   += subsystems/electrical.c
+endif
 
 
 ######################################################################
@@ -187,6 +206,13 @@ endif
 
 ifeq ($(BOARD), ardrone)
 ns_srcs += $(SRC_BOARD)/gpio_ardrone.c
+endif
+
+#
+# HITL math functions
+#
+ifeq ($(TARGET),hitl)
+$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
 endif
 
 #

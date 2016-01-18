@@ -21,6 +21,19 @@ ARK RT
       <subsystem name="radio_control" type="spektrum"/>
     </target>
 
+    <target name="hitl" board="pc">
+      <subsystem name="fdm" type="jsbsim_hitl">
+      <!--
+        <define name="VN_PORT" value="USB1"/>
+        <define name="VN_BAUD" value="B921600"/>
+        <define name="AP_PORT" value="USB2"/>
+        <define name="AP_BAUD" value="B3000000"/>
+        -->
+      </subsystem>
+      <subsystem name="radio_control" type="ppm"/>
+      <define name="HITL_VTOL" value="1"/>
+    </target>
+
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
@@ -222,7 +235,7 @@ ARK RT
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="fl_motor, fr_motor, r_motor, br_motor, bl_motor, l_motor" type="string[]"/>
+    <define name="ACTUATOR_NAMES"  value="f_motor, fr_motor, br_motor, b_motor, bl_motor, fl_motor" type="string[]"/>
     <define name="JSBSIM_MODEL"    value="HOOPERFLY/hooperfly_racerpex_hexa" type="string"/>
     <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->

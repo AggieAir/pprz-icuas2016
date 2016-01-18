@@ -112,38 +112,10 @@
 #define NPS_JSBSIM_FLAP_MAX_RAD (20.0*DEG2RAD)
 #endif
 
-
-// from flightplan
-//#define NAV_LAT0 418141523/* 1e7deg */
-//#define NAV_LON0 -1119792296/* 1e7deg */
-//#define NAV_ALT0 1348000/* mm above msl */
-//#define NAV_MSL0 641390 /* mm, EGM96 geoid-height (msl) over ellipsoid */
-//#define GROUND_ALT 1348.
-//#define QFU 90.0
-//#define NPS_JSBSIM_LAUNCHSPEED 18 // m/s I assue
-
-
-// from airframe.h
-//#define NPS_ACTUATOR_NAMES {"ne_motor", "se_motor", "sw_motor", "nw_motor"}
-//
-//#define NPS_JSBSIM_ROLL_TRIM_CMD_NORM 0
-//#define NPS_JSBSIM_PITCH_TRIM_CMD_NORM 0
-//#define NPS_JSBSIM_YAW_TRIM_CMD_NORM 0
-
 using namespace JSBSim;
 using namespace std;
 
-#define DEBUG 1
-
-/*
-#ifdef DegOfRad
-#undef DegOfRad
-#endif
-
-#ifdef RadOfDeg
-#undef RadOfDeg
-#endif
-*/
+//#define DEBUG 1
 
 /** Minimum JSBSim timestep
  * Around 1/10000 seems to be good for ground impacts
@@ -227,13 +199,6 @@ public:
    */
   void startFDM() {
     // Load model
-    /*
-    if ( ! FDMExec_->LoadModel( rootdir_ + "aircraft",
-        rootdir_ + "engine",
-        rootdir_ + "systems",
-        NPS_JSBSIM_MODEL_,
-        false)){
-      */
     if (! FDMExec_->LoadModel(rootdir_ + "aircraft",
                                rootdir_ + "engine",
                                rootdir_ + "systems",
@@ -369,7 +334,6 @@ public:
     /*
      * TRIM
      */
-
     aileron = aileron + 0.008;
     elevator = elevator + 0.0375;
     rudder = rudder + 0.001;
@@ -397,8 +361,7 @@ public:
    * Right now just runs a step, extend to it accounts for delays
    */
   bool run_step(){
-//#ifdef NPS_JSBSIM_LAUNCHSPEED
-
+#ifdef NPS_JSBSIM_LAUNCHSPEED
   if (launch && !already_launched) {
     printf("Launching with speed of %.1f m/s!\n", (float)NPS_JSBSIM_LAUNCHSPEED);
     FDMExec_->GetIC()->SetUBodyFpsIC(FeetOfMeters(NPS_JSBSIM_LAUNCHSPEED));
@@ -407,7 +370,7 @@ public:
     initial_time_ = LogTime::getStart();
     already_launched = true;
   }
-//#endif
+#endif
 
 
     /* To deal with ground interaction issues, we decrease the time
@@ -730,11 +693,6 @@ public:
 
     //Vel body, float [m/s]
     // The estimated velocity in the body (i.e. imu) frame, given in m/s.
-
-
-
-
-
     /*
     std::cout << "Sim time: " << boost::format("%1$.5f") % sim_time << "[s], Quat0: " <<
         boost::format("%1$.5f") % jsb_quat.Entry(1) << ", Quat1: " <<
