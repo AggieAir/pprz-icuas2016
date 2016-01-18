@@ -69,11 +69,16 @@ extern void autopilot_on_rc_frame(void);
 extern void autopilot_set_mode(uint8_t new_autopilot_mode);
 extern void autopilot_set_motors_on(bool_t motors_on);
 extern void autopilot_check_in_flight(bool_t motors_on);
+extern void autopilot_motor_test(void);
 
 extern bool_t autopilot_ground_detected;
 extern bool_t autopilot_detect_ground_once;
 
 extern uint16_t autopilot_flight_time;
+
+// Index of the "Ground Check" block (default = 254)
+extern uint8_t ap_ground_check_block;
+extern bool_t ap_motor_test_on;
 
 /** Default RC mode.
  */

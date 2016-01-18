@@ -912,6 +912,11 @@ let () =
       Xml2h.define "FP_BLOCKS" "{ \\";
       List.iter (fun b -> printf " \"%s\" , \\\n" (ExtXml.attrib b "name")) blocks;
       lprintf "} \n";
+
+      lprintf "#define FP_BLOCKS_STRING {";
+      List.iter (fun b -> printf " \"%s\"," (ExtXml.attrib b "name")) blocks;
+      lprintf "}\n";
+
       Xml2h.define "NB_BLOCK" (string_of_int (List.length blocks));
 
       Xml2h.define "GROUND_ALT" (sof !ground_alt);

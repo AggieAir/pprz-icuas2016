@@ -145,6 +145,8 @@ paparazzi.sublime-workspace
 /sw/simulator/hitl/*.csv
 # profiling data
 /sw/simulator/hitl/perf*
+*.bin
+*.csv
 
 # /sw/supervision/
 /sw/supervision/gtk_process.ml

@@ -25,6 +25,12 @@
       <call fun="NavSetGroundReferenceHere()"/>
       <!--<call fun="NavSetAltitudeReferenceHere()"/>-->
     </block>
+
+    <block name="Ground Check">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
     <block name="Holding point">
       <call fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>

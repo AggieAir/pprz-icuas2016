@@ -62,6 +62,13 @@
 
 #include "pprz_version.h"
 
+/*
+ * For motor testing functionality
+ * We need to know in which block we are
+ * and compare it with "Ground Check" block
+ */
+#include "generated/flight_plan.h"
+
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
 
@@ -77,6 +84,24 @@ bool_t   autopilot_power_switch;
 
 bool_t   autopilot_ground_detected;
 bool_t   autopilot_detect_ground_once;
+
+/*
+ * Safety check just in case - we would be overflowing the flight plan anyway
+ * in such case
+ */
+#if NB_BLOCK >= 254
+#error Number of flight plan blocks is too large (more or equal than 254). Unsafe behavior will occur.
+#endif
+
+// Array of flight plan blocks
+char *ap_fp_blocks[NB_BLOCK] = FP_BLOCKS_STRING;
+static const char ap_ground_check_string[] = "Ground Check";
+
+// Index of the "Ground Check" block (default = 254)
+uint8_t ap_ground_check_block;
+
+// Motor test ON variable
+bool_t ap_motor_test_on;
 
 /** time steps for in_flight detection (at 20Hz, so 20=1second) */
 #ifndef AUTOPILOT_IN_FLIGHT_TIME
@@ -279,6 +304,23 @@ static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *
 }
 
 
+/**
+ * Iterate thought list of flight plan blocks
+ * and find "Ground Check"
+ */
+static void find_ground_check_block(void){
+  // initialize to the max value
+  ap_ground_check_block = 254;
+
+  // list through the blocks
+  for (uint8_t idx=0;idx<NB_BLOCK;idx++) {
+   if (strcmp(ap_fp_blocks[idx],ap_ground_check_string) == 0) {
+     ap_ground_check_block = idx;
+    }
+  }
+}
+
+
 void autopilot_init(void)
 {
   /* mode is finally set at end of init if MODE_STARTUP is not KILL */
@@ -327,6 +369,8 @@ void autopilot_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC, send_rc);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_RADIO_CONTROL, send_rotorcraft_rc);
 #endif
+
+  find_ground_check_block();
 }
 
 
@@ -580,6 +624,74 @@ void autopilot_check_in_flight(bool_t motors_on)
         autopilot_in_flight_counter = 0;
       }
     }
+  }
+}
+
+
+/**
+ * Runs the autopilot motor test
+ * The procedure is:
+ * run SERVO 0 for 2s
+ * wait 2s
+ * run SERVO 1 for 2s
+ * wait 2s
+ * and so on...
+ */
+#define MOTOR_TEST_MIN 1010
+#define MOTOR_TEST_NEUTRAL 1150
+void autopilot_motor_test(void){
+  static uint8_t servo;
+  static uint16_t counter;
+  static bool_t wait;
+
+  // Reset variables
+  if (ap_motor_test_on == FALSE) {
+    servo = 0;
+    counter = 0;
+    wait = FALSE;
+  }
+
+  // set all servos to minimum
+  for (uint8_t idx = 0; idx<ACTUATORS_NB; idx++) {
+    actuators[idx] = (int16_t)MOTOR_TEST_MIN;
+    ActuatorPwmSet(idx, actuators[idx]);
+  }
+
+  if ((wait == FALSE) && autopilot_motors_on) {
+    // only one servo to neutral
+    actuators[servo] = (int16_t)MOTOR_TEST_NEUTRAL;
+    ActuatorPwmSet(servo, actuators[servo]);
+  }
+
+  // commit values
+  AllActuatorsCommit();
+
+  // increment counter
+  if (autopilot_motors_on) {
+    counter++;
+    // Test in progress, don't reset variables
+    ap_motor_test_on = TRUE;
+  }
+  else {
+    // reset variables
+    ap_motor_test_on = FALSE;
+  }
+
+  // check counter
+  if (counter >= PERIODIC_FREQUENCY*2) {
+    counter = 0; // reset counter
+    if (wait == TRUE) {
+      servo++; // increment servo
+      wait = FALSE;
+    }
+    else {
+      wait = TRUE;
+    }
+  }
+
+  // Wrap around servo number
+  if (servo == ACTUATORS_NB) {
+    servo = 0;
   }
 }
 

@@ -72,6 +72,8 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance.h"
 
+#include "firmwares/rotorcraft/navigation.h"
+
 #include "subsystems/ahrs.h"
 #if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
@@ -561,9 +563,23 @@ int main(void)
 
     /* run control loops */
     autopilot_periodic();
-    /* set actuators     */
-    //actuators_set(autopilot_motors_on);
-    SetActuatorsFromCommands(commands, autopilot_mode);
+
+    /*
+     * Execute motor test function only if
+     * in GROUND_CHECK block and NOT in flight
+     *
+     * NOTE: if we have 254 blocks and not "Ground Check" block
+     * then the motor check function would exectute in the last block
+     * But I dont want to add another condition check, so there is a compilation
+     * check in autopilot.c
+     */
+    if ((nav_block == ap_ground_check_block) && (!autopilot_in_flight)) {
+      autopilot_motor_test();
+    }
+    else {
+      ap_motor_test_on = FALSE;
+      SetActuatorsFromCommands(commands, autopilot_mode);
+    }
 
 #if RTOS_DEBUG
     LED_OFF(2);
