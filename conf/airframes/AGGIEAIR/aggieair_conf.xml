@@ -17,7 +17,7 @@
    radio="radios/AGGIEAIR/aggieair_taranis.xml"
    telemetry="telemetry/AggieAir_rotorcraft.xml"
    flight_plan="flight_plans/AGGIEAIR/CJ_rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/nps.xml settings/control/stabilization_att_float_euler.xml [settings/modules/xgear.xml] [settings/modules/battery_monitor.xml]"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/nps.xml settings/control/stabilization_att_float_euler.xml [settings/modules/xgear.xml] settings/modules/battery_monitor.xml"
    settings_modules=""
    gui_color="#ffff954c0000"
   />
