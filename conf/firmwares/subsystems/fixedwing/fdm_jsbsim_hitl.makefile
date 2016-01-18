@@ -43,33 +43,6 @@ endif
 #
 VPATH = $(PAPARAZZI_SRC)/sw/simulator
 
-#NPSDIR = nps
-#nps.srcs += $(NPSDIR)/nps_main.c                 \
-#       $(NPSDIR)/nps_fdm_jsbsim.cpp              \
-#       $(NPSDIR)/nps_random.c                    \
-#       $(NPSDIR)/nps_sensors.c                   \
-#       $(NPSDIR)/nps_sensors_utils.c             \
-#       $(NPSDIR)/nps_sensor_gyro.c               \
-#       $(NPSDIR)/nps_sensor_accel.c              \
-#       $(NPSDIR)/nps_sensor_mag.c                \
-#       $(NPSDIR)/nps_sensor_baro.c               \
-#       $(NPSDIR)/nps_sensor_sonar.c              \
-#       $(NPSDIR)/nps_sensor_gps.c                \
-#       $(NPSDIR)/nps_electrical.c                \
-#       $(NPSDIR)/nps_atmosphere.c                \
-#       $(NPSDIR)/nps_radio_control.c             \
-#       $(NPSDIR)/nps_radio_control_joystick.c    \
-#       $(NPSDIR)/nps_radio_control_spektrum.c    \
-#       $(NPSDIR)/nps_autopilot_fixedwing.c       \
-#       $(NPSDIR)/nps_ivy.c                       \
-#       $(NPSDIR)/nps_flightgear.c                \
-
 NPSDIR = hitl
-hitl.srcs += $(NPSDIR)/main.cpp                   \
-
-
+hitl.srcs += $(NPSDIR)/main.cpp
 hitl.srcs += math/pprz_geodetic_wmm2015.c
-
-#include $(CFG_SHARED)/telemetry_transparent_udp.makefile
-#nps.srcs += $(SRC_FIRMWARE)/datalink.c
-#nps.srcs += $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c

@@ -60,28 +60,82 @@
 // nps fdm
 #include "nps_fdm.h"
 
+//#include "generated/airframe.h"
+//#include "generated/flight_plan.h"
+#include "MsgConfig.h"
+
+/** Name of the JSBSim model.
+ *  Defaults to the AIRFRAME_NAME
+ */
+#ifndef NPS_JSBSIM_MODEL
+#define NPS_JSBSIM_MODEL AIRFRAME_NAME
+#endif
+
+#ifdef NPS_INITIAL_CONDITITONS
+#warning NPS_INITIAL_CONDITITONS was replaced by NPS_JSBSIM_INIT!
+#warning Defaulting to flight plan location.
+#endif
+
+/**
+ * Trim values for the airframe
+ */
+#ifndef NPS_JSBSIM_PITCH_TRIM
+#define NPS_JSBSIM_PITCH_TRIM 0.0
+#endif
+
+#ifndef NPS_JSBSIM_ROLL_TRIM
+#define NPS_JSBSIM_ROLL_TRIM 0.0
+#endif
+
+#ifndef NPS_JSBSIM_YAW_TRIM
+#define NPS_JSBSIM_YAW_TRIM 0.0
+#endif
+
+/**
+ * Control surface deflections for visualisation
+ */
+//#define DEG2RAD 0.017
+
+#ifndef NPS_JSBSIM_ELEVATOR_MAX_RAD
+#define NPS_JSBSIM_ELEVATOR_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_AILERON_MAX_RAD
+#define NPS_JSBSIM_AILERON_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_RUDDER_MAX_RAD
+#define NPS_JSBSIM_RUDDER_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_FLAP_MAX_RAD
+#define NPS_JSBSIM_FLAP_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+
 // from flightplan
-#define NAV_LAT0 418141523/* 1e7deg */
-#define NAV_LON0 -1119792296/* 1e7deg */
-#define NAV_ALT0 1348000/* mm above msl */
-#define NAV_MSL0 641390 /* mm, EGM96 geoid-height (msl) over ellipsoid */
-#define GROUND_ALT 1348.
-#define QFU 90.0
-#define NPS_JSBSIM_LAUNCHSPEED 18 // m/s I assue
+//#define NAV_LAT0 418141523/* 1e7deg */
+//#define NAV_LON0 -1119792296/* 1e7deg */
+//#define NAV_ALT0 1348000/* mm above msl */
+//#define NAV_MSL0 641390 /* mm, EGM96 geoid-height (msl) over ellipsoid */
+//#define GROUND_ALT 1348.
+//#define QFU 90.0
+//#define NPS_JSBSIM_LAUNCHSPEED 18 // m/s I assue
 
 
 // from airframe.h
 //#define NPS_ACTUATOR_NAMES {"ne_motor", "se_motor", "sw_motor", "nw_motor"}
-
-#define NPS_JSBSIM_ROLL_TRIM_CMD_NORM 0
-#define NPS_JSBSIM_PITCH_TRIM_CMD_NORM 0
-#define NPS_JSBSIM_YAW_TRIM_CMD_NORM 0
+//
+//#define NPS_JSBSIM_ROLL_TRIM_CMD_NORM 0
+//#define NPS_JSBSIM_PITCH_TRIM_CMD_NORM 0
+//#define NPS_JSBSIM_YAW_TRIM_CMD_NORM 0
 
 using namespace JSBSim;
 using namespace std;
 
 #define DEBUG 1
 
+/*
 #ifdef DegOfRad
 #undef DegOfRad
 #endif
@@ -89,6 +143,7 @@ using namespace std;
 #ifdef RadOfDeg
 #undef RadOfDeg
 #endif
+*/
 
 /** Minimum JSBSim timestep
  * Around 1/10000 seems to be good for ground impacts
@@ -104,8 +159,8 @@ private:
   /// The JSBSim executive object
   FGFDMExec* FDMExec_;
   bool initialized_;
-  string rootdir_ = "jsbsim/"; // TODO: add proper links
-  string NPS_JSBSIM_MODEL_ = "minion";//"Malolo1";
+  string rootdir_;// = "jsbsim/"; // TODO: add proper links
+  //string NPS_JSBSIM_MODEL_ = "minion";//"Malolo1";
   string jsbsim_ic_name_;
 
   bool high_sim_rate_;
@@ -130,6 +185,11 @@ public:
   timeval initial_time_;
 
   FDM(double dt, timeval startTime){
+    //rootdir_ = getenv("PAPARAZZI_HOME") + "/conf/simulator/jsbsim/";
+    char buf[1024];
+    sprintf(buf, "%s/conf/simulator/jsbsim/", getenv("PAPARAZZI_HOME"));
+    rootdir_ = string(buf);
+
     initial_time_ = startTime;
 
     fdm.init_dt = dt;
@@ -167,11 +227,18 @@ public:
    */
   void startFDM() {
     // Load model
+    /*
     if ( ! FDMExec_->LoadModel( rootdir_ + "aircraft",
         rootdir_ + "engine",
         rootdir_ + "systems",
         NPS_JSBSIM_MODEL_,
         false)){
+      */
+    if (! FDMExec_->LoadModel(rootdir_ + "aircraft",
+                               rootdir_ + "engine",
+                               rootdir_ + "systems",
+                               NPS_JSBSIM_MODEL,
+                               false)) {
       cerr << "  JSBSim could not be started" << endl;
       return;
     }
@@ -709,7 +776,7 @@ public:
     return atan2(hmsl * sin(gd_lat) + a * sin(ls), hmsl * cos(gd_lat) + a * cos(ls));
   }
 
-
+/*
   static double DegOfRad(double x){
     return x*180.0/FDM::m_pi;
   }
@@ -717,6 +784,7 @@ public:
   static double RadOfDeg(double x){
     return x*(FDM::m_pi/180.0);
   }
+  */
 
   static double MetersOfFeet(double f){
     return (f/3.2808399);

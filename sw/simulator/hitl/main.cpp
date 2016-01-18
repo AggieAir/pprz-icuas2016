@@ -60,9 +60,10 @@ static boost::asio::serial_port *vpt;
  */
 void init_ap() {
   try {
-    apt->open("/dev/ttyUSB2");
-    //apt->set_option(boost::asio::serial_port_base::baud_rate(AP_BAUD));
-    apt->set_option(boost::asio::serial_port_base::baud_rate(3000000));
+    //apt->open("/dev/ttyUSB2");
+    apt->open(AP_DEV);
+    apt->set_option(boost::asio::serial_port_base::baud_rate(AP_BAUD));
+    //apt->set_option(boost::asio::serial_port_base::baud_rate(3000000));
   }
   catch (const std::exception& e)
   {
@@ -77,8 +78,10 @@ void init_ap() {
  */
 void init_vn() {
   try {
-    vpt->open("/dev/ttyUSB1");
-    vpt->set_option(boost::asio::serial_port_base::baud_rate(AP_BAUD));
+    //vpt->open("/dev/ttyUSB1");
+    vpt->open(VN_DEV);
+    vpt->set_option(boost::asio::serial_port_base::baud_rate(VN_BAUD));
+    //vpt->set_option(boost::asio::serial_port_base::baud_rate(AP_BAUD));
   }
   catch (const std::exception& e)
   {

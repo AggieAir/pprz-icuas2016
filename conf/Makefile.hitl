@@ -91,22 +91,22 @@ $(OBJDIR)/simhitl : $($(TARGET).objs)
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.s: %.c
-	@echo CC1 $@
+	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.s: %.cpp
-	@echo CXX1 $@
+	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
-	@echo CC2 $@
+	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -MMD $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
-	@echo CXX2 $@
+	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CXX) -MMD $(CXXFLAGS) -c -o $@ $<
 
