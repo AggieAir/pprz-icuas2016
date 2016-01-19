@@ -74,7 +74,7 @@ enum MsgStatus {
  */
 #define AUTOPILOT_UPDATE_RATE 16//2 //in ms
 
-#define AP_BAUD 921600//3000000
+#define AP_BAUD 3000000
 #define AP_DEV "/dev/ttyUSB2"
 
 #define VECTORNAV_UPDATE_RATE 2 //in ms

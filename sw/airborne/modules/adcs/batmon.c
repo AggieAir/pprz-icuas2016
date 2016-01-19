@@ -116,7 +116,6 @@ void batmon_init(void) {
  * Read bus (current and bus voltage)
  */
 void batmon_read_bus(void){
-#if !RTOS_DEBUG
   static uint16_t data;
   switch (batmon.bus_status) {
     case BUS_CURRENT:
@@ -154,7 +153,6 @@ void batmon_read_bus(void){
 
   // update transaction status
   batmon.stat_trans_bus = batmon.bus_trans.status;
-#endif /* !RTOS_DEBUG*/
 }
 
 /**
@@ -162,10 +160,7 @@ void batmon_read_bus(void){
  */
 void batmon_read_ports(void){
 
-#if RTOS_DEBUG
-  // IN debug mode only update the measured voltage
-  electrical.vsupply = MAX_BAT_LEVEL*10;
-#else
+
   // normal operation
   static uint16_t data;
 
@@ -194,10 +189,16 @@ void batmon_read_ports(void){
   //decrement
   batmon.cell_index--;
 
+#if RTOS_DEBUG
+  // IN debug mode only update the measured voltage
+  electrical.vsupply = MAX_BAT_LEVEL*10;
+#else
   //update electrical subsystem
-  electrical.vsupply = batmon.cells[BATTERY_CELL_NB-1]/100; // mV to deci Volts
+  //electrical.vsupply = batmon.cells[BATTERY_CELL_NB-1]/100; // mV to deci Volts
+  electrical.vsupply = MAX_BAT_LEVEL*10;
+#endif /* RTOS_DEBUG */
 
   // update transaction status
   batmon.stat_trans_port = batmon.port_trans.status;
-#endif /* RTOS_DEBUG */
+
 }
