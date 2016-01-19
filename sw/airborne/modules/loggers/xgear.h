@@ -63,7 +63,7 @@
 #define XGEAR_MSG_TYPE_MOVE_WAYPOINT 3
 #define XGEAR_MSG_TYPE_ISAAC_STATUS 4
 #define XGEAR_MSG_TYPE_PAYLOAD_STATUS 5
-#define XGEAR_SYSID_PAYLOAD_LENGTH 165 // comes from the Xgear SysIDA specifications
+#define XGEAR_SYSID_PAYLOAD_LENGTH 167 // comes from the Xgear SysIDA specifications
 //note: should be at some point taken from XGEAR conf file
 
 // max length of rx data
