@@ -35,6 +35,9 @@
       <arg flag="-ac" constant="@AIRCRAFT"/>
       <arg flag="xbox_gamepad.xml"/>
     </program>
+    <program name="Sbus Fakerator" command="sw/tools/sbus_fakerator/sbus_faker">
+      <arg flag="-d" constant="/dev/ttyUSB0"/>
+    </program>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
     <program name="Http Server" command="$python">
       <arg flag="-m" constant="SimpleHTTPServer"/>
@@ -100,12 +103,19 @@
        <arg flag="-d" constant="/dev/ttyUSB0"/>
        <arg flag="-s" constant="57600"/>
      </program>
-     <program name="Server"/>
+     <program name="Server">
+      <arg flag="" constant="-no_md5_check"/>
+     </program>
      <program name="GCS"/>
      <program name="Messages"/>
      <program name="SimulatorHitl">
       <arg flag="-a" constant="@AIRCRAFT"/>
      </program>
+     <!-->
+     <program name="Sbus Fakerator">
+       <arg flag="-d" constant="/dev/ttyUSB3"/>
+     </program>
+     -->
    </session>
 
    <session name="Flight USB-XBee-API@57600">

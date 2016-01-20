@@ -48,7 +48,7 @@
 
 using namespace std;
 
-#define DEBUG_AP 1
+#define DEBUG_AP 0
 #define LOG_BINARY 0
 
 class Autopilot
@@ -364,7 +364,7 @@ private:
 #if DEBUG_AP
     cout << LogTime::getTimeSinceStart(start_time_) << ", cmd_val:";
     for (int k = 0; k < data_.actuators_nb; k++) {
-      cout << data_.actuators[k] << ", ";
+      cout << data_.commands[k] << ", ";
     }
     cout << ", cnt: " << data_.msg_cnt << ", hdr errors: "
         << data_packet_.hdr_error << ", chck err: " << data_packet_.chksm_error

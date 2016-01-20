@@ -44,8 +44,8 @@ CFLAGS += -std=gnu99
 #CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
 
-#CXXFLAGS  = -W -Wall
-CXXFLAGS = -Waddress -Warray-bounds -Wc++0x-compat -Wchar-subscripts -Wenum-compare -Wcomment -Wformat -Wmain -Wnonnull -Wparentheses -Wreturn-type -Wsequence-point -Wsign-compare -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
+CXXFLAGS  = -W -Wall
+#CXXFLAGS = -Waddress -Warray-bounds -Wc++0x-compat -Wchar-subscripts -Wenum-compare -Wcomment -Wformat -Wmain -Wnonnull -Wparentheses -Wreturn-type -Wsequence-point -Wsign-compare -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 CXXFLAGS += $(INCLUDES) -I/usr/include/boost/ -I$(PAPARAZZI_SRC)/sw/simulator/nps/
 CXXFLAGS += $($(TARGET).CFLAGS)
 CXXFLAGS += $(USER_CFLAGS)

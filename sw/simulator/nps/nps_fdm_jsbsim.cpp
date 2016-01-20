@@ -158,7 +158,6 @@ double min_dt;
 
 void nps_fdm_init(double dt)
 {
-
   fdm.init_dt = dt;
   fdm.curr_dt = dt;
   //Sets up the high fidelity timestep as a multiple of the normal timestep
@@ -232,6 +231,8 @@ void nps_fdm_run_step(bool_t launch __attribute__((unused)), double *commands, i
   // Calculate the number of sim steps for correct amount of time elapsed
   int num_steps = int(fdm.init_dt / fdm.curr_dt);
 
+  cout << "NUm steps:" << num_steps << ", cur dt: " << fdm.curr_dt << endl;
+
   // Set the timestep then run sim
   FDMExec->Setdt(fdm.curr_dt);
   int i;
@@ -285,13 +286,15 @@ static void feed_jsbsim(double *commands, int commands_nb)
   char buf[64];
   const char *names[] = NPS_ACTUATOR_NAMES;
   string property;
-
   int i;
+  cout << "Commands: ";
   for (i = 0; i < commands_nb; i++) {
+    cout << names[i] << ", " << commands[i] << ", ";
     sprintf(buf, "fcs/%s", names[i]);
     property = string(buf);
     FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
+  cout << endl;
 #else
   if (commands_nb != 4) {
     cerr << "commands_nb must be 4!" << endl;

@@ -55,7 +55,7 @@
         <configure name="VN_BAUD" value="B921600"/>
       </subsystem>
 
-    <configure name="RTOS_DEBUG" value="0"/>
+    <configure name="RTOS_DEBUG" value="1"/>
   </firmware>
 
   <modules>

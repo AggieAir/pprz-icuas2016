@@ -32,6 +32,10 @@
 
 #include <cmath>
 
+// ignore stupid warnings in JSBSim
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
 #include <initialization/FGInitialCondition.h>
@@ -44,6 +48,9 @@
 // Thrusters
 #include <models/propulsion/FGThruster.h>
 #include <models/propulsion/FGPropeller.h>
+
+// end ignore unused param warnings in JSBSim
+#pragma GCC diagnostic pop
 
 // for debug
 #include <iostream>
@@ -60,8 +67,7 @@
 // nps fdm
 #include "nps_fdm.h"
 
-//#include "generated/airframe.h"
-//#include "generated/flight_plan.h"
+
 #include "MsgConfig.h"
 
 /** Name of the JSBSim model.
@@ -164,8 +170,8 @@ public:
 
     initial_time_ = startTime;
 
-    fdm.init_dt = dt;
-    fdm.curr_dt = dt;
+    fdm.init_dt = 0.000976562;//dt;
+    fdm.curr_dt = 0.000976562;//dt;
     //Sets up the high fidelity timestep as a multiple of the normal timestep
     for (min_dt = (1.0/dt); min_dt < (1/MIN_DT); min_dt += (1/dt)){}
     min_dt = (1/min_dt);
@@ -247,6 +253,10 @@ public:
       IC->SetPsiDegIC(QFU);
       IC->SetVgroundFpsIC(0.);
 
+      lla0.lon = RadOfDeg(NAV_LON0 / 1e7);
+      lla0.lat = gd_lat;
+      lla0.alt = (double)(NAV_ALT0+NAV_MSL0)/1000.0;
+
       // initial commands to zero
       double zeros[] = {0.0, 0.0, 0.0, 0.0};
       feed_jsbsim(zeros,4);
@@ -260,10 +270,6 @@ public:
 
       // Get init time for the simulation
       initial_time_ = LogTime::getStart();
-
-      lla0.lon = RadOfDeg(NAV_LON0 / 1e7);
-      lla0.lat = gd_lat;
-      lla0.alt = (double)(NAV_ALT0+NAV_MSL0)/1000.0;
     }
 
     // compute offset between geocentric and geodetic ecef
@@ -308,11 +314,14 @@ public:
     char buf[64];
     const char* names[] = NPS_ACTUATOR_NAMES;
     string property;
+    cout << "Commands: ";
     for (int i=0; i < commands_nb; i++) {
+      cout << names[i] << ", " << commands[i] << ", ";
       sprintf(buf,"fcs/%s",names[i]);
       property = string(buf);
       FDMExec_->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
     }
+    cout << endl;
 #else
     (void)commands_nb;
     feed_jsbsim(commands[0], commands[1], commands[2], commands[3]);
@@ -452,6 +461,7 @@ public:
       num_steps = 0; // the idea is if we are too much ahead of the
     }
 
+    cout << "NUm steps:" << num_steps << ", cur dt: " << fdm.curr_dt << endl;
     //cout << "Num steps: " << num_steps <<  ", fdm.curr_dt = " << fdm.curr_dt << ", fdm.init_dt = " << fdm.init_dt <<
     //    ", timeDiff = " << timeDiff << " [s]"<< endl;
     //cout << "Num steps: " << num_steps <<  ", fdm.curr_dt = " << fdm.curr_dt << ", fdm.init_dt = " << fdm.init_dt << endl;
