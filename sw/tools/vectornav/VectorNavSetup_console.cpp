@@ -18,7 +18,7 @@ using namespace std;
 #define VN_BAUD1 B115200
 #define VN_BAUD2 B230400
 #define VN_BAUD3 B921600
-#define VN_PORT "/dev/ttyUSB0"
+#define VN_PORT "/dev/ttyUSB1"
 
 #define DEBUG 0
 
@@ -390,7 +390,7 @@ int main ( int argc, char *argv[] )
   switch (msg_format) {
     case 0:
       cout << "Default" << endl;
-      msg_f1 = "$VNWRG,75,1,8,39,01EA,061A,0140,0009*XX\r\n"; // sets sending the messages at serial port 1 (RS232) @100Hz
+      msg_f1 = "$VNWRG,75,2,8,39,01EA,061A,0140,0009*XX\r\n"; // sets sending the messages at serial port 1 (RS232) @100Hz
       break;
     case 1:
       cout << "Flight" << endl;
