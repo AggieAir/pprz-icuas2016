@@ -369,7 +369,6 @@ private:
     cout << ", cnt: " << data_.msg_cnt << ", hdr errors: "
         << data_packet_.hdr_error << ", chck err: " << data_packet_.chksm_error
         << ", cmd#: " << (int) data_.actuators_nb;
-
     cout << endl;
 #endif
   }

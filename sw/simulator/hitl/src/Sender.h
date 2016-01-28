@@ -107,7 +107,7 @@ private:
                              "YprU-Yaw", "YprU-Pitch", "YprU-Roll", "InsStatus",
                              "VelBody-x", "VelBody-y", "VelBody-z",
                              "ap_time", "COMMANDS_NB", "COMMAND_THROTTLE",
-                             "COMMAND_ROLL", "COMMAND_PITCH", "COMMAND_YAW", "COMMAND_FLAPS",
+                             "COMMAND_ROLL", "COMMAND_PITCH", "COMMAND_YAW", "COMMAND_FLAPS", "COMMAND_DUMMY",
                              "alpha", "beta", "airspeed", "ap_settings"} };
   FDM fdm_;
 
@@ -358,11 +358,12 @@ public:
     file_ << boost::lexical_cast<string>(rx_data_.ap_time)  + separator_ + " "; // ap time
 
     file_ << boost::lexical_cast<string>((int)rx_data_.actuators_nb)  + separator_ + " "; // commands_nb
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_throttle)  + separator_ + " "; // cmd_throttle
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_roll) + separator_ + " "; // cmd_roll
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_pitch) + separator_ + " "; // cmd_pitch
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_yaw)  + separator_ + " "; // cmd_yaw
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_flaps)  + separator_ + " "; // cmd_flaps
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_throttle)  + separator_ + " "; // cmd_throttle, servo#0
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_roll) + separator_ + " "; // cmd_roll, servo#1
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_pitch) + separator_ + " "; // cmd_pitch, servo#2
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_yaw)  + separator_ + " "; // cmd_yaw, servo#3
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_flaps)  + separator_ + " "; // cmd_flaps, servo#4
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_dummy)  + separator_ + " "; // cmd_flaps, servo#5
 
     file_ << boost::lexical_cast<string>(rx_data_.alpha) + separator_ + " "; // alpha
     file_ << boost::lexical_cast<string>(rx_data_.beta) + separator_ + " "; // beta

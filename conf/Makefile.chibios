@@ -49,11 +49,11 @@ Q=@
 RTOS_DEBUG ?= 0
 
 # Use only gddb2 for debugging unless otherwise specified
-DEBUG_LEVEL ?= -ggdb2
+DEBUG_LEVEL ?= 2
 
 ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
 $(info DEBUGGING ON)
-$(info DEBUG_LEVEL = $(DEBUG_LEVEL))
+$(info DEBUG_LEVEL = -ggdb$(DEBUG_LEVEL))
 $(TARGET).CFLAGS += \
   -DCH_DBG_STATISTICS=FALSE \
 	-DCH_DBG_SYSTEM_STATE_CHECK=TRUE \
@@ -65,7 +65,7 @@ $(TARGET).CFLAGS += \
 	-DCH_DBG_THREADS_PROFILING=TRUE
 $(TARGET).CFLAGS += -DRTOS_DEBUG=1
 
-USE_OPT = -std=gnu99 -O0 $(DEBUG_LEVEL) -fomit-frame-pointer -falign-functions \
+USE_OPT = -std=gnu99 -O0 -ggdb$(DEBUG_LEVEL) -fomit-frame-pointer -falign-functions \
 	 -W -Wall -DUSE_CHIBIOS_RTOS
 
 else

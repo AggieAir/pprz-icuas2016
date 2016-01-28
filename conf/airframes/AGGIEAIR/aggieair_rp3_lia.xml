@@ -75,7 +75,7 @@ RP3 Lisa MX
     <load name="nav_line.xml"/>
     <load name="xgear.xml">
       <configure name="XGEAR_PORT" value="UART1"/>
-      <configure name="XGEAR_BAUD" value="B921600"/>
+      <configure name="XGEAR_BAUD" value="B3000000"/>
     </load>
     <load name="battery_monitor.xml"/>
   </modules>

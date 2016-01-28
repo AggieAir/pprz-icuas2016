@@ -314,14 +314,14 @@ public:
     char buf[64];
     const char* names[] = NPS_ACTUATOR_NAMES;
     string property;
-    cout << "Commands: ";
+    //cout << "Commands: ";
     for (int i=0; i < commands_nb; i++) {
-      cout << names[i] << ", " << commands[i] << ", ";
+      //cout << names[i] << ", " << commands[i] << ", ";
       sprintf(buf,"fcs/%s",names[i]);
       property = string(buf);
       FDMExec_->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
     }
-    cout << endl;
+    //cout << endl;
 #else
     (void)commands_nb;
     feed_jsbsim(commands[0], commands[1], commands[2], commands[3]);
@@ -461,7 +461,7 @@ public:
       num_steps = 0; // the idea is if we are too much ahead of the
     }
 
-    cout << "NUm steps:" << num_steps << ", cur dt: " << fdm.curr_dt << endl;
+    //cout << "NUm steps:" << num_steps << ", cur dt: " << fdm.curr_dt << endl;
     //cout << "Num steps: " << num_steps <<  ", fdm.curr_dt = " << fdm.curr_dt << ", fdm.init_dt = " << fdm.init_dt <<
     //    ", timeDiff = " << timeDiff << " [s]"<< endl;
     //cout << "Num steps: " << num_steps <<  ", fdm.curr_dt = " << fdm.curr_dt << ", fdm.init_dt = " << fdm.init_dt << endl;
