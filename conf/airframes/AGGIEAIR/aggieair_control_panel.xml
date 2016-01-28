@@ -111,11 +111,9 @@
      <program name="SimulatorHitl">
       <arg flag="-a" constant="@AIRCRAFT"/>
      </program>
-     <!-->
      <program name="Sbus Fakerator">
        <arg flag="-d" constant="/dev/ttyUSB3"/>
      </program>
-     -->
    </session>
 
    <session name="Flight USB-XBee-API@57600">
