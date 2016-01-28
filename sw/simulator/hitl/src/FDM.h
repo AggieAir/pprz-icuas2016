@@ -67,8 +67,11 @@
 // nps fdm
 #include "nps_fdm.h"
 
-
 #include "MsgConfig.h"
+
+#include "std.h"
+
+#define DEBUG_FDM 0
 
 /** Name of the JSBSim model.
  *  Defaults to the AIRFRAME_NAME
@@ -88,14 +91,17 @@
 #ifndef NPS_JSBSIM_PITCH_TRIM
 #define NPS_JSBSIM_PITCH_TRIM 0.0
 #endif
+PRINT_CONFIG_VAR(NPS_JSBSIM_PITCH_TRIM);
 
 #ifndef NPS_JSBSIM_ROLL_TRIM
 #define NPS_JSBSIM_ROLL_TRIM 0.0
 #endif
+PRINT_CONFIG_VAR(NPS_JSBSIM_ROLL_TRIM);
 
 #ifndef NPS_JSBSIM_YAW_TRIM
 #define NPS_JSBSIM_YAW_TRIM 0.0
 #endif
+PRINT_CONFIG_VAR(NPS_JSBSIM_YAW_TRIM);
 
 /**
  * Control surface deflections for visualisation
@@ -137,8 +143,7 @@ private:
   /// The JSBSim executive object
   FGFDMExec* FDMExec_;
   bool initialized_;
-  string rootdir_;// = "jsbsim/"; // TODO: add proper links
-  //string NPS_JSBSIM_MODEL_ = "minion";//"Malolo1";
+  string rootdir_;
   string jsbsim_ic_name_;
 
   bool high_sim_rate_;
@@ -163,13 +168,14 @@ public:
   timeval initial_time_;
 
   FDM(double dt, timeval startTime){
-    //rootdir_ = getenv("PAPARAZZI_HOME") + "/conf/simulator/jsbsim/";
     char buf[1024];
     sprintf(buf, "%s/conf/simulator/jsbsim/", getenv("PAPARAZZI_HOME"));
     rootdir_ = string(buf);
 
     initial_time_ = startTime;
 
+    // dt hardcoded to 1/1024 s
+    // TODO: fix later with proper values
     fdm.init_dt = 0.000976562;//dt;
     fdm.curr_dt = 0.000976562;//dt;
     //Sets up the high fidelity timestep as a multiple of the normal timestep
@@ -190,8 +196,6 @@ public:
     set_wind(0, 0, 0);
 
     startFDM();
-
-    //FDMExec_->RunIC();
 
     init_ltp();
 
@@ -314,14 +318,20 @@ public:
     char buf[64];
     const char* names[] = NPS_ACTUATOR_NAMES;
     string property;
-    //cout << "Commands: ";
+#if DEBUG_FDM
+    cout << "Commands: ";
+#endif
     for (int i=0; i < commands_nb; i++) {
-      //cout << names[i] << ", " << commands[i] << ", ";
+#if DEBUG_FDM
+      cout << names[i] << ", " << commands[i] << ", ";
+#endif
       sprintf(buf,"fcs/%s",names[i]);
       property = string(buf);
       FDMExec_->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
     }
-    //cout << endl;
+#if DEBUG_FDM
+    cout << endl;
+#endif
 #else
     (void)commands_nb;
     feed_jsbsim(commands[0], commands[1], commands[2], commands[3]);
@@ -338,16 +348,13 @@ public:
   void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
   {
     FGFCS* FCS = FDMExec_->GetFCS();
-    //FGPropulsion* FProp = FDMExec_->GetPropulsion();
 
     /*
      * TRIM
      */
-    aileron = aileron + 0.008;
-    elevator = elevator + 0.0375;
-    rudder = rudder + 0.001;
-
-
+    aileron = aileron + NPS_JSBSIM_ROLL_TRIM;
+    elevator = elevator + NPS_JSBSIM_PITCH_TRIM;
+    rudder = rudder + NPS_JSBSIM_YAW_TRIM;
 
     FCS->SetDaCmd(aileron);
 
@@ -358,8 +365,8 @@ public:
       FCS->SetThrottleCmd(i, throttle);
       FCS->SetThrottlePos(i, throttle);
       /* For IC engine only
+       * TODO: use or remove
       FCS->SetMixtureCmd(1,1);
-
       FProp->SetStarter(1);
       FProp->SetActiveEngine(1);
       */
@@ -461,7 +468,9 @@ public:
       num_steps = 0; // the idea is if we are too much ahead of the
     }
 
-    //cout << "NUm steps:" << num_steps << ", cur dt: " << fdm.curr_dt << endl;
+#if DEBUG_FDM
+    cout << "NUm steps:" << num_steps << ", cur dt: " << fdm.curr_dt << endl;
+#endif
     //cout << "Num steps: " << num_steps <<  ", fdm.curr_dt = " << fdm.curr_dt << ", fdm.init_dt = " << fdm.init_dt <<
     //    ", timeDiff = " << timeDiff << " [s]"<< endl;
     //cout << "Num steps: " << num_steps <<  ", fdm.curr_dt = " << fdm.curr_dt << ", fdm.init_dt = " << fdm.init_dt << endl;

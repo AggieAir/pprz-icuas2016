@@ -33,8 +33,7 @@
       <message name="LIDAR"                  period="2.0"/>
       <message name="PAYLOAD_STATUS"         period="2.0"/>
       <message name="ISAAC_STATUS"           period="2.0"/>
-      <message name="ACTUATORS"           period="0.5"/>
-      <message name="COMMANDS"           period="0.5"/>
+      <message name="ACTUATORS"              period="0.5"/>
     </mode>
 
     <mode name="ppm">
