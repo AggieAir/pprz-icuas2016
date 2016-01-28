@@ -1,0 +1,123 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
+# Copyright (C) 2012 The Paparazzi Team
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+
+#
+# This is the common Makefile for the nps target.
+#
+
+SRC_ARCH = arch/sim
+
+OPT ?= 2
+# Slightly bigger .elf files but gains the ability to decode macros
+DEBUG_FLAGS ?= -ggdb3
+
+# Launch with "make Q=''" to get full command display
+Q=@
+
+CFLAGS  = -W -Wall
+#CFLAGS += -I$(PAPARAZZI_SRC)/sw/include/
+CFLAGS += $(INCLUDES)
+#CFLAGS += $($(TARGET).CFLAGS)
+#CFLAGS += $(USER_CFLAGS)
+CFLAGS += -O$(OPT)
+CFLAGS += $(DEBUG_FLAGS)
+CFLAGS += -std=gnu99
+#CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
+
+
+CXXFLAGS  = -W -Wall
+#CXXFLAGS = -Waddress -Warray-bounds -Wc++0x-compat -Wchar-subscripts -Wenum-compare -Wcomment -Wformat -Wmain -Wnonnull -Wparentheses -Wreturn-type -Wsequence-point -Wsign-compare -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
+CXXFLAGS += $(INCLUDES) -I/usr/include/boost/ -I$(PAPARAZZI_SRC)/sw/simulator/nps/
+CXXFLAGS += $($(TARGET).CFLAGS)
+CXXFLAGS += $(USER_CFLAGS)
+CXXFLAGS += -O$(OPT)
+CXXFLAGS += $(DEBUG_FLAGS)
+CXXFLAGS += -std=c++11
+CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
+
+LDFLAGS	+= $($(TARGET).LDFLAGS) -pthread -lrt -L/usr/lib/x86_64-linux-gnu -lboost_thread -lboost_system
+
+$(info INCLUDES= $(INCLUDES))
+$(info CFLAGS= $(CFLAGS))
+$(info SRCS= $($(TARGET).srcs))
+$(info CXXFLAGS= $(CXXFLAGS))
+$(info LDFLAGS= $(LDFLAGS))
+$(info TARGET= $(TARGET))
+
+#
+# General rules
+#
+
+$(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
+$(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
+$(TARGET).objsoxx = $($(TARGET).objso:%.cpp=$(OBJDIR)/%.o)
+$(TARGET).objs	= $($(TARGET).objsoxx:%.S=$(OBJDIR)/%.o)
+
+all compile: check_jsbsim $(OBJDIR)/simhitl
+
+
+check_jsbsim:
+	@echo Paparazzi jsbsim package found: $(JSBSIM_PKG)
+
+
+$(OBJDIR)/simhitl : $($(TARGET).objs)
+	@echo LD $@
+	$(Q)$(CXX) $(CXXFLAGS) -o $@ $($(TARGET).objs) $(LDFLAGS)
+
+
+%.s: %.c
+	$(CC) $(CFLAGS) -S -o $@ $<
+
+%.s: %.cpp
+	$(CC) $(CFLAGS) -S -o $@ $<
+
+$(OBJDIR)/%.s: %.c
+	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -S -o $@ $<
+
+$(OBJDIR)/%.s: %.cpp
+	@echo CXX $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -S -o $@ $<
+
+$(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
+	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CC) -MMD $(CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
+	@echo CXX $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CXX) -MMD $(CXXFLAGS) -c -o $@ $<
+
+.PHONY: all compile check_jsbsim
+
+
+#
+# Dependencies
+#
+#ifneq ($(MAKECMDGOALS),clean)
+#DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
+#DEPS += $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.cpp=.d))
+#-include $(DEPS)
+#endif

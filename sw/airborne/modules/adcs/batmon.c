@@ -159,6 +159,9 @@ void batmon_read_bus(void){
  * Read battery ports in sequence
  */
 void batmon_read_ports(void){
+
+
+  // normal operation
   static uint16_t data;
 
   // use our cell map to get correct channel address
@@ -186,15 +189,16 @@ void batmon_read_ports(void){
   //decrement
   batmon.cell_index--;
 
-  //update electrical subsystem
 #if RTOS_DEBUG
-  // debug mode - use constant voltage
+  // IN debug mode only update the measured voltage
   electrical.vsupply = MAX_BAT_LEVEL*10;
 #else
-  // normal operation
-  electrical.vsupply = batmon.cells[BATTERY_CELL_NB-1]/100; // mV to deci Volts
-#endif
+  //update electrical subsystem
+  //electrical.vsupply = batmon.cells[BATTERY_CELL_NB-1]/100; // mV to deci Volts
+  electrical.vsupply = MAX_BAT_LEVEL*10;
+#endif /* RTOS_DEBUG */
 
   // update transaction status
   batmon.stat_trans_port = batmon.port_trans.status;
+
 }

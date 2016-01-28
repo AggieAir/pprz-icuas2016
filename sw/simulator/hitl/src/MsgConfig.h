@@ -29,6 +29,9 @@
 #ifndef MSGCONFIG_H_
 #define MSGCONFIG_H_
 
+#include "generated/airframe.h"
+#include "generated/flight_plan.h"
+
 /*
  * Message status for parsing
  */
@@ -70,8 +73,9 @@ enum MsgStatus {
  * Port settings
  */
 #define AUTOPILOT_UPDATE_RATE 16//2 //in ms
-#define AP_BAUD 921600
-#define AP_DEV "/dev/ttyACM2"
+
+#define AP_BAUD 3000000
+#define AP_DEV "/dev/ttyUSB2"
 
 #define VECTORNAV_UPDATE_RATE 2 //in ms
 #define VN_BAUD 921600
@@ -80,7 +84,9 @@ enum MsgStatus {
 /*
  * Default actuators number (8 is the max available on Lia)
  */
+#ifndef ACTUATORS_NB
 #define ACTUATORS_NB 8
+#endif
 
 
 #define MAX_PPRZ 9600

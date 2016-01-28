@@ -30,6 +30,10 @@
  */
 #include "modules/loggers/xgear.h"
 
+#if XGEAR_VTOL // VTOL CONFIGURATION
+#include "subsystems/actuators/motor_mixing.h"
+#endif
+
 struct Xgear xgear_tx;
 struct Xgear xgear_rx;
 
@@ -496,37 +500,65 @@ void xgear_periodic(void)
   memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &ap_time, sizeof(float));
   xgear_tx.idx += sizeof(float);
 
+//#define XGEAR_VTOL 1
+  // DEMO VERSION
+  // Motor mixing is int32_t
+  // FW commands is int16_t
+
+#if XGEAR_VTOL // VTOL CONFIGURATION
+  // NUmber of actuators
+  // we are sending output of motor mixing (actuators) instead of commands (roll/pitch/roll)
+  xgear_tx.msg_buf[xgear_tx.idx] = (uint8_t)ACTUATORS_NB;
+  xgear_tx.idx++;
+
+  int16_t motor_mix_helper;
+
+  // Servo #0
+  motor_mix_helper = (int16_t)motor_mixing.commands[0];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &motor_mix_helper, sizeof(pprz_t));
+  xgear_tx.idx += sizeof(pprz_t);
+
+  // Servo #1
+  motor_mix_helper = (int16_t)motor_mixing.commands[1];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &motor_mix_helper, sizeof(pprz_t));
+  xgear_tx.idx += sizeof(pprz_t);
+
+  // Servo #2
+  motor_mix_helper = (int16_t)motor_mixing.commands[2];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &motor_mix_helper, sizeof(pprz_t));
+  xgear_tx.idx += sizeof(pprz_t);
+
+  // Servo #3
+  motor_mix_helper = (int16_t)motor_mixing.commands[3];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &motor_mix_helper, sizeof(pprz_t));
+  xgear_tx.idx += sizeof(pprz_t);
+
+  // Servo #4 (Hexarotor only)
+  if (ACTUATORS_NB > 4) {
+  motor_mix_helper = (int16_t)motor_mixing.commands[4];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &motor_mix_helper, sizeof(pprz_t));
+ }
+  else {
+    static pprz_t dummy_cmd_1 = 0;
+    memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &dummy_cmd_1, sizeof(pprz_t));
+  }
+  xgear_tx.idx += sizeof(pprz_t);
+
+  // Servo #5 (Hexarotor only)
+ if (ACTUATORS_NB > 5) {
+  motor_mix_helper = (int16_t)motor_mixing.commands[5];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &motor_mix_helper, sizeof(pprz_t));
+  }
+  else {
+    static pprz_t dummy_cmd_2 = 0;
+    memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &dummy_cmd_2, sizeof(pprz_t));
+  }
+  xgear_tx.idx += sizeof(pprz_t);
+#else // FIXEDWING CONFIGURATION
   // NUmber of commands
   xgear_tx.msg_buf[xgear_tx.idx] = (uint8_t)COMMANDS_NB;
   xgear_tx.idx++;
 
-#if XGEAR_VTOL // VTOL CONFIGURATION
-  // Servo #0
-  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &commands[0], sizeof(pprz_t));
-  xgear_tx.idx += sizeof(pprz_t);
-
-  // Servo #1
-  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &commands[1], sizeof(pprz_t));
-  xgear_tx.idx += sizeof(pprz_t);
-
-  // Servo #2
-  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &commands[2], sizeof(pprz_t));
-  xgear_tx.idx += sizeof(pprz_t);
-
-  // Servo #3
-  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &commands[3], sizeof(pprz_t));
-  xgear_tx.idx += sizeof(pprz_t);
-
-  // Servo #4 (Hexarotor only)
-  if (COMMANDS_NB > 4) {
-    memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &commands[4], sizeof(pprz_t));
-  }
-  else {
-    static pprz_t dummy_cmd = 0;
-    memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &dummy_cmd, sizeof(pprz_t));
-  }
-  xgear_tx.idx += sizeof(pprz_t);
-#else // FIXEDWING CONFIGURATION
   // Command THROTTLE
   memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &commands[COMMAND_THROTTLE], sizeof(pprz_t));
   xgear_tx.idx += sizeof(pprz_t);
@@ -546,10 +578,15 @@ void xgear_periodic(void)
   // command FLAPS
 #ifdef COMMAND_FLAPS
   memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &commands[COMMAND_FLAPS], sizeof(pprz_t));
-#else
-  static pprz_t dummy_cmd = 0;
-  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &dummy_cmd, sizeof(pprz_t));
-#endif
+#else /* No FLAPS */
+  static pprz_t dummy_cmd_1 = 0;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &dummy_cmd_1, sizeof(pprz_t));
+#endif /* COMMAND_FLAPS */
+  xgear_tx.idx += sizeof(pprz_t);
+
+  // command DUMMY
+  static pprz_t dummy_cmd_2 = 0;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &dummy_cmd_2, sizeof(pprz_t));
   xgear_tx.idx += sizeof(pprz_t);
 #endif /* XGEAR VTOL */
 

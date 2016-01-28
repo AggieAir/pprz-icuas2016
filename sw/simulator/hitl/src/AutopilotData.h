@@ -60,11 +60,12 @@ public:
     float ap_time = 0; // [s]
 
     // COMMANDS
-    int16_t cmd_throttle = 0;
-    int16_t cmd_roll = 0;
-    int16_t cmd_pitch = 0;
-    int16_t cmd_yaw = 0;
-    int16_t cmd_flaps = 0;
+    int16_t cmd_throttle = 0; // servo#0
+    int16_t cmd_roll = 0; // servo#1
+    int16_t cmd_pitch = 0; // servo#2
+    int16_t cmd_yaw = 0; // servo#3
+    int16_t cmd_flaps = 0; // servo#4
+    int16_t cmd_dummy = 0; // servo#5
 
     // Normalized commands
     double cmd_throttle_norm = 0;
@@ -72,6 +73,7 @@ public:
     double cmd_pitch_norm = 0;
     double cmd_yaw_norm = 0;
     double cmd_flaps_norm = 0;
+    double cmd_dummy_norm = 0;
 
     float alpha = 0; // [rad]
     float beta = 0; // [rad]

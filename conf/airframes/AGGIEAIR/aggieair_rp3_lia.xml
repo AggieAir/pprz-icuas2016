@@ -7,8 +7,8 @@ RP3 Lisa MX
 <airframe name="RP3 Lisa MX">
 
   <firmware name="fixedwing">
-    <define name="CONTROL_FREQUENCY" value="400"/>
-    <configure name="PERIODIC_FREQUENCY" value="400"/>
+    <define name="CONTROL_FREQUENCY" value="100"/>
+    <configure name="PERIODIC_FREQUENCY" value="100"/>
     <configure name="TELEMETRY_FREQUENCY" value="60"/>
     <define name="SERVO_HZ" value="400"/>
 
@@ -20,6 +20,18 @@ RP3 Lisa MX
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
+      <subsystem name="radio_control" type="ppm"/>
+    </target>
+
+    <target name="hitl" board="pc">
+      <subsystem name="fdm" type="jsbsim_hitl">
+      <!--
+        <define name="VN_PORT" value="USB1"/>
+        <define name="VN_BAUD" value="B921600"/>
+        <define name="AP_PORT" value="USB2"/>
+        <define name="AP_BAUD" value="B3000000"/>
+        -->
+      </subsystem>
       <subsystem name="radio_control" type="ppm"/>
     </target>
 
@@ -240,9 +252,10 @@ RP3 Lisa MX
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="JSBSIM_LAUNCHSPEED" value="25"/>
-    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
+    <define name="JSBSIM_LAUNCHSPEED" value="18"/>
+    <define name="JSBSIM_MODEL" value="minion" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>
+
     <define name="JS_AXIS_THROTTLE" value="0"/>
     <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>
 
@@ -256,6 +269,11 @@ RP3 Lisa MX
 
     <define name="JS_AXIS_FLAPS" value="5"/>
     <define name="JS_AXIS_MODE" value="7"/>
+
+    <define name="JSBSIM_ROLL_TRIM" value="0.008"/>
+    <define name="JSBSIM_PITCH_TRIM" value="0.0375"/>
+    <define name="JSBSIM_YAW_TRIM" value="0.001"/>
+    
   </section>
 
 </airframe>

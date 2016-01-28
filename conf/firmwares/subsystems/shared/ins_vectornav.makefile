@@ -78,9 +78,9 @@ VN_SRCS   += peripherals/vn200_serial.c
 
 #
 # Add to the target (AP+NPS))
-# add it for all targets except sim and fbw
+# add it for all targets except sim and fbw, and nps and hitl
 #
-ifeq (,$(findstring $(TARGET),sim fbw nps))
+ifeq (,$(findstring $(TARGET),sim fbw nps hitl))
 $(TARGET).CFLAGS += $(VN_CFLAGS)
 $(TARGET).srcs += $(VN_SRCS)
 endif

@@ -158,7 +158,6 @@ double min_dt;
 
 void nps_fdm_init(double dt)
 {
-
   fdm.init_dt = dt;
   fdm.curr_dt = dt;
   //Sets up the high fidelity timestep as a multiple of the normal timestep
@@ -285,7 +284,6 @@ static void feed_jsbsim(double *commands, int commands_nb)
   char buf[64];
   const char *names[] = NPS_ACTUATOR_NAMES;
   string property;
-
   int i;
   for (i = 0; i < commands_nb; i++) {
     sprintf(buf, "fcs/%s", names[i]);

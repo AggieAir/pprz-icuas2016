@@ -48,20 +48,26 @@ Q=@
 # so we can keep track of CPU usage
 RTOS_DEBUG ?= 0
 
+# Use only gddb2 for debugging unless otherwise specified
+DEBUG_LEVEL ?= 2
+
 ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
 $(info DEBUGGING ON)
+$(info DEBUG_LEVEL = -ggdb$(DEBUG_LEVEL))
 $(TARGET).CFLAGS += \
-  -DCH_DBG_STATISTICS=TRUE \
+  -DCH_DBG_STATISTICS=FALSE \
 	-DCH_DBG_SYSTEM_STATE_CHECK=TRUE \
 	-DCH_DBG_ENABLE_CHECKS=TRUE \
-	-DCH_DBG_ENABLE_ASSERTS=TRUE \
-	-DCH_DBG_ENABLE_TRACE=TRUE \
+	-DCH_DBG_ENABLE_ASSERTS=FALSE \
+	-DCH_DBG_ENABLE_TRACE=FALSE \
 	-DCH_DBG_ENABLE_STACK_CHECK=TRUE \
-	-DCH_DBG_FILL_THREADS=TRUE \
+	-DCH_DBG_FILL_THREADS=FALSE \
 	-DCH_DBG_THREADS_PROFILING=TRUE
-USE_OPT = -std=gnu99 -O0 -ggdb3 -fomit-frame-pointer -falign-functions \
-	 -W -Wall -DUSE_CHIBIOS_RTOS
 $(TARGET).CFLAGS += -DRTOS_DEBUG=1
+
+USE_OPT = -std=gnu99 -O0 -ggdb$(DEBUG_LEVEL) -fomit-frame-pointer -falign-functions \
+	 -W -Wall -DUSE_CHIBIOS_RTOS
+
 else
 $(info DEBUGGING OFF)
 $(TARGET).CFLAGS += -DCH_DBG_THREADS_PROFILING=TRUE

@@ -32,6 +32,10 @@
 
 #include <cmath>
 
+// ignore stupid warnings in JSBSim
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
 #include <initialization/FGInitialCondition.h>
@@ -44,6 +48,9 @@
 // Thrusters
 #include <models/propulsion/FGThruster.h>
 #include <models/propulsion/FGPropeller.h>
+
+// end ignore unused param warnings in JSBSim
+#pragma GCC diagnostic pop
 
 // for debug
 #include <iostream>
@@ -60,35 +67,67 @@
 // nps fdm
 #include "nps_fdm.h"
 
-// from flightplan
-#define NAV_LAT0 418141523/* 1e7deg */
-#define NAV_LON0 -1119792296/* 1e7deg */
-#define NAV_ALT0 1348000/* mm above msl */
-#define NAV_MSL0 641390 /* mm, EGM96 geoid-height (msl) over ellipsoid */
-#define GROUND_ALT 1348.
-#define QFU 90.0
-#define NPS_JSBSIM_LAUNCHSPEED 18 // m/s I assue
+#include "MsgConfig.h"
 
+#include "std.h"
 
-// from airframe.h
-//#define NPS_ACTUATOR_NAMES {"ne_motor", "se_motor", "sw_motor", "nw_motor"}
+#define DEBUG_FDM 0
 
-#define NPS_JSBSIM_ROLL_TRIM_CMD_NORM 0
-#define NPS_JSBSIM_PITCH_TRIM_CMD_NORM 0
-#define NPS_JSBSIM_YAW_TRIM_CMD_NORM 0
+/** Name of the JSBSim model.
+ *  Defaults to the AIRFRAME_NAME
+ */
+#ifndef NPS_JSBSIM_MODEL
+#define NPS_JSBSIM_MODEL AIRFRAME_NAME
+#endif
+
+#ifdef NPS_INITIAL_CONDITITONS
+#warning NPS_INITIAL_CONDITITONS was replaced by NPS_JSBSIM_INIT!
+#warning Defaulting to flight plan location.
+#endif
+
+/**
+ * Trim values for the airframe
+ */
+#ifndef NPS_JSBSIM_PITCH_TRIM
+#define NPS_JSBSIM_PITCH_TRIM 0.0
+#endif
+PRINT_CONFIG_VAR(NPS_JSBSIM_PITCH_TRIM);
+
+#ifndef NPS_JSBSIM_ROLL_TRIM
+#define NPS_JSBSIM_ROLL_TRIM 0.0
+#endif
+PRINT_CONFIG_VAR(NPS_JSBSIM_ROLL_TRIM);
+
+#ifndef NPS_JSBSIM_YAW_TRIM
+#define NPS_JSBSIM_YAW_TRIM 0.0
+#endif
+PRINT_CONFIG_VAR(NPS_JSBSIM_YAW_TRIM);
+
+/**
+ * Control surface deflections for visualisation
+ */
+//#define DEG2RAD 0.017
+
+#ifndef NPS_JSBSIM_ELEVATOR_MAX_RAD
+#define NPS_JSBSIM_ELEVATOR_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_AILERON_MAX_RAD
+#define NPS_JSBSIM_AILERON_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_RUDDER_MAX_RAD
+#define NPS_JSBSIM_RUDDER_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_FLAP_MAX_RAD
+#define NPS_JSBSIM_FLAP_MAX_RAD (20.0*DEG2RAD)
+#endif
 
 using namespace JSBSim;
 using namespace std;
 
-#define DEBUG 1
-
-#ifdef DegOfRad
-#undef DegOfRad
-#endif
-
-#ifdef RadOfDeg
-#undef RadOfDeg
-#endif
+//#define DEBUG 1
 
 /** Minimum JSBSim timestep
  * Around 1/10000 seems to be good for ground impacts
@@ -104,8 +143,7 @@ private:
   /// The JSBSim executive object
   FGFDMExec* FDMExec_;
   bool initialized_;
-  string rootdir_ = "jsbsim/"; // TODO: add proper links
-  string NPS_JSBSIM_MODEL_ = "minion";//"Malolo1";
+  string rootdir_;
   string jsbsim_ic_name_;
 
   bool high_sim_rate_;
@@ -130,10 +168,16 @@ public:
   timeval initial_time_;
 
   FDM(double dt, timeval startTime){
+    char buf[1024];
+    sprintf(buf, "%s/conf/simulator/jsbsim/", getenv("PAPARAZZI_HOME"));
+    rootdir_ = string(buf);
+
     initial_time_ = startTime;
 
-    fdm.init_dt = dt;
-    fdm.curr_dt = dt;
+    // dt hardcoded to 1/1024 s
+    // TODO: fix later with proper values
+    fdm.init_dt = 0.000976562;//dt;
+    fdm.curr_dt = 0.000976562;//dt;
     //Sets up the high fidelity timestep as a multiple of the normal timestep
     for (min_dt = (1.0/dt); min_dt < (1/MIN_DT); min_dt += (1/dt)){}
     min_dt = (1/min_dt);
@@ -153,8 +197,6 @@ public:
 
     startFDM();
 
-    //FDMExec_->RunIC();
-
     init_ltp();
 
     launch = false;
@@ -167,11 +209,11 @@ public:
    */
   void startFDM() {
     // Load model
-    if ( ! FDMExec_->LoadModel( rootdir_ + "aircraft",
-        rootdir_ + "engine",
-        rootdir_ + "systems",
-        NPS_JSBSIM_MODEL_,
-        false)){
+    if (! FDMExec_->LoadModel(rootdir_ + "aircraft",
+                               rootdir_ + "engine",
+                               rootdir_ + "systems",
+                               NPS_JSBSIM_MODEL,
+                               false)) {
       cerr << "  JSBSim could not be started" << endl;
       return;
     }
@@ -215,6 +257,10 @@ public:
       IC->SetPsiDegIC(QFU);
       IC->SetVgroundFpsIC(0.);
 
+      lla0.lon = RadOfDeg(NAV_LON0 / 1e7);
+      lla0.lat = gd_lat;
+      lla0.alt = (double)(NAV_ALT0+NAV_MSL0)/1000.0;
+
       // initial commands to zero
       double zeros[] = {0.0, 0.0, 0.0, 0.0};
       feed_jsbsim(zeros,4);
@@ -228,10 +274,6 @@ public:
 
       // Get init time for the simulation
       initial_time_ = LogTime::getStart();
-
-      lla0.lon = RadOfDeg(NAV_LON0 / 1e7);
-      lla0.lat = gd_lat;
-      lla0.alt = (double)(NAV_ALT0+NAV_MSL0)/1000.0;
     }
 
     // compute offset between geocentric and geodetic ecef
@@ -272,16 +314,26 @@ public:
    * @param commands_nb Number of commands (length of array)
    */
   void feed_jsbsim(double* commands, int commands_nb) {
-    char buf[64];
 #ifdef NPS_ACTUATOR_NAMES
+    char buf[64];
     const char* names[] = NPS_ACTUATOR_NAMES;
     string property;
+#if DEBUG_FDM
+    cout << "Commands: ";
+#endif
     for (int i=0; i < commands_nb; i++) {
+#if DEBUG_FDM
+      cout << names[i] << ", " << commands[i] << ", ";
+#endif
       sprintf(buf,"fcs/%s",names[i]);
       property = string(buf);
       FDMExec_->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
     }
+#if DEBUG_FDM
+    cout << endl;
+#endif
 #else
+    (void)commands_nb;
     feed_jsbsim(commands[0], commands[1], commands[2], commands[3]);
 #endif /* NPS_ACTUATOR_NAMES */
   }
@@ -296,17 +348,13 @@ public:
   void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
   {
     FGFCS* FCS = FDMExec_->GetFCS();
-    FGPropulsion* FProp = FDMExec_->GetPropulsion();
 
     /*
      * TRIM
      */
-
-    aileron = aileron + 0.008;
-    elevator = elevator + 0.0375;
-    rudder = rudder + 0.001;
-
-
+    aileron = aileron + NPS_JSBSIM_ROLL_TRIM;
+    elevator = elevator + NPS_JSBSIM_PITCH_TRIM;
+    rudder = rudder + NPS_JSBSIM_YAW_TRIM;
 
     FCS->SetDaCmd(aileron);
 
@@ -317,8 +365,8 @@ public:
       FCS->SetThrottleCmd(i, throttle);
       FCS->SetThrottlePos(i, throttle);
       /* For IC engine only
+       * TODO: use or remove
       FCS->SetMixtureCmd(1,1);
-
       FProp->SetStarter(1);
       FProp->SetActiveEngine(1);
       */
@@ -329,8 +377,7 @@ public:
    * Right now just runs a step, extend to it accounts for delays
    */
   bool run_step(){
-//#ifdef NPS_JSBSIM_LAUNCHSPEED
-
+#ifdef NPS_JSBSIM_LAUNCHSPEED
   if (launch && !already_launched) {
     printf("Launching with speed of %.1f m/s!\n", (float)NPS_JSBSIM_LAUNCHSPEED);
     FDMExec_->GetIC()->SetUBodyFpsIC(FeetOfMeters(NPS_JSBSIM_LAUNCHSPEED));
@@ -339,7 +386,7 @@ public:
     initial_time_ = LogTime::getStart();
     already_launched = true;
   }
-//#endif
+#endif
 
 
     /* To deal with ground interaction issues, we decrease the time
@@ -421,6 +468,9 @@ public:
       num_steps = 0; // the idea is if we are too much ahead of the
     }
 
+#if DEBUG_FDM
+    cout << "NUm steps:" << num_steps << ", cur dt: " << fdm.curr_dt << endl;
+#endif
     //cout << "Num steps: " << num_steps <<  ", fdm.curr_dt = " << fdm.curr_dt << ", fdm.init_dt = " << fdm.init_dt <<
     //    ", timeDiff = " << timeDiff << " [s]"<< endl;
     //cout << "Num steps: " << num_steps <<  ", fdm.curr_dt = " << fdm.curr_dt << ", fdm.init_dt = " << fdm.init_dt << endl;
@@ -590,7 +640,7 @@ public:
      */
     VectorNavData data;
     FGPropagate* propagate = FDMExec_->GetPropagate();
-    FGAccelerations* accelerations = FDMExec_->GetAccelerations();
+    //FGAccelerations* accelerations = FDMExec_->GetAccelerations();
 
     // Timer - in nanoseconds since startup
     double sim_time;
@@ -662,11 +712,6 @@ public:
 
     //Vel body, float [m/s]
     // The estimated velocity in the body (i.e. imu) frame, given in m/s.
-
-
-
-
-
     /*
     std::cout << "Sim time: " << boost::format("%1$.5f") % sim_time << "[s], Quat0: " <<
         boost::format("%1$.5f") % jsb_quat.Entry(1) << ", Quat1: " <<
@@ -708,7 +753,7 @@ public:
     return atan2(hmsl * sin(gd_lat) + a * sin(ls), hmsl * cos(gd_lat) + a * cos(ls));
   }
 
-
+/*
   static double DegOfRad(double x){
     return x*180.0/FDM::m_pi;
   }
@@ -716,6 +761,7 @@ public:
   static double RadOfDeg(double x){
     return x*(FDM::m_pi/180.0);
   }
+  */
 
   static double MetersOfFeet(double f){
     return (f/3.2808399);

@@ -301,35 +301,41 @@ private:
     data_.actuators_nb = data_packet_.msg_buf[idx];
     idx++;
 
-    // CMD_THROTTLE, int16
+    // CMD_THROTTLE / Servo#0, int16
     memcpy(&data_.cmd_throttle, &data_packet_.msg_buf[idx], sizeof(int16_t));
     idx += sizeof(uint16_t);
     data_.cmd_throttle_norm = ((double) data_.cmd_throttle / MAX_PPRZ);
     data_.actuators[0] = data_.cmd_throttle;
 
-    // CMD_ROLL, int16
+    // CMD_ROLL / Servo#1, int16
     memcpy(&data_.cmd_roll, &data_packet_.msg_buf[idx], sizeof(int16_t));
     idx += sizeof(uint16_t);
     data_.cmd_roll_norm = ((double) data_.cmd_roll / MAX_PPRZ);
     data_.actuators[1] = data_.cmd_roll;
 
-    // CMD_PITCH, int16
+    // CMD_PITCH / Servo#2, int16
     memcpy(&data_.cmd_pitch, &data_packet_.msg_buf[idx], sizeof(int16_t));
     idx += sizeof(uint16_t);
     data_.cmd_pitch_norm = ((double) data_.cmd_pitch / MAX_PPRZ);
     data_.actuators[2] = data_.cmd_pitch;
 
-    // CMD_YAW, int16
+    // CMD_YAW / Servo#3, int16
     memcpy(&data_.cmd_yaw, &data_packet_.msg_buf[idx], sizeof(int16_t));
     idx += sizeof(uint16_t);
     data_.cmd_yaw_norm = ((double) data_.cmd_yaw / MAX_PPRZ);
     data_.actuators[3] = data_.cmd_yaw;
 
-    // CMD_FLAPS, int16
+    // CMD_FLAPS / Servo#4, int16
     memcpy(&data_.cmd_flaps, &data_packet_.msg_buf[idx], sizeof(int16_t));
     idx += sizeof(uint16_t);
     data_.cmd_flaps_norm = ((double) data_.cmd_flaps / MAX_PPRZ);
     data_.actuators[4] = data_.cmd_flaps;
+
+    // CMD_DUMMY / Servo#5, int16
+    memcpy(&data_.cmd_dummy, &data_packet_.msg_buf[idx], sizeof(int16_t));
+    idx += sizeof(uint16_t);
+    data_.cmd_dummy_norm = ((double) data_.cmd_dummy / MAX_PPRZ);
+    data_.actuators[5] = data_.cmd_dummy;
 
     // Alpha
     memcpy(&data_.alpha, &data_packet_.msg_buf[idx], sizeof(float));
@@ -358,12 +364,11 @@ private:
 #if DEBUG_AP
     cout << LogTime::getTimeSinceStart(start_time_) << ", cmd_val:";
     for (int k = 0; k < data_.actuators_nb; k++) {
-      cout << data_.actuators[k] << ", ";
+      cout << data_.commands[k] << ", ";
     }
     cout << ", cnt: " << data_.msg_cnt << ", hdr errors: "
         << data_packet_.hdr_error << ", chck err: " << data_packet_.chksm_error
         << ", cmd#: " << (int) data_.actuators_nb;
-
     cout << endl;
 #endif
   }
@@ -421,6 +426,7 @@ public:
     lidar_.getLidarData();
     int length_write = boost::asio::write(port_,
         boost::asio::buffer((char*) lidar_.buffer, lidar_.getIdx()));
+    (void)length_write;
     //cout << "Lidar sent " << length_write << " bytes." << endl;
   }
 
@@ -432,6 +438,7 @@ public:
     lidar_.getIsaacData();
     int length_write = boost::asio::write(port_,
         boost::asio::buffer((char*) lidar_.buffer, lidar_.getIdx()));
+    (void)length_write;
     //cout << "Isaac sent " << length_write << " bytes." << endl;
   }
 
@@ -443,6 +450,7 @@ public:
     lidar_.getPayloadData();
     int length_write = boost::asio::write(port_,
         boost::asio::buffer((char*) lidar_.buffer, lidar_.getIdx()));
+    (void)length_write;
     //cout << "Payload sent " << length_write << " bytes." << endl;
   }
 

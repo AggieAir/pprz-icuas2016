@@ -58,6 +58,8 @@ using boost::asio::ip::udp;
 class Sender
 {
 private:
+  boost::asio::io_service& io_service_;
+
   /*
    * When running Minion, we have 60Hz control loops and 100Hz VN but it seems to be working just fine, so
    * take it in account in future development
@@ -78,7 +80,7 @@ private:
   bool fg_udp_active;
   Autopilot *ap_;
   VectorNav *vn_;
-  FDM fdm_;
+
   timeval start_time_;
   int fdm_counter_;
 
@@ -105,10 +107,10 @@ private:
                              "YprU-Yaw", "YprU-Pitch", "YprU-Roll", "InsStatus",
                              "VelBody-x", "VelBody-y", "VelBody-z",
                              "ap_time", "COMMANDS_NB", "COMMAND_THROTTLE",
-                             "COMMAND_ROLL", "COMMAND_PITCH", "COMMAND_YAW", "COMMAND_FLAPS",
+                             "COMMAND_ROLL", "COMMAND_PITCH", "COMMAND_YAW", "COMMAND_FLAPS", "COMMAND_DUMMY",
                              "alpha", "beta", "airspeed", "ap_settings"} };
+  FDM fdm_;
 
-  boost::asio::io_service& io_service_;
 
 void fg_prepare_data(){
   memset(&gui_, 0, sizeof(gui_));
@@ -244,7 +246,7 @@ public:
     fg_udp_active = fg_bind; // will be fg binding
 
     // Open file
-    filename_ = LogTime::get() + "." + ext_;
+    filename_ = "var/logs/" + LogTime::get() + "." + ext_;
     cout << "Sender: Opening " << filename_ << endl;
     try {
       file_.open(filename_.c_str());
@@ -356,11 +358,12 @@ public:
     file_ << boost::lexical_cast<string>(rx_data_.ap_time)  + separator_ + " "; // ap time
 
     file_ << boost::lexical_cast<string>((int)rx_data_.actuators_nb)  + separator_ + " "; // commands_nb
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_throttle)  + separator_ + " "; // cmd_throttle
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_roll) + separator_ + " "; // cmd_roll
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_pitch) + separator_ + " "; // cmd_pitch
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_yaw)  + separator_ + " "; // cmd_yaw
-    file_ << boost::lexical_cast<string>(rx_data_.cmd_flaps)  + separator_ + " "; // cmd_flaps
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_throttle)  + separator_ + " "; // cmd_throttle, servo#0
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_roll) + separator_ + " "; // cmd_roll, servo#1
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_pitch) + separator_ + " "; // cmd_pitch, servo#2
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_yaw)  + separator_ + " "; // cmd_yaw, servo#3
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_flaps)  + separator_ + " "; // cmd_flaps, servo#4
+    file_ << boost::lexical_cast<string>(rx_data_.cmd_dummy)  + separator_ + " "; // cmd_flaps, servo#5
 
     file_ << boost::lexical_cast<string>(rx_data_.alpha) + separator_ + " "; // alpha
     file_ << boost::lexical_cast<string>(rx_data_.beta) + separator_ + " "; // beta
@@ -401,7 +404,7 @@ public:
     buf = (uint8_t*)&gui_;
 
     boost::array<uint8_t, sizeof(gui_)> send_buf_ = {0};
-    for (int i = 0; i<sizeof(gui_); i++){
+    for (uint32_t i = 0; i<sizeof(gui_); i++){
       send_buf_[i] = buf[i];
     }
 
@@ -448,12 +451,13 @@ public:
   void handle_send(const boost::system::error_code& e/*error*/,
       std::size_t t /*bytes_transferred*/)
   {
-    /*
 #if DEBUG_SENDER
     std::cerr << "Status: " << e.message() << endl;
     std::cerr << "Send  " << t << " bytes" << endl;
+#else
+    (void)t;
+    (void)e;
 #endif
-    */
   }
 
   /**
@@ -493,6 +497,8 @@ public:
    */
   void handle_sim_step(const boost::system::error_code& error)
   {
+    (void)error;
+
     static timeval t1, t2;
     gettimeofday(&t1, NULL);
     static int cnt;

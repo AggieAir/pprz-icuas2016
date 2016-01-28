@@ -118,7 +118,7 @@ public:
   {
     timeval curTime;
     gettimeofday(&curTime, NULL);
-    int milli = curTime.tv_usec / 1000;
+    //int milli = curTime.tv_usec / 1000;
     char buffer [80];
     // TODO an important note to be considered is that functions like localtime are not thread-safe, and you'd better use localtime_r instead.
     strftime(buffer, 80, "%Y-%m-%d_%H-%M-%S", localtime(&curTime.tv_sec));
@@ -165,10 +165,8 @@ public:
   {
     timeval curTime;
     gettimeofday(&curTime, NULL);
-    int milli = curTime.tv_usec / 1000;
-
+    //int milli = curTime.tv_usec / 1000;
     char buffer [80];
-
     strftime(buffer, 80, "%Y-%m-%d", localtime(&curTime.tv_sec));
 
     return buffer;
