@@ -72,12 +72,18 @@ RP3 Lisa MX
   </firmware>
 
   <modules>
-    <load name="nav_line.xml"/>
     <load name="xgear.xml">
       <configure name="XGEAR_PORT" value="UART1"/>
       <configure name="XGEAR_BAUD" value="B3000000"/>
     </load>
+
     <load name="battery_monitor.xml"/>
+
+    <!-- Extra navigation -->
+    <load name="nav_line.xml"/>
+    <load name="nav_flower.xml"/>
+    <load name="nav_survey_poly_osam.xml"/>
+    <load name="nav_catapult.xml"/>
   </modules>
 
   <!-- commands section -->
