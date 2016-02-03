@@ -1,0 +1,106 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="1420" ground_alt="1220" lat0="38.74" lon0="-110.15" max_dist_from_home="15000" name="SanRafael2015" security_height="25">
+  <header>
+#include "subsystems/navigation/OSAMNav.h"
+#include "subsystems/datalink/datalink.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="FA1" x="-8977.9" y="5617.2"/>
+    <waypoint name="FA2" x="6194.3" y="5996.4"/>
+    <waypoint name="FA3" x="6192.0" y="-4158.6"/>
+    <waypoint name="FA4" x="-9020.1" y="-4178.8"/>
+    <waypoint alt="1668.99" name="FL1_0" x="3904.01" y="4119.00"/>
+    <waypoint alt="1669.00" name="FL1_1" x="3223.48" y="3471.36"/>
+    <waypoint alt="1669.00" name="FL1_2" x="3040.17" y="3352.42"/>
+    <waypoint alt="1669.00" name="FL1_3" x="3032.95" y="2987.56"/>
+    <waypoint alt="1669.00" name="FL1_4" x="2618.03" y="3310.72"/>
+    <waypoint alt="1669.00" name="FL1_5" x="2753.92" y="2888.26"/>
+    <waypoint alt="1669.00" name="FL1_6" x="2109.85" y="2397.72"/>
+    <waypoint alt="1680.00" name="FL1_7" x="1885.73" y="2412.02"/>
+    <waypoint alt="1679.99" name="FL1_8" x="1712.66" y="2182.51"/>
+    <waypoint alt="1680.00" name="FL1_9" x="184.21" y="2010.56"/>
+    <waypoint alt="1680.00" name="FL1_10" x="396.11" y="996.71"/>
+    <waypoint alt="1680.00" name="FL1_11" x="283.68" y="616.83"/>
+    <waypoint alt="1680.00" name="FL1_12" x="-535.19" y="523.00"/>
+    <waypoint alt="1680.00" name="FL2_0" x="-174.08" y="622.11"/>
+    <waypoint alt="1680.00" name="FL2_1" x="-1076.13" y="299.38"/>
+    <waypoint alt="1680.00" name="FL2_2" x="-1941.98" y="1287.45"/>
+    <waypoint alt="1680.00" name="FL2_3" x="-2238.47" y="936.54"/>
+    <waypoint alt="1680.00" name="FL2_4" x="-2059.19" y="-7.67"/>
+    <waypoint alt="1690.00" name="FL2_5" x="-2491.39" y="128.77"/>
+    <waypoint alt="1690.00" name="FL2_6" x="-3095.75" y="-314.59"/>
+    <waypoint alt="1690.00" name="FL2_7" x="-2981.71" y="-1056.25"/>
+    <waypoint alt="1690.00" name="FL2_8" x="-3359.14" y="-1105.95"/>
+    <waypoint alt="1690.0" name="FL2_9" x="-3255.6" y="-483.9"/>
+    <waypoint alt="1690.0" name="FL2_10" x="-3466.2" y="-365.1"/>
+    <waypoint alt="1690.0" name="FL2_11" x="-3602.7" y="-578.9"/>
+    <waypoint alt="1690.00" name="FL2_12" x="-4243.03" y="-750.44"/>
+    <waypoint alt="1690.00" name="FL2_13" x="-4925.87" y="-1194.08"/>
+    <waypoint alt="1294.0" name="AF" x="459.7" y="1739.0"/>
+    <waypoint alt="1237.0" name="BUNGEE" x="574.5" y="1768.8"/>
+    <waypoint alt="1537.5" name="GCS" x="567.0" y="1753.7"/>
+    <waypoint alt="1684.0" name="STDBY" x="475.8" y="1801.3"/>
+    <waypoint alt="1237.0" name="TD" x="544.4" y="1778.6"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="FA1"/>
+      <corner name="FA2"/>
+      <corner name="FA3"/>
+      <corner name="FA4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Setup Wait">
+      <set value="1" var="kill_throttle"/>
+      <while cond="TRUE"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeLauncherTakeoff()"/>
+      <call fun="LauncherTakeoff()"/>
+    </block>
+    <block name="Standby">
+      <circle radius="200" wp="STDBY"/>
+    </block>
+    <block name="CircleUpTo450">
+      <circle alt="1670" radius="200" wp="STDBY"/>
+    </block>
+    <block name="Landing CW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Landing CCW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="FL1 Upstream">
+      <go approaching_time="30" from="STDBY" hmode="route" wp="FL1_0"/>
+      <call fun="FlightLineBlock(WP_FL1_0,WP_FL1_12,nav_radius,100,100)"/>
+      <go approaching_time="30" from="FL1_12" hmode="route" wp="STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="FL1 Downstream">
+      <go approaching_time="30" from="STDBY" hmode="route" wp="FL1_12"/>
+      <call fun="FlightLineBlock(WP_FL1_12,WP_FL1_0,nav_radius,100,100)"/>
+      <go approaching_time="30" from="FL1_0" hmode="route" wp="STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="FL2 Upstream">
+      <go approaching_time="30" from="STDBY" hmode="route" wp="FL2_0"/>
+      <call fun="FlightLineBlock(WP_FL2_0,WP_FL2_13,nav_radius,100,100)"/>
+      <go approaching_time="30" from="FL2_13" hmode="route" wp="STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="FL2 Downstream">
+      <go approaching_time="30" from="STDBY" hmode="route" wp="FL2_13"/>
+      <call fun="FlightLineBlock(WP_FL2_13,WP_FL2_0,nav_radius,100,100)"/>
+      <go approaching_time="30" from="FL2_0" hmode="route" wp="STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+  </blocks>
+</flight_plan>

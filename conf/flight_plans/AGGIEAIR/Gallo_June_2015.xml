@@ -1,0 +1,91 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="240" ground_alt="40" lat0="38.2825" lon0="-121.1201" max_dist_from_home="4129" name="Gallo_June_2015" security_height="25">
+  <header>
+#include "subsystems/navigation/nav_line.h"
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/navigation/OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint alt="50.42" name="FA1" x="-1365.06" y="1875.15"/>
+    <waypoint alt="52.00" name="FA2" x="1231.45" y="1940.82"/>
+    <waypoint alt="47.33" name="FA3" x="1340.13" y="-1481.93"/>
+    <waypoint alt="34.00" name="FA4" x="-1260.52" y="-1493.18"/>
+    <waypoint alt="490.0" name="Gallo450_0" x="-349.9" y="1354.9"/>
+    <waypoint alt="490.0" name="Gallo450_1" x="400.0" y="1368.1"/>
+    <waypoint alt="490.0" name="Gallo450_2" x="436.1" y="-709.6"/>
+    <waypoint alt="490.0" name="Gallo450_3" x="-313.4" y="-735.7"/>
+    <waypoint name="Gallo200_0" x="-349.9" y="1354.9"/>
+    <waypoint name="Gallo200_1" x="400.0" y="1368.1"/>
+    <waypoint name="Gallo200_2" x="436.1" y="-709.6"/>
+    <waypoint name="Gallo200_3" x="-313.4" y="-735.7"/>
+    <waypoint alt="96.0" name="AF" x="83.6" y="785.5"/>
+    <waypoint alt="36.0" name="BUNGEE" x="174.3" y="247.8"/>
+    <waypoint name="GCS" x="189.9" y="234.4"/>
+    <waypoint alt="238.0" name="STDBY" x="-55.1" y="199.7"/>
+    <waypoint alt="34.4" name="TD" x="83.6" y="185.5"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="FA1"/>
+      <corner name="FA2"/>
+      <corner name="FA3"/>
+      <corner name="FA4"/>
+    </sector>
+    <sector name="Gallo450">
+      <corner name="Gallo450_0"/>
+      <corner name="Gallo450_1"/>
+      <corner name="Gallo450_2"/>
+      <corner name="Gallo450_3"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Setup Wait">
+      <set value="1" var="kill_throttle"/>
+      <while cond="TRUE"/>
+    </block>
+    <block name="Launch" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeLauncherTakeoff()"/>
+      <call fun="LauncherTakeoff()"/>
+    </block>
+    <block name="Standby">
+      <circle radius="200" wp="STDBY"/>
+    </block>
+    <block name="CircleUpTo450">
+      <circle alt="490" radius="200" wp="STDBY"/>
+    </block>
+    <block name="Gallo450_Init">
+      <call fun="InitializePolygonSurvey(WP_Gallo450_0,4,170,-89.0)"/>
+    </block>
+    <block name="Gallo450">
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Standby"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Init Gallo300">
+      <call fun="InitializePolygonSurvey(WP_Gallo200_0,4,240,90.0)"/>
+    </block>
+    <block name="Gallo300">
+      <exception cond="PolySurveySweepBackNum >=2" deroute="Standby"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Gallo200_Init">
+      <call fun="InitializePolygonSurvey(WP_Gallo200_0,4,150,-89.0)"/>
+    </block>
+    <block name="Gallo200">
+      <exception cond="PolySurveySweepBackNum >=2" deroute="Standby"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Landing CW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Landing CCW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

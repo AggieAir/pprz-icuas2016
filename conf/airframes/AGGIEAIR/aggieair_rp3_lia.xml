@@ -273,7 +273,6 @@ RP3 Lisa MX
     <define name="JSBSIM_ROLL_TRIM" value="0.008"/>
     <define name="JSBSIM_PITCH_TRIM" value="0.0375"/>
     <define name="JSBSIM_YAW_TRIM" value="0.001"/>
-    
   </section>
 
 </airframe>
