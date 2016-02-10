@@ -3,6 +3,9 @@
 <flight_plan alt="1353" ground_alt="1333" lat0="41.815021" lon0="-111.970231" max_dist_from_home="1500" name="Rotorcraft Basic (Enac)" security_height="2">
   <header>
 #include "autopilot.h"
+#include "subsystems/radio_control.h"
+#define RC_CMD_THROTTLE radio_control.values[RADIO_THROTTLE]
+#define RC_CMD_THRESHOLD MAX_PPRZ*0.95
   </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
@@ -42,6 +45,10 @@
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <while cond="TRUE">
+        <stay vmode="throttle" throttle="0.1" wp="CLIMB"/>
+        <while cond="RC_CMD_THRESHOLD > RC_CMD_THROTTLE"/>
+      </while>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
