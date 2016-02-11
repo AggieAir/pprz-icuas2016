@@ -3,7 +3,9 @@
 <flight_plan alt="1353" ground_alt="1333" lat0="41.815021" lon0="-111.970231" max_dist_from_home="1500" name="Rotorcraft Basic (Enac)" security_height="2">
   <header>
 #include "autopilot.h"
+#ifdef USE_NPS
 #include "subsystems/radio_control.h"
+#endif
 #define RC_CMD_THROTTLE radio_control.values[RADIO_THROTTLE]
 #define RC_CMD_THRESHOLD MAX_PPRZ*0.95
   </header>
