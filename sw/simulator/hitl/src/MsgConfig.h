@@ -31,6 +31,7 @@
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
+#include "paparazzi.h"
 
 /*
  * Message status for parsing
@@ -89,7 +90,7 @@ enum MsgStatus {
 #endif
 
 
-#define MAX_PPRZ 9600
+//#define MAX_PPRZ 9600
 
 
 
