@@ -103,6 +103,7 @@ static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
   static uint16_t sec_cnt = 0;
 
   sec_cnt = ins_vn.vn_packet.counter -  last_cnt;
+  ins_vn.vn_freq = sec_cnt; // update frequency counter
 
   // Mutex guard
   insMtxLock();
@@ -331,6 +332,7 @@ void ins_vectornav_init(void)
   // Initialize variables
   ins_vn.vn_status = VNNotTracking;
   ins_vn.vn_time = get_sys_time_float();
+  ins_vn.vn_freq = 0;
 
   // Initialize packet
   ins_vn.vn_packet.status = VNMsgSync;
@@ -382,6 +384,19 @@ void ins_vectornav_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_GYRO_SCALED, send_gyro_scaled);
 #endif
 }
+
+
+/**
+ * Periodic function, checks and updates the GPS status
+ */
+void ins_vectornav_periodic(void)
+{
+  // we want at least 75% of 400Hz to claim good data
+  if (ins_vn.vn_freq < (PERIODIC_FREQUENCY*0.75)) {
+    gps.fix = GPS_FIX_NONE;
+  }
+}
+
 
 /**
  * Read received data

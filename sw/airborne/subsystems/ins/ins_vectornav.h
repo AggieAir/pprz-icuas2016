@@ -82,7 +82,7 @@ struct InsVectornav {
   // Packet data
   struct VNPacket vn_packet;///< Packet struct
   enum VNStatus vn_status;  ///< VN status
-  float vn_freq;            ///< data frequency
+  uint16_t vn_freq;            ///< data frequency (number of packets per second)
   uint16_t vn_chksm;         ///< aux variable for checksum
   uint32_t vn_time;          ///< VN time stamp
   uint32_t vn_ltime;         ///< aux time stamp
@@ -127,8 +127,11 @@ extern mutex_t mtx_ins;
 void thd_ins_rx(void* arg);
 #endif /* USE_CHIBIOS_RTOS */
 
+#define InsPeriodic ins_vectornav_periodic
+
 extern void ins_vectornav_init(void);
 extern void ins_vectornav_event(void);
+extern void ins_vectornav_periodic(void);
 
 extern void ins_vectornav_read_message(void);
 extern void ins_vectornav_check_status(void);
