@@ -239,8 +239,19 @@ ARK RT
     <define name="ACTUATOR_NAMES"  value="f_motor, fr_motor, br_motor, b_motor, bl_motor, fl_motor" type="string[]"/>
     <define name="JSBSIM_MODEL"    value="AGGIEAIR/aggieair_ark_hexa" type="string"/>
     <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
-    <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
-    <define name="JS_AXIS_MODE"    value="4"/>
+    
+    <define name="JS_AXIS_THROTTLE" value="0"/>
+    <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_ROLL" value="1"/>
+
+    <define name="JS_AXIS_PITCH" value="2"/>
+    <define name="JS_AXIS_PITCH_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_YAW" value="3"/>
+    <define name="JS_AXIS_YAW_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_MODE" value="7"/>
   </section>
 
   <section name="GCS">
