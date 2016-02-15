@@ -49,6 +49,14 @@
 #include "subsystems/datalink/telemetry.h"
 #endif
 
+// for CtrlSys
+// we expect stabilization/stabilization_attitude_euler_float.h
+//#include STABILIZATION_ATTITUDE_TYPE_H
+#include "stabilization/stabilization_attitude_euler_float.h"
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
+#include "firmwares/rotorcraft/stabilization.h"
+
 // for xgear rx messages
 #include "modules/loggers/xgear_lidar.h"
 #include "modules/loggers/xgear_status.h"
@@ -63,7 +71,11 @@
 #define XGEAR_MSG_TYPE_MOVE_WAYPOINT 3
 #define XGEAR_MSG_TYPE_ISAAC_STATUS 4
 #define XGEAR_MSG_TYPE_PAYLOAD_STATUS 5
-#define XGEAR_SYSID_PAYLOAD_LENGTH 167 // comes from the Xgear SysIDA specifications
+#define XGEAR_MSG_TYPE_VTOL_CONTROL_SYS 6
+#define XGEAR_MSG_TYPE_FW_CONTROL_SYS 7
+#define XGEAR_MSG_TYPE_BATTERY_MONITOR 8
+#define XGEAR_SYSID_PAYLOAD_LENGTH 167 // comes from the Xgear SysID specifications
+#define XGEAR_CTRLSYS_PAYLOAD_LENGTH 208 // comes from the Xgear VTOL CtrlSys specifications
 //note: should be at some point taken from XGEAR conf file
 
 // max length of rx data
@@ -150,8 +162,14 @@ struct Xgear {
 extern struct Xgear xgear_tx;
 extern struct Xgear xgear_rx;
 
+// Module settings
+extern uint8_t xgear_flag_sysid;
+extern uint8_t xgear_flag_ctrsys;
+
 void xgear_init(void);
 void xgear_periodic(void);
+void xgear_send_sysid(void);
+void xgear_send_ctrlsys(void);
 void xgear_parse(uint8_t c);
 void xgear_read_message(void);
 

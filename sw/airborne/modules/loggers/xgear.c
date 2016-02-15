@@ -37,6 +37,9 @@
 struct Xgear xgear_tx;
 struct Xgear xgear_rx;
 
+uint8_t xgear_flag_sysid;
+uint8_t xgear_flag_ctrsys;
+
 static event_source_t eventXgearRx;
 #define EVT_XGEAR_RX 8
 volatile uint8_t xgear_flag_tx;
@@ -223,6 +226,10 @@ void thd_xgear_rx(void *arg)
 
 void xgear_init(void)
 {
+  // Default config:
+  xgear_flag_sysid = 1; // SysID
+  xgear_flag_ctrsys = 1; // CtrlSys
+
   // Transmit
   xgear_tx.msg_cnt = 0;
   xgear_tx.chksm_error = 0;
@@ -410,6 +417,30 @@ X Bytes Data
 2 Bytes Data Checksum
  */
 void xgear_periodic(void)
+{
+  // SysID
+  if (xgear_flag_sysid) {
+    xgear_send_sysid();
+  }
+
+  // FIXME: Introduce ideally half-period delay so the buffers can be send
+  // Ideally we would have a queue of transactions, which would be processed
+  // in callbacks (txend).
+  //  For the time being just sleep for 750us
+  systime_t time = US2ST(750);
+  chThdSleep(time);
+
+  // ControlSys
+  if (xgear_flag_ctrsys) {
+    xgear_send_ctrlsys();
+  }
+
+}
+
+/**
+ * Send SysID packet
+ */
+void xgear_send_sysid(void)
 {
   static uint16_t hdr_chksum, dta_chksum;
 
@@ -629,6 +660,328 @@ void xgear_periodic(void)
     uartStartSend(&XGEAR_PORT, (size_t)(xgear_tx.idx), xgear_tx.msg_buf);
     xgear_tx.msg_cnt++;
   }
+}
+
+
+/**
+ * Send Control System packet
+ */
+void xgear_send_ctrlsys(void)
+{
+  static uint16_t hdr_chksum, dta_chksum;
+
+  // header
+  xgear_tx.msg_buf[0] = XGEAR_SYNC0;
+  xgear_tx.msg_buf[1] = XGEAR_SYNC1;
+  xgear_tx.msg_buf[2] = XGEAR_MSG_TYPE_VTOL_CONTROL_SYS;
+
+  // header - size
+  static uint16_t datalength = XGEAR_CTRLSYS_PAYLOAD_LENGTH;
+  xgear_tx.msg_buf[3] = (uint8_t) ((datalength >> 8) & 0xFF);  // MSB
+  xgear_tx.msg_buf[4] = (uint8_t) (datalength & 0xFF);  // LSB
+
+  // header - checksum
+  hdr_chksum = calculate_checksum(xgear_tx.msg_buf + 2,
+      (uint16_t) (XGEAR_HEADER_LENGTH - 4));
+  xgear_tx.msg_buf[5] = (uint8_t) (hdr_chksum >> 8);
+  xgear_tx.msg_buf[6] = (uint8_t) (hdr_chksum & 0xFF);
+
+  // DATA
+  // index after the header
+  xgear_tx.idx = XGEAR_HEADER_LENGTH;
+
+  // helper variable
+  static float sp;
+
+  // ap_time, float, [s]
+  sp = get_sys_time_float();
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // sp_phi [deg]
+  sp = DegOfRad(stab_att_sp_euler.phi);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // sp_theta [deg]
+  sp = DegOfRad(stab_att_sp_euler.theta);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // sp_psi [deg]
+  sp = DegOfRad(stab_att_sp_euler.psi);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_phi [deg]
+  sp = DegOfRad(att_ref_euler_f.euler.phi);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_theta [deg]
+  sp = DegOfRad(att_ref_euler_f.euler.theta);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_psi [deg]
+  sp = DegOfRad(att_ref_euler_f.euler.psi);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_p [deg/s]
+  sp = DegOfRad(att_ref_euler_f.rate.p);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_q [deg/s]
+  sp = DegOfRad(att_ref_euler_f.rate.q);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_r [deg/s]
+  sp = DegOfRad(att_ref_euler_f.rate.r);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_pd [deg/s^2]
+  sp = DegOfRad(att_ref_euler_f.accel.p);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_qd [deg/s^2]
+  sp = DegOfRad(att_ref_euler_f.accel.q);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // ref_rd [deg/s^2]
+  sp = DegOfRad(att_ref_euler_f.accel.r);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // estimated rates
+  struct FloatRates* body_rate = stateGetBodyRates_f();
+
+  // est_p [deg]
+  sp = DegOfRad(body_rate->p);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // est_q [deg]
+  sp = DegOfRad(body_rate->q);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // est_r [deg]
+  sp = DegOfRad(body_rate->r);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // estimated additude
+  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+
+  // est_phi [deg]
+  sp = DegOfRad(att->phi);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // est_theta [deg]
+  sp = DegOfRad(att->theta);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // est_psi [deg]
+  sp = DegOfRad(att->psi);
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // sum_err_phi
+  sp = stabilization_att_sum_err.phi;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // sum_err_theta
+  sp = stabilization_att_sum_err.theta;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // sum_err_psi
+  sp = stabilization_att_sum_err.psi;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // att_fb_roll [%]
+  sp = stabilization_att_fb_cmd[COMMAND_ROLL];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // att_fb_pitch [%]
+  sp = stabilization_att_fb_cmd[COMMAND_PITCH];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // att_fb_yaw [%]
+  sp = stabilization_att_fb_cmd[COMMAND_YAW];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // att_ff_roll [%]
+  sp = stabilization_att_ff_cmd[COMMAND_ROLL];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // att_ff_pitch [%]
+  sp = stabilization_att_ff_cmd[COMMAND_PITCH];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // att_ff_yaw [%]
+  sp = stabilization_att_ff_cmd[COMMAND_YAW];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &sp, sizeof(float));
+  xgear_tx.idx += sizeof(float);
+
+  // helper variable (int32)
+  static int32_t cmd;
+
+  // cmd_roll [PPRZ_T]
+  cmd = stabilization_cmd[COMMAND_ROLL];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // cmd_pitch [PPRZ_T]
+  cmd = stabilization_cmd[COMMAND_PITCH];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // cmd_yaw [PPRZ_T]
+  cmd = stabilization_cmd[COMMAND_YAW];
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // sp_x [meters (x 0.0039063)]
+  cmd = guidance_h.sp.pos.x;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // sp_y [meters (x 0.0039063)]
+  cmd = guidance_h.sp.pos.y;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // ref_x [meters (x 0.0039063)]
+  cmd = guidance_h.ref.pos.x;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // ref_y [meters (x 0.0039063)]
+  cmd = guidance_h.ref.pos.y;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // estimated position
+  struct NedCoor_i* pos = stateGetPositionNed_i();
+
+  // est_x [meters (x 0.0039063)]
+  cmd = pos->x;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // est_y [meters (x 0.0039063)]
+  cmd = pos->y;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // z_sp [meters (x 0.0039063)]
+  cmd = guidance_v_z_sp;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // zd_sp [m/s (x 0.0000019)]
+  cmd = guidance_v_zd_sp;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // est_z [meters (x 0.0039063)]
+  cmd = stateGetPositionNed_i()->z;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // est_zd [m/s (x 0.0000019)]
+  cmd = stateGetSpeedNed_i()->z;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // est_zdd [m/s^2 (x 0.0009766)]
+  cmd = stateGetAccelNed_i()->z;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // ref_z [meters (x 0.0039063)]
+  cmd = guidance_v_z_ref;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // ref_zd [m/s (x 0.0000019)]
+  cmd = guidance_v_zd_ref;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // ref_zdd [m/s^2 (x 0.0009766)]
+  cmd = guidance_v_zdd_ref;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // adp_inv_m [- (x 0.0000000596)]
+  cmd = gv_adapt_X;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // adp_cov [- (x 0.0000000596)]
+  cmd = gv_adapt_P;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // adp_meas [- (x 0.0000000596)]
+  cmd = gv_adapt_Xmeas;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // sum_err
+  cmd = guidance_v_z_sum_err;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // ff_cmd [PPRZ_T]
+  cmd = guidance_v_ff_cmd;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // fb_cmd [PPRZ_T]
+  cmd = guidance_v_fb_cmd;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+
+  // delta_t [PPRZ_T]
+  cmd = guidance_v_delta_t;
+  memcpy(&xgear_tx.msg_buf[xgear_tx.idx], &cmd, sizeof(int32_t));
+  xgear_tx.idx += sizeof(int32_t);
+  // END DATA
+
+  // Payload Checksum
+  dta_chksum = calculate_checksum(&(xgear_tx.msg_buf[XGEAR_HEADER_LENGTH]),
+      (uint16_t) XGEAR_CTRLSYS_PAYLOAD_LENGTH);
+  xgear_tx.msg_buf[xgear_tx.idx] = (uint8_t) (dta_chksum >> 8);
+  xgear_tx.idx++;
+  xgear_tx.msg_buf[xgear_tx.idx] = (uint8_t) (dta_chksum & 0xFF);
+  xgear_tx.idx++;
+
+  // Send
+  if (xgear_flag_tx == 0) {
+    xgear_flag_tx = 1;
+    uartStartSend(&XGEAR_PORT, (size_t) (xgear_tx.idx), xgear_tx.msg_buf);
+  }
+
+  xgear_tx.msg_cnt++;
+
 }
 
 
