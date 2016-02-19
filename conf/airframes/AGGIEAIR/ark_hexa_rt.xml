@@ -62,6 +62,7 @@ ARK RT
       <configure name="XGEAR_BAUD" value="B3000000"/>
       <configure name="XGEAR_VTOL" value="1"/>
     </load>
+    <load name="simulink_test.xml"/>
   </modules>
 
   <!--These values are set for the Castle Creations HV Lite 60A ESCs-->
