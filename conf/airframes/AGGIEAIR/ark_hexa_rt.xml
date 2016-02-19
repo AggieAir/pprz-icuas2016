@@ -44,7 +44,8 @@ ARK RT
         <configure name="MODEM_PORT" value="UART3"/>
         <configure name="MODEM_BAUD" value="B57600"/>
       </subsystem>
-      
+
+    <subsystem name="guidance" type="simulink"/>      
     <subsystem name="stabilization" type="float_euler"/>
     
       <subsystem name="ins"           type="vectornav">
@@ -52,7 +53,7 @@ ARK RT
         <configure name="VN_BAUD" value="B921600"/>
       </subsystem>
 
-    <configure name="RTOS_DEBUG" value="1"/>
+    <configure name="RTOS_DEBUG" value="0"/>
   </firmware>
 
   <modules>

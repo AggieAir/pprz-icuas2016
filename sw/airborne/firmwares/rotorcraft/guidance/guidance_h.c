@@ -65,8 +65,8 @@
 #define GUIDANCE_H_MAX_BANK RadOfDeg(20)
 #endif
 
-PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF)
-PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
+PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF);
+PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF);
 
 #ifndef GUIDANCE_H_APPROX_FORCE_BY_THRUST
 #define GUIDANCE_H_APPROX_FORCE_BY_THRUST FALSE
@@ -74,6 +74,13 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 
 #ifndef GUIDANCE_INDI
 #define GUIDANCE_INDI FALSE
+#endif
+
+#ifndef GUIDANCE_SIMULINK
+#define GUIDANCE_SIMULINK FALSE
+#else
+//#include "firmwares/rotorcraft/guidance/guidance_simulink.h"
+#include "modules/simulink/test1.h"
 #endif
 
 struct HorizontalGuidance guidance_h;
@@ -499,6 +506,7 @@ static void guidance_h_traj_run(bool_t in_flight)
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
   /* run PID */
+#if !GUIDANCE_SIMULINK /* use classical PID */
   int32_t pd_x =
     ((guidance_h.gains.p * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h.gains.d * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
@@ -511,6 +519,14 @@ static void guidance_h_traj_run(bool_t in_flight)
   guidance_h_cmd_earth.y = pd_y +
     ((guidance_h.gains.v * guidance_h.ref.speed.y) >> 17) + /* speed feedforward gain */
     ((guidance_h.gains.a * guidance_h.ref.accel.y) >> 8);   /* acceleration feedforward gain */
+#else /* USE SIMULINK PID CODE */
+  guidance_h_cmd_earth.x =
+    ((guidance_h.gains.v * guidance_h.ref.speed.x) >> 17) + /* speed feedforward gain */
+    ((guidance_h.gains.a * guidance_h.ref.accel.x) >> 8);   /* acceleration feedforward gain */
+  guidance_h_cmd_earth.y =
+    ((guidance_h.gains.v * guidance_h.ref.speed.y) >> 17) + /* speed feedforward gain */
+    ((guidance_h.gains.a * guidance_h.ref.accel.y) >> 8);   /* acceleration feedforward gain */
+#endif /* !GUIDANCE_SIMULINK */
 
   /* trim max bank angle from PD */
   VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
@@ -520,6 +536,7 @@ static void guidance_h_traj_run(bool_t in_flight)
    * but do not integrate POS errors when the SPEED is already catching up.
    */
   if (in_flight) {
+#if !GUIDANCE_SIMULINK /* use classical PID */
     /* ANGLE_FRAC (12) * GAIN (8) * LOOP_FREQ (9) -> INTEGRATOR HIGH RES ANGLE_FRAX (28) */
     guidance_h_trim_att_integrator.x += (guidance_h.gains.i * pd_x);
     guidance_h_trim_att_integrator.y += (guidance_h.gains.i * pd_y);
@@ -528,6 +545,22 @@ static void guidance_h_traj_run(bool_t in_flight)
     /* add it to the command */
     guidance_h_cmd_earth.x += (guidance_h_trim_att_integrator.x >> 16);
     guidance_h_cmd_earth.y += (guidance_h_trim_att_integrator.y >> 16);
+#else /* USE SIMULINK PID CODE */
+    /* Run the control loops only if in flight */
+    // somehow prepare the variables
+    test1_U.In1[0] = (double)guidance_h_pos_err.x;
+    test1_U.In1[1] = (double)guidance_h_pos_err.y;
+
+    // iterate the module
+    test1_step();
+
+    // update the results
+    guidance_h_cmd_earth.x = guidance_h_cmd_earth.x + (int32_t)test1_Y.Out1[0];
+    guidance_h_cmd_earth.y = guidance_h_cmd_earth.y + (int32_t)test1_Y.Out1[1];
+
+    /* trim max bank angle from PD */
+    VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
+#endif /* !GUIDANCE_SIMULINK */
   } else {
     INT_VECT2_ZERO(guidance_h_trim_att_integrator);
   }

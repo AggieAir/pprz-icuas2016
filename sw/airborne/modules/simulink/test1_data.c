@@ -21,7 +21,7 @@
 
 /* Block parameters (auto storage) */
 P_test1_T test1_P = {
-  11.0,                                /* Expression: P
+  0.1,                                /* Expression: P
                                         * Referenced by: '<S1>/Proportional Gain'
                                         */
   0.0025,                              /* Computed Parameter: Integrator_gainval
@@ -30,7 +30,7 @@ P_test1_T test1_P = {
   0.0,                                 /* Expression: InitialConditionForIntegrator
                                         * Referenced by: '<S1>/Integrator'
                                         */
-  6.0,                                 /* Expression: D
+  0.01,                                 /* Expression: D
                                         * Referenced by: '<S1>/Derivative Gain'
                                         */
   0.0025,                              /* Computed Parameter: Filter_gainval
@@ -42,7 +42,7 @@ P_test1_T test1_P = {
   100.0,                               /* Expression: N
                                         * Referenced by: '<S1>/Filter Coefficient'
                                         */
-  12.0                                 /* Expression: I
+  0.01                                 /* Expression: I
                                         * Referenced by: '<S1>/Integral Gain'
                                         */
 };

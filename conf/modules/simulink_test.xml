@@ -8,7 +8,7 @@
     <file name="test1.h"/>
   </header>
   <init fun="test1_initialize()"/>
-  <periodic fun="test1_step()" freq="PERIODIC_FREQUENCY"/>
+<!--  <periodic fun="test1_step()" freq="PERIODIC_FREQUENCY"/>-->
   <makefile target="ap">
      <file name="test1.c"/>
      <file name="test1_data.c"/>
