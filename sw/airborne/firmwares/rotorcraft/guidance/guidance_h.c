@@ -76,7 +76,7 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF);
 #define GUIDANCE_INDI FALSE
 #endif
 
-#define GUIDANCE_SIMULINK 1
+//#define GUIDANCE_SIMULINK 1
 
 #ifndef GUIDANCE_SIMULINK
 #define GUIDANCE_SIMULINK FALSE
@@ -462,9 +462,9 @@ void guidance_h_run(bool_t  in_flight)
         /* compute x,y earth commands */
         guidance_h_traj_run(in_flight);
         /* set final attitude setpoint */
-        //stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
-        //                                       guidance_h.sp.heading);
-        stabilization_attitude_set_earth_cmd_f(&guidance_h_cmd_earth_f, guidance_h.sp_f.heading);
+        stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
+                                               guidance_h.sp.heading);
+        //stabilization_attitude_set_earth_cmd_f(&guidance_h_cmd_earth_f, guidance_h.sp_f.heading);
 
 #endif
       }
@@ -601,51 +601,70 @@ static void guidance_h_traj_run(bool_t in_flight)
 #else /* USE SIMULINK PID CODE */
 // float code
   /* update position setpoint */
-  guidance_h.sp_f.pos.x = POS_FLOAT_OF_BFP(guidance_h.sp.pos.x);
-  guidance_h.sp_f.pos.y = POS_FLOAT_OF_BFP(guidance_h.sp.pos.y);
+  //guidance_h.sp_f.pos.x = POS_FLOAT_OF_BFP(guidance_h.sp.pos.x);
+  guidance_h.sp_f.pos.x = (float)(guidance_h.sp.pos.x);
+  //guidance_h.sp_f.pos.y = POS_FLOAT_OF_BFP(guidance_h.sp.pos.y);
+  guidance_h.sp_f.pos.y = (float)(guidance_h.sp.pos.y);
 
   /* update heading */
-  guidance_h.sp_f.heading = ANGLE_FLOAT_OF_BFP(guidance_h.sp.heading);
+  //guidance_h.sp_f.heading = ANGLE_FLOAT_OF_BFP(guidance_h.sp.heading);
+  guidance_h.sp_f.heading = (float)(guidance_h.sp.heading);
 
   /* maximum bank angle: default 20 deg, max 40 deg*/
-  static const float traj_max_bank = Min(GUIDANCE_H_MAX_BANK, RadOfDeg(40));
-  static const float total_max_bank = RadOfDeg(45);
+  //static const float traj_max_bank = Min(GUIDANCE_H_MAX_BANK, RadOfDeg(40));
+  static const float traj_max_bank = (float)Min(BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC),
+                                         BFP_OF_REAL(RadOfDeg(40), INT32_ANGLE_FRAC));
+  //static const float total_max_bank = RadOfDeg(45);
+  static const float total_max_bank = BFP_OF_REAL(RadOfDeg(45), INT32_ANGLE_FRAC);
 
   /* update ref position */
-  guidance_h.ref_f.pos.x = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x);
-  guidance_h.ref_f.pos.y = POS_FLOAT_OF_BFP(guidance_h.ref.pos.y);
+  //guidance_h.ref_f.pos.x = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x);
+  guidance_h.ref_f.pos.x = (float)(guidance_h.ref.pos.x);
+  //guidance_h.ref_f.pos.y = POS_FLOAT_OF_BFP(guidance_h.ref.pos.y);
+  guidance_h.ref_f.pos.y = (float)(guidance_h.ref.pos.y);
 
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err_f, guidance_h.ref_f.pos, *stateGetPositionNed_f());
+  //VECT2_DIFF(guidance_h_pos_err_f, guidance_h.ref_f.pos, *stateGetPositionNed_f());
+  VECT2_DIFF(guidance_h_pos_err_f, guidance_h.ref_f.pos, *stateGetPositionNed_i());
   /* saturate it               */
-  VECT2_STRIM(guidance_h_pos_err_f, -MAX_POS_ERR_F, MAX_POS_ERR_F);
+  //VECT2_STRIM(guidance_h_pos_err_f, -MAX_POS_ERR_F, MAX_POS_ERR_F);
+  VECT2_STRIM(guidance_h_pos_err_f, -MAX_POS_ERR, MAX_POS_ERR);
+  guidance_h_pos_err.x = (int32_t)guidance_h_pos_err_f.x;
+  guidance_h_pos_err.y = (int32_t)guidance_h_pos_err_f.y;
 
   /* update ref speed */
-  guidance_h.ref_f.speed.x = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
-  guidance_h.ref_f.speed.y = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
+  //guidance_h.ref_f.speed.x = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
+  guidance_h.ref_f.speed.x = (float)(guidance_h.ref.speed.x);
+  //guidance_h.ref_f.speed.y = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
+  guidance_h.ref_f.speed.y = (float)(guidance_h.ref.speed.y);
 
   /* compute speed error    */
-  VECT2_DIFF(guidance_h_speed_err_f, guidance_h.ref_f.speed, *stateGetSpeedNed_f());
+//  VECT2_DIFF(guidance_h_speed_err_f, guidance_h.ref_f.speed, *stateGetSpeedNed_f());
+  VECT2_DIFF(guidance_h_speed_err_f, guidance_h.ref_f.speed, *stateGetSpeedNed_i());
   /* saturate it               */
-  VECT2_STRIM(guidance_h_speed_err_f, -MAX_SPEED_ERR_F, MAX_SPEED_ERR_F);
-
+  //VECT2_STRIM(guidance_h_speed_err_f, -MAX_SPEED_ERR_F, MAX_SPEED_ERR_F);
+  VECT2_STRIM(guidance_h_speed_err_f, -MAX_SPEED_ERR, MAX_SPEED_ERR);
+  guidance_h_speed_err.x = (int32_t)guidance_h_speed_err_f.x;
+  guidance_h_speed_err.y = (int32_t)guidance_h_speed_err_f.y;
   /* update ref accel */
-  guidance_h.ref_f.accel.x =  ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.x);
-  guidance_h.ref_f.accel.y =  ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.y);
+  //guidance_h.ref_f.accel.x =  ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.x);
+  guidance_h.ref_f.accel.x =  (float)(guidance_h.ref.accel.x);
+  //guidance_h.ref_f.accel.y =  ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.y);
+  guidance_h.ref_f.accel.y =  (float)(guidance_h.ref.accel.y);
 
   /* run PID */
   float pd_x_f =
-    ((guidance_h.gains_f.p * guidance_h_pos_err_f.x) / 1.0) +
-    ((guidance_h.gains_f.d * (guidance_h_speed_err_f.x / 1.0)) / (1.0));
+    ((guidance_h.gains_f.p * guidance_h_pos_err_f.x) / 64.0) +
+    ((guidance_h.gains_f.d * (guidance_h_speed_err_f.x / 4.0)) / (32768.0));
   float pd_y_f =
-    ((guidance_h.gains_f.p * guidance_h_pos_err_f.y) / (1.0)) +
-    ((guidance_h.gains_f.d * (guidance_h_speed_err.y / 1.0)) / (1.0));
+    ((guidance_h.gains_f.p * guidance_h_pos_err_f.y) / (64.0)) +
+    ((guidance_h.gains_f.d * (guidance_h_speed_err.y / 4.0)) / (32768.0));
   guidance_h_cmd_earth_f.x = pd_x_f +
-    ((guidance_h.gains_f.v * guidance_h.ref_f.speed.x) / 1.0) + /* speed feedforward gain */
-    ((guidance_h.gains_f.a * guidance_h.ref_f.accel.x) / 1.0);   /* acceleration feedforward gain */
+    ((guidance_h.gains_f.v * guidance_h.ref_f.speed.x) / 131072.0) + /* speed feedforward gain */
+    ((guidance_h.gains_f.a * guidance_h.ref_f.accel.x) / 256.0);   /* acceleration feedforward gain */
   guidance_h_cmd_earth_f.y = pd_y_f +
-    ((guidance_h.gains_f.v * guidance_h.ref_f.speed.y) / 1.0) + /* speed feedforward gain */
-    ((guidance_h.gains_f.a * guidance_h.ref_f.accel.y) / 1.0);   /* acceleration feedforward gain */
+    ((guidance_h.gains_f.v * guidance_h.ref_f.speed.y) / 131072.0) + /* speed feedforward gain */
+    ((guidance_h.gains_f.a * guidance_h.ref_f.accel.y) / 256.0);   /* acceleration feedforward gain */
 
   /* trim max bank angle from PD */
   VECT2_STRIM(guidance_h_cmd_earth_f, -traj_max_bank, traj_max_bank);
@@ -659,17 +678,22 @@ static void guidance_h_traj_run(bool_t in_flight)
     guidance_h_trim_att_integrator_f.x += (guidance_h.gains_f.i * pd_x_f);
     guidance_h_trim_att_integrator_f.y += (guidance_h.gains_f.i * pd_y_f);
     /* saturate it  */
-    VECT2_STRIM(guidance_h_trim_att_integrator_f, -(traj_max_bank * 1.0), (traj_max_bank * 1.0));
+    VECT2_STRIM(guidance_h_trim_att_integrator_f, -(traj_max_bank * 65536.0), (traj_max_bank * 65536.0));
     /* add it to the command */
-    guidance_h_cmd_earth_f.x += (guidance_h_trim_att_integrator_f.x / 1.0);
-    guidance_h_cmd_earth_f.y += (guidance_h_trim_att_integrator_f.y / 1.0);
+    guidance_h_cmd_earth_f.x += (guidance_h_trim_att_integrator_f.x / 65536.0);
+    guidance_h_cmd_earth_f.y += (guidance_h_trim_att_integrator_f.y / 65536.0);
   } else {
     FLOAT_VECT2_ZERO(guidance_h_trim_att_integrator_f);
   }
 
+  guidance_h_trim_att_integrator.x = (int32_t)guidance_h_trim_att_integrator_f.x;
+  guidance_h_trim_att_integrator.y = (int32_t)guidance_h_trim_att_integrator_f.y;
+
   VECT2_STRIM(guidance_h_cmd_earth_f, -total_max_bank, total_max_bank);
-  guidance_h_cmd_earth.x =  ANGLE_BFP_OF_REAL(guidance_h_cmd_earth_f.x);
-  guidance_h_cmd_earth.y =  ANGLE_BFP_OF_REAL(guidance_h_cmd_earth_f.y);
+  //guidance_h_cmd_earth.x =  ANGLE_BFP_OF_REAL(guidance_h_cmd_earth_f.x);
+  guidance_h_cmd_earth.x =  (int32_t)(guidance_h_cmd_earth_f.x);
+  //guidance_h_cmd_earth.y =  ANGLE_BFP_OF_REAL(guidance_h_cmd_earth_f.y);
+  guidance_h_cmd_earth.y =  (int32_t)(guidance_h_cmd_earth_f.y);
 
   /*
   // Update inputs

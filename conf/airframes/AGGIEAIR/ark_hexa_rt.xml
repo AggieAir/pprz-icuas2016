@@ -233,11 +233,10 @@ ARK RT
     <define name="AGAIN" value="17"/>
     <define name="IGAIN" value="16"/>
     -->
-    <define name="PGAIN"    value="1"/>
-    <define name="DGAIN"    value="1"/>
-    <define name="IGAIN"    value="0"/>
-    <define name="AGAIN" value="0"/>
-    <define name="VGAIN" value="0"/>
+    <define name="PGAIN"    value="50"/>
+    <define name="DGAIN"    value="80"/>
+    <define name="IGAIN"    value="20"/>
+    <define name="AGAIN" value="70"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
