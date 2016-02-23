@@ -76,12 +76,12 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF);
 #define GUIDANCE_INDI FALSE
 #endif
 
-#define GUIDANCE_SIMULINK 1
+//#define GUIDANCE_SIMULINK 1
 
 #ifndef GUIDANCE_SIMULINK
 #define GUIDANCE_SIMULINK FALSE
 #else
-#include "modules/simulink/guidance_h_pid/guidance_simulink.h"
+#include SIMULINK_TYPE_H
 #endif
 
 struct HorizontalGuidance guidance_h;

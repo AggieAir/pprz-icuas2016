@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.23
+ * Model version                  : 1.27
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Tue Feb 23 15:50:53 2016
+ * C/C++ source code generated on : Tue Feb 23 15:50:01 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
@@ -34,10 +34,14 @@
 # define rtmSetErrorStatus(rtm, val)   ((rtm)->errorStatus = (val))
 #endif
 
+#ifndef rtmGetStopRequested
+# define rtmGetStopRequested(rtm)      ((void*) 0)
+#endif
+
 /* Block states (auto storage) for system '<Root>' */
 typedef struct {
-  real32_T DiscreteTimeIntegrator_DSTATE[2];/* '<Root>/Discrete-Time Integrator' */
-  int8_T DiscreteTimeIntegrator_PrevRese;/* '<Root>/Discrete-Time Integrator' */
+  real32_T DiscreteZeroPole_DSTATE[11];/* '<S1>/Discrete Zero-Pole' */
+  real32_T DiscreteZeroPole_DSTATE_b[11];/* '<S2>/Discrete Zero-Pole' */
 } DW_guidance_simulink_T;
 
 /* External inputs (root inport signals with auto storage) */
@@ -60,30 +64,6 @@ typedef struct {
 
 /* Parameters (auto storage) */
 struct P_guidance_simulink_T_ {
-  real32_T DiscreteTimeIntegrator_gainval;/* Computed Parameter: DiscreteTimeIntegrator_gainval
-                                           * Referenced by: '<Root>/Discrete-Time Integrator'
-                                           */
-  real32_T DiscreteTimeIntegrator_IC;  /* Computed Parameter: DiscreteTimeIntegrator_IC
-                                        * Referenced by: '<Root>/Discrete-Time Integrator'
-                                        */
-  real32_T I_Gain;                     /* Computed Parameter: I_Gain
-                                        * Referenced by: '<Root>/I'
-                                        */
-  real32_T MAX_INTEGRATOR_UpperSat;    /* Computed Parameter: MAX_INTEGRATOR_UpperSat
-                                        * Referenced by: '<Root>/MAX_INTEGRATOR'
-                                        */
-  real32_T MAX_INTEGRATOR_LowerSat;    /* Computed Parameter: MAX_INTEGRATOR_LowerSat
-                                        * Referenced by: '<Root>/MAX_INTEGRATOR'
-                                        */
-  real32_T scale6_Gain;                /* Computed Parameter: scale6_Gain
-                                        * Referenced by: '<Root>/scale6'
-                                        */
-  real32_T A_Gain;                     /* Computed Parameter: A_Gain
-                                        * Referenced by: '<Root>/A'
-                                        */
-  real32_T scale5_Gain;                /* Computed Parameter: scale5_Gain
-                                        * Referenced by: '<Root>/scale5'
-                                        */
   real32_T MAX_POS_ERR_UpperSat;       /* Computed Parameter: MAX_POS_ERR_UpperSat
                                         * Referenced by: '<Root>/MAX_POS_ERR'
                                         */
@@ -111,6 +91,48 @@ struct P_guidance_simulink_T_ {
   real32_T scale3_Gain;                /* Computed Parameter: scale3_Gain
                                         * Referenced by: '<Root>/scale3'
                                         */
+  real32_T DiscreteZeroPole_A[41];     /* Computed Parameter: DiscreteZeroPole_A
+                                        * Referenced by: '<S1>/Discrete Zero-Pole'
+                                        */
+  real32_T DiscreteZeroPole_B[6];      /* Computed Parameter: DiscreteZeroPole_B
+                                        * Referenced by: '<S1>/Discrete Zero-Pole'
+                                        */
+  real32_T DiscreteZeroPole_C[11];     /* Computed Parameter: DiscreteZeroPole_C
+                                        * Referenced by: '<S1>/Discrete Zero-Pole'
+                                        */
+  real32_T DiscreteZeroPole_D;         /* Computed Parameter: DiscreteZeroPole_D
+                                        * Referenced by: '<S1>/Discrete Zero-Pole'
+                                        */
+  real32_T DiscreteZeroPole_A_a[41];   /* Computed Parameter: DiscreteZeroPole_A_a
+                                        * Referenced by: '<S2>/Discrete Zero-Pole'
+                                        */
+  real32_T DiscreteZeroPole_B_b[6];    /* Computed Parameter: DiscreteZeroPole_B_b
+                                        * Referenced by: '<S2>/Discrete Zero-Pole'
+                                        */
+  real32_T DiscreteZeroPole_C_p[11];   /* Computed Parameter: DiscreteZeroPole_C_p
+                                        * Referenced by: '<S2>/Discrete Zero-Pole'
+                                        */
+  real32_T DiscreteZeroPole_D_b;       /* Computed Parameter: DiscreteZeroPole_D_b
+                                        * Referenced by: '<S2>/Discrete Zero-Pole'
+                                        */
+  real32_T I_Gain;                     /* Computed Parameter: I_Gain
+                                        * Referenced by: '<Root>/I'
+                                        */
+  real32_T MAX_INTEGRATOR_UpperSat;    /* Computed Parameter: MAX_INTEGRATOR_UpperSat
+                                        * Referenced by: '<Root>/MAX_INTEGRATOR'
+                                        */
+  real32_T MAX_INTEGRATOR_LowerSat;    /* Computed Parameter: MAX_INTEGRATOR_LowerSat
+                                        * Referenced by: '<Root>/MAX_INTEGRATOR'
+                                        */
+  real32_T scale6_Gain;                /* Computed Parameter: scale6_Gain
+                                        * Referenced by: '<Root>/scale6'
+                                        */
+  real32_T A_Gain;                     /* Computed Parameter: A_Gain
+                                        * Referenced by: '<Root>/A'
+                                        */
+  real32_T scale5_Gain;                /* Computed Parameter: scale5_Gain
+                                        * Referenced by: '<Root>/scale5'
+                                        */
   real32_T V_Gain;                     /* Computed Parameter: V_Gain
                                         * Referenced by: '<Root>/V'
                                         */
@@ -129,14 +151,11 @@ struct P_guidance_simulink_T_ {
   real32_T TOTAL_MAX_BANK_LowerSat;    /* Computed Parameter: TOTAL_MAX_BANK_LowerSat
                                         * Referenced by: '<Root>/TOTAL_MAX_BANK'
                                         */
-  int32_T Constant_Value[2];           /* Computed Parameter: Constant_Value
-                                        * Referenced by: '<Root>/Constant'
-                                        */
 };
 
 /* Real-time Model Data Structure */
 struct tag_RTM_guidance_simulink_T {
-  const char_T * volatile errorStatus;
+  const char_T *errorStatus;
 };
 
 /* Block parameters (auto storage) */
@@ -174,6 +193,8 @@ extern RT_MODEL_guidance_simulink_T *const guidance_simulink_M;
  * Here is the system hierarchy for this model
  *
  * '<Root>' : 'guidance_simulink'
+ * '<S1>'   : 'guidance_simulink/Discrete fractional Transfer Fcn'
+ * '<S2>'   : 'guidance_simulink/Discrete fractional Transfer Fcn1'
  */
 #endif                                 /* RTW_HEADER_guidance_simulink_h_ */
 

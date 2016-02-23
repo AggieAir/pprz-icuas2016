@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.17
+ * Model version                  : 1.23
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Tue Feb 23 12:52:16 2016
+ * C/C++ source code generated on : Tue Feb 23 15:50:53 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
@@ -16,6 +16,9 @@
 
 #include "guidance_simulink.h"
 #include "guidance_simulink_private.h"
+
+/* Block states (auto storage) */
+DW_guidance_simulink_T guidance_simulink_DW;
 
 /* External inputs (root inport signals with auto storage) */
 ExtU_guidance_simulink_T guidance_simulink_U;
@@ -30,14 +33,77 @@ RT_MODEL_guidance_simulink_T *const guidance_simulink_M = &guidance_simulink_M_;
 /* Model step function */
 void guidance_simulink_step(void)
 {
+  real32_T rtb_MAX_INTEGRATOR_idx;
+  real32_T rtb_MAX_INTEGRATOR_idx_0;
   real32_T rtb_MAX_POS_ERR_idx;
   real32_T rtb_MAX_POS_ERR_idx_0;
   real32_T rtb_MAX_SPEED_ERR_idx;
   real32_T rtb_MAX_SPEED_ERR_idx_0;
   real32_T rtb_Sum1_idx;
   real32_T rtb_Sum1_idx_0;
-  real32_T rtb_MAX_INTEGRATOR_idx;
-  real32_T rtb_MAX_INTEGRATOR_idx_0;
+  real32_T u;
+
+  /* DiscreteIntegrator: '<Root>/Discrete-Time Integrator' incorporates:
+   *  Inport: '<Root>/is_in_flight'
+   */
+  if ((guidance_simulink_U.is_in_flight &&
+       (guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese <= 0)) ||
+      ((!guidance_simulink_U.is_in_flight) &&
+       (guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese == 1))) {
+    guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[0] =
+      guidance_simulink_P.DiscreteTimeIntegrator_IC;
+    guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[1] =
+      guidance_simulink_P.DiscreteTimeIntegrator_IC;
+  }
+
+  /* Switch: '<Root>/Switch' incorporates:
+   *  Constant: '<Root>/Constant'
+   *  DiscreteIntegrator: '<Root>/Discrete-Time Integrator'
+   *  Inport: '<Root>/is_in_flight'
+   */
+  if (guidance_simulink_U.is_in_flight) {
+    rtb_MAX_INTEGRATOR_idx_0 =
+      guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[0];
+  } else {
+    rtb_MAX_INTEGRATOR_idx_0 = (real32_T)guidance_simulink_P.Constant_Value[0];
+  }
+
+  /* Gain: '<Root>/I' */
+  rtb_MAX_INTEGRATOR_idx = guidance_simulink_P.I_Gain * rtb_MAX_INTEGRATOR_idx_0;
+
+  /* Saturate: '<Root>/MAX_INTEGRATOR' */
+  if (rtb_MAX_INTEGRATOR_idx >= guidance_simulink_P.MAX_INTEGRATOR_UpperSat) {
+    rtb_MAX_INTEGRATOR_idx = guidance_simulink_P.MAX_INTEGRATOR_UpperSat;
+  } else {
+    if (rtb_MAX_INTEGRATOR_idx <= guidance_simulink_P.MAX_INTEGRATOR_LowerSat) {
+      rtb_MAX_INTEGRATOR_idx = guidance_simulink_P.MAX_INTEGRATOR_LowerSat;
+    }
+  }
+
+  /* Switch: '<Root>/Switch' incorporates:
+   *  Constant: '<Root>/Constant'
+   *  DiscreteIntegrator: '<Root>/Discrete-Time Integrator'
+   *  Inport: '<Root>/is_in_flight'
+   */
+  if (guidance_simulink_U.is_in_flight) {
+    rtb_MAX_INTEGRATOR_idx_0 =
+      guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[1];
+  } else {
+    rtb_MAX_INTEGRATOR_idx_0 = (real32_T)guidance_simulink_P.Constant_Value[1];
+  }
+
+  /* Gain: '<Root>/I' */
+  rtb_MAX_INTEGRATOR_idx_0 *= guidance_simulink_P.I_Gain;
+
+  /* Saturate: '<Root>/MAX_INTEGRATOR' */
+  if (rtb_MAX_INTEGRATOR_idx_0 >= guidance_simulink_P.MAX_INTEGRATOR_UpperSat) {
+    rtb_MAX_INTEGRATOR_idx_0 = guidance_simulink_P.MAX_INTEGRATOR_UpperSat;
+  } else {
+    if (rtb_MAX_INTEGRATOR_idx_0 <= guidance_simulink_P.MAX_INTEGRATOR_LowerSat)
+    {
+      rtb_MAX_INTEGRATOR_idx_0 = guidance_simulink_P.MAX_INTEGRATOR_LowerSat;
+    }
+  }
 
   /* Sum: '<Root>/Sum2' incorporates:
    *  Inport: '<Root>/positionNed_i'
@@ -119,41 +185,6 @@ void guidance_simulink_step(void)
     guidance_simulink_P.P_Gain * rtb_MAX_POS_ERR_idx_0 *
     guidance_simulink_P.scale1_Gain;
 
-  /* Switch: '<Root>/Switch' incorporates:
-   *  Constant: '<Root>/Constant'
-   *  Gain: '<Root>/I'
-   *  Inport: '<Root>/is_in_flight'
-   */
-  if (guidance_simulink_U.is_in_flight) {
-    rtb_MAX_INTEGRATOR_idx = guidance_simulink_P.I_Gain * rtb_Sum1_idx;
-    rtb_MAX_INTEGRATOR_idx_0 = guidance_simulink_P.I_Gain * rtb_Sum1_idx_0;
-  } else {
-    rtb_MAX_INTEGRATOR_idx = (real32_T)guidance_simulink_P.Constant_Value[0];
-    rtb_MAX_INTEGRATOR_idx_0 = (real32_T)guidance_simulink_P.Constant_Value[1];
-  }
-
-  /* End of Switch: '<Root>/Switch' */
-
-  /* Saturate: '<Root>/MAX_INTEGRATOR' */
-  if (rtb_MAX_INTEGRATOR_idx >= guidance_simulink_P.MAX_INTEGRATOR_UpperSat) {
-    rtb_MAX_INTEGRATOR_idx = guidance_simulink_P.MAX_INTEGRATOR_UpperSat;
-  } else {
-    if (rtb_MAX_INTEGRATOR_idx <= guidance_simulink_P.MAX_INTEGRATOR_LowerSat) {
-      rtb_MAX_INTEGRATOR_idx = guidance_simulink_P.MAX_INTEGRATOR_LowerSat;
-    }
-  }
-
-  if (rtb_MAX_INTEGRATOR_idx_0 >= guidance_simulink_P.MAX_INTEGRATOR_UpperSat) {
-    rtb_MAX_INTEGRATOR_idx_0 = guidance_simulink_P.MAX_INTEGRATOR_UpperSat;
-  } else {
-    if (rtb_MAX_INTEGRATOR_idx_0 <= guidance_simulink_P.MAX_INTEGRATOR_LowerSat)
-    {
-      rtb_MAX_INTEGRATOR_idx_0 = guidance_simulink_P.MAX_INTEGRATOR_LowerSat;
-    }
-  }
-
-  /* End of Saturate: '<Root>/MAX_INTEGRATOR' */
-
   /* Sum: '<Root>/Sum3' incorporates:
    *  Gain: '<Root>/A'
    *  Gain: '<Root>/V'
@@ -162,17 +193,17 @@ void guidance_simulink_step(void)
    *  Inport: '<Root>/ref_accel'
    *  Inport: '<Root>/ref_speed'
    */
-  rtb_Sum1_idx = (guidance_simulink_P.A_Gain * guidance_simulink_U.ref_accel[0] *
-                  guidance_simulink_P.scale5_Gain + rtb_Sum1_idx) +
+  u = (guidance_simulink_P.A_Gain * guidance_simulink_U.ref_accel[0] *
+       guidance_simulink_P.scale5_Gain + rtb_Sum1_idx) +
     guidance_simulink_P.V_Gain * guidance_simulink_U.ref_speed[0] *
     guidance_simulink_P.scale4_Gain;
 
   /* Saturate: '<Root>/TRAJ_MAX_BANK' */
-  if (rtb_Sum1_idx >= guidance_simulink_P.TRAJ_MAX_BANK_UpperSat) {
-    rtb_Sum1_idx = guidance_simulink_P.TRAJ_MAX_BANK_UpperSat;
+  if (u >= guidance_simulink_P.TRAJ_MAX_BANK_UpperSat) {
+    u = guidance_simulink_P.TRAJ_MAX_BANK_UpperSat;
   } else {
-    if (rtb_Sum1_idx <= guidance_simulink_P.TRAJ_MAX_BANK_LowerSat) {
-      rtb_Sum1_idx = guidance_simulink_P.TRAJ_MAX_BANK_LowerSat;
+    if (u <= guidance_simulink_P.TRAJ_MAX_BANK_LowerSat) {
+      u = guidance_simulink_P.TRAJ_MAX_BANK_LowerSat;
     }
   }
 
@@ -180,20 +211,20 @@ void guidance_simulink_step(void)
    *  Gain: '<Root>/scale6'
    *  Saturate: '<Root>/TRAJ_MAX_BANK'
    */
-  rtb_Sum1_idx += guidance_simulink_P.scale6_Gain * rtb_MAX_INTEGRATOR_idx;
+  u += guidance_simulink_P.scale6_Gain * rtb_MAX_INTEGRATOR_idx;
 
   /* Saturate: '<Root>/TOTAL_MAX_BANK' */
-  if (rtb_Sum1_idx >= guidance_simulink_P.TOTAL_MAX_BANK_UpperSat) {
+  if (u >= guidance_simulink_P.TOTAL_MAX_BANK_UpperSat) {
     /* Outport: '<Root>/guidance_h_cmd_earth' */
     guidance_simulink_Y.guidance_h_cmd_earth[0] =
       guidance_simulink_P.TOTAL_MAX_BANK_UpperSat;
-  } else if (rtb_Sum1_idx <= guidance_simulink_P.TOTAL_MAX_BANK_LowerSat) {
+  } else if (u <= guidance_simulink_P.TOTAL_MAX_BANK_LowerSat) {
     /* Outport: '<Root>/guidance_h_cmd_earth' */
     guidance_simulink_Y.guidance_h_cmd_earth[0] =
       guidance_simulink_P.TOTAL_MAX_BANK_LowerSat;
   } else {
     /* Outport: '<Root>/guidance_h_cmd_earth' */
-    guidance_simulink_Y.guidance_h_cmd_earth[0] = rtb_Sum1_idx;
+    guidance_simulink_Y.guidance_h_cmd_earth[0] = u;
   }
 
   /* Sum: '<Root>/Sum3' incorporates:
@@ -204,17 +235,17 @@ void guidance_simulink_step(void)
    *  Inport: '<Root>/ref_accel'
    *  Inport: '<Root>/ref_speed'
    */
-  rtb_Sum1_idx = (guidance_simulink_P.A_Gain * guidance_simulink_U.ref_accel[1] *
-                  guidance_simulink_P.scale5_Gain + rtb_Sum1_idx_0) +
+  u = (guidance_simulink_P.A_Gain * guidance_simulink_U.ref_accel[1] *
+       guidance_simulink_P.scale5_Gain + rtb_Sum1_idx_0) +
     guidance_simulink_P.V_Gain * guidance_simulink_U.ref_speed[1] *
     guidance_simulink_P.scale4_Gain;
 
   /* Saturate: '<Root>/TRAJ_MAX_BANK' */
-  if (rtb_Sum1_idx >= guidance_simulink_P.TRAJ_MAX_BANK_UpperSat) {
-    rtb_Sum1_idx = guidance_simulink_P.TRAJ_MAX_BANK_UpperSat;
+  if (u >= guidance_simulink_P.TRAJ_MAX_BANK_UpperSat) {
+    u = guidance_simulink_P.TRAJ_MAX_BANK_UpperSat;
   } else {
-    if (rtb_Sum1_idx <= guidance_simulink_P.TRAJ_MAX_BANK_LowerSat) {
-      rtb_Sum1_idx = guidance_simulink_P.TRAJ_MAX_BANK_LowerSat;
+    if (u <= guidance_simulink_P.TRAJ_MAX_BANK_LowerSat) {
+      u = guidance_simulink_P.TRAJ_MAX_BANK_LowerSat;
     }
   }
 
@@ -222,20 +253,20 @@ void guidance_simulink_step(void)
    *  Gain: '<Root>/scale6'
    *  Saturate: '<Root>/TRAJ_MAX_BANK'
    */
-  rtb_Sum1_idx += guidance_simulink_P.scale6_Gain * rtb_MAX_INTEGRATOR_idx_0;
+  u += guidance_simulink_P.scale6_Gain * rtb_MAX_INTEGRATOR_idx_0;
 
   /* Saturate: '<Root>/TOTAL_MAX_BANK' */
-  if (rtb_Sum1_idx >= guidance_simulink_P.TOTAL_MAX_BANK_UpperSat) {
+  if (u >= guidance_simulink_P.TOTAL_MAX_BANK_UpperSat) {
     /* Outport: '<Root>/guidance_h_cmd_earth' */
     guidance_simulink_Y.guidance_h_cmd_earth[1] =
       guidance_simulink_P.TOTAL_MAX_BANK_UpperSat;
-  } else if (rtb_Sum1_idx <= guidance_simulink_P.TOTAL_MAX_BANK_LowerSat) {
+  } else if (u <= guidance_simulink_P.TOTAL_MAX_BANK_LowerSat) {
     /* Outport: '<Root>/guidance_h_cmd_earth' */
     guidance_simulink_Y.guidance_h_cmd_earth[1] =
       guidance_simulink_P.TOTAL_MAX_BANK_LowerSat;
   } else {
     /* Outport: '<Root>/guidance_h_cmd_earth' */
-    guidance_simulink_Y.guidance_h_cmd_earth[1] = rtb_Sum1_idx;
+    guidance_simulink_Y.guidance_h_cmd_earth[1] = u;
   }
 
   /* Outport: '<Root>/guidance_h_trim_att_integrator_f' */
@@ -251,6 +282,21 @@ void guidance_simulink_step(void)
   /* Outport: '<Root>/speed_err_f' */
   guidance_simulink_Y.speed_err_f[0] = rtb_MAX_SPEED_ERR_idx;
   guidance_simulink_Y.speed_err_f[1] = rtb_MAX_SPEED_ERR_idx_0;
+
+  /* Update for DiscreteIntegrator: '<Root>/Discrete-Time Integrator' incorporates:
+   *  Inport: '<Root>/is_in_flight'
+   */
+  guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[0] +=
+    guidance_simulink_P.DiscreteTimeIntegrator_gainval * rtb_Sum1_idx;
+  guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[1] +=
+    guidance_simulink_P.DiscreteTimeIntegrator_gainval * rtb_Sum1_idx_0;
+  if (guidance_simulink_U.is_in_flight) {
+    guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese = 1;
+  } else {
+    guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese = 0;
+  }
+
+  /* End of Update for DiscreteIntegrator: '<Root>/Discrete-Time Integrator' */
 }
 
 /* Model initialize function */
@@ -261,6 +307,10 @@ void guidance_simulink_initialize(void)
   /* initialize error status */
   rtmSetErrorStatus(guidance_simulink_M, (NULL));
 
+  /* states (dwork) */
+  (void) memset((void *)&guidance_simulink_DW, 0,
+                sizeof(DW_guidance_simulink_T));
+
   /* external inputs */
   (void) memset((void *)&guidance_simulink_U, 0,
                 sizeof(ExtU_guidance_simulink_T));
@@ -268,6 +318,13 @@ void guidance_simulink_initialize(void)
   /* external outputs */
   (void) memset((void *)&guidance_simulink_Y, 0,
                 sizeof(ExtY_guidance_simulink_T));
+
+  /* InitializeConditions for DiscreteIntegrator: '<Root>/Discrete-Time Integrator' */
+  guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[0] =
+    guidance_simulink_P.DiscreteTimeIntegrator_IC;
+  guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[1] =
+    guidance_simulink_P.DiscreteTimeIntegrator_IC;
+  guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese = 2;
 }
 
 /* Model terminate function */
