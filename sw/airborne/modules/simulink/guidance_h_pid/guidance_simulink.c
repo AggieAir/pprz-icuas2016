@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.15
+ * Model version                  : 1.17
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Tue Feb 23 12:40:50 2016
+ * C/C++ source code generated on : Tue Feb 23 12:52:16 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
@@ -39,55 +39,69 @@ void guidance_simulink_step(void)
   real32_T rtb_MAX_INTEGRATOR_idx;
   real32_T rtb_MAX_INTEGRATOR_idx_0;
 
-  /* Saturate: '<Root>/MAX_POS_ERR' incorporates:
-   *  Inport: '<Root>/pos_err'
+  /* Sum: '<Root>/Sum2' incorporates:
+   *  Inport: '<Root>/positionNed_i'
+   *  Inport: '<Root>/ref_pos'
    */
-  if (guidance_simulink_U.pos_err[0] >= guidance_simulink_P.MAX_POS_ERR_UpperSat)
-  {
+  rtb_MAX_POS_ERR_idx = guidance_simulink_U.ref_pos[0] -
+    guidance_simulink_U.positionNed_i[0];
+
+  /* Saturate: '<Root>/MAX_POS_ERR' */
+  if (rtb_MAX_POS_ERR_idx >= guidance_simulink_P.MAX_POS_ERR_UpperSat) {
     rtb_MAX_POS_ERR_idx = guidance_simulink_P.MAX_POS_ERR_UpperSat;
-  } else if (guidance_simulink_U.pos_err[0] <=
-             guidance_simulink_P.MAX_POS_ERR_LowerSat) {
-    rtb_MAX_POS_ERR_idx = guidance_simulink_P.MAX_POS_ERR_LowerSat;
   } else {
-    rtb_MAX_POS_ERR_idx = guidance_simulink_U.pos_err[0];
+    if (rtb_MAX_POS_ERR_idx <= guidance_simulink_P.MAX_POS_ERR_LowerSat) {
+      rtb_MAX_POS_ERR_idx = guidance_simulink_P.MAX_POS_ERR_LowerSat;
+    }
   }
 
-  if (guidance_simulink_U.pos_err[1] >= guidance_simulink_P.MAX_POS_ERR_UpperSat)
-  {
-    rtb_MAX_POS_ERR_idx_0 = guidance_simulink_P.MAX_POS_ERR_UpperSat;
-  } else if (guidance_simulink_U.pos_err[1] <=
-             guidance_simulink_P.MAX_POS_ERR_LowerSat) {
-    rtb_MAX_POS_ERR_idx_0 = guidance_simulink_P.MAX_POS_ERR_LowerSat;
-  } else {
-    rtb_MAX_POS_ERR_idx_0 = guidance_simulink_U.pos_err[1];
-  }
-
-  /* End of Saturate: '<Root>/MAX_POS_ERR' */
-
-  /* Saturate: '<Root>/MAX_SPEED_ERR' incorporates:
-   *  Inport: '<Root>/speed_err'
+  /* Sum: '<Root>/Sum2' incorporates:
+   *  Inport: '<Root>/positionNed_i'
+   *  Inport: '<Root>/ref_pos'
    */
-  if (guidance_simulink_U.speed_err[0] >=
-      guidance_simulink_P.MAX_SPEED_ERR_UpperSat) {
+  rtb_MAX_POS_ERR_idx_0 = guidance_simulink_U.ref_pos[1] -
+    guidance_simulink_U.positionNed_i[1];
+
+  /* Saturate: '<Root>/MAX_POS_ERR' */
+  if (rtb_MAX_POS_ERR_idx_0 >= guidance_simulink_P.MAX_POS_ERR_UpperSat) {
+    rtb_MAX_POS_ERR_idx_0 = guidance_simulink_P.MAX_POS_ERR_UpperSat;
+  } else {
+    if (rtb_MAX_POS_ERR_idx_0 <= guidance_simulink_P.MAX_POS_ERR_LowerSat) {
+      rtb_MAX_POS_ERR_idx_0 = guidance_simulink_P.MAX_POS_ERR_LowerSat;
+    }
+  }
+
+  /* Sum: '<Root>/Sum' incorporates:
+   *  Inport: '<Root>/ref_speed'
+   *  Inport: '<Root>/speedNed_i'
+   */
+  rtb_MAX_SPEED_ERR_idx = guidance_simulink_U.ref_speed[0] -
+    guidance_simulink_U.speedNed_i[0];
+
+  /* Saturate: '<Root>/MAX_SPEED_ERR' */
+  if (rtb_MAX_SPEED_ERR_idx >= guidance_simulink_P.MAX_SPEED_ERR_UpperSat) {
     rtb_MAX_SPEED_ERR_idx = guidance_simulink_P.MAX_SPEED_ERR_UpperSat;
-  } else if (guidance_simulink_U.speed_err[0] <=
-             guidance_simulink_P.MAX_SPEED_ERR_LowerSat) {
-    rtb_MAX_SPEED_ERR_idx = guidance_simulink_P.MAX_SPEED_ERR_LowerSat;
   } else {
-    rtb_MAX_SPEED_ERR_idx = guidance_simulink_U.speed_err[0];
+    if (rtb_MAX_SPEED_ERR_idx <= guidance_simulink_P.MAX_SPEED_ERR_LowerSat) {
+      rtb_MAX_SPEED_ERR_idx = guidance_simulink_P.MAX_SPEED_ERR_LowerSat;
+    }
   }
 
-  if (guidance_simulink_U.speed_err[1] >=
-      guidance_simulink_P.MAX_SPEED_ERR_UpperSat) {
+  /* Sum: '<Root>/Sum' incorporates:
+   *  Inport: '<Root>/ref_speed'
+   *  Inport: '<Root>/speedNed_i'
+   */
+  rtb_MAX_SPEED_ERR_idx_0 = guidance_simulink_U.ref_speed[1] -
+    guidance_simulink_U.speedNed_i[1];
+
+  /* Saturate: '<Root>/MAX_SPEED_ERR' */
+  if (rtb_MAX_SPEED_ERR_idx_0 >= guidance_simulink_P.MAX_SPEED_ERR_UpperSat) {
     rtb_MAX_SPEED_ERR_idx_0 = guidance_simulink_P.MAX_SPEED_ERR_UpperSat;
-  } else if (guidance_simulink_U.speed_err[1] <=
-             guidance_simulink_P.MAX_SPEED_ERR_LowerSat) {
-    rtb_MAX_SPEED_ERR_idx_0 = guidance_simulink_P.MAX_SPEED_ERR_LowerSat;
   } else {
-    rtb_MAX_SPEED_ERR_idx_0 = guidance_simulink_U.speed_err[1];
+    if (rtb_MAX_SPEED_ERR_idx_0 <= guidance_simulink_P.MAX_SPEED_ERR_LowerSat) {
+      rtb_MAX_SPEED_ERR_idx_0 = guidance_simulink_P.MAX_SPEED_ERR_LowerSat;
+    }
   }
-
-  /* End of Saturate: '<Root>/MAX_SPEED_ERR' */
 
   /* Sum: '<Root>/Sum1' incorporates:
    *  Gain: '<Root>/D'
@@ -145,13 +159,12 @@ void guidance_simulink_step(void)
    *  Gain: '<Root>/V'
    *  Gain: '<Root>/scale4'
    *  Gain: '<Root>/scale5'
-   *  Inport: '<Root>/ref_accel_ffw'
-   *  Inport: '<Root>/ref_speed_ffw'
+   *  Inport: '<Root>/ref_accel'
+   *  Inport: '<Root>/ref_speed'
    */
-  rtb_Sum1_idx = (guidance_simulink_P.A_Gain *
-                  guidance_simulink_U.ref_accel_ffw[0] *
+  rtb_Sum1_idx = (guidance_simulink_P.A_Gain * guidance_simulink_U.ref_accel[0] *
                   guidance_simulink_P.scale5_Gain + rtb_Sum1_idx) +
-    guidance_simulink_P.V_Gain * guidance_simulink_U.ref_speed_ffw[0] *
+    guidance_simulink_P.V_Gain * guidance_simulink_U.ref_speed[0] *
     guidance_simulink_P.scale4_Gain;
 
   /* Saturate: '<Root>/TRAJ_MAX_BANK' */
@@ -188,13 +201,12 @@ void guidance_simulink_step(void)
    *  Gain: '<Root>/V'
    *  Gain: '<Root>/scale4'
    *  Gain: '<Root>/scale5'
-   *  Inport: '<Root>/ref_accel_ffw'
-   *  Inport: '<Root>/ref_speed_ffw'
+   *  Inport: '<Root>/ref_accel'
+   *  Inport: '<Root>/ref_speed'
    */
-  rtb_Sum1_idx = (guidance_simulink_P.A_Gain *
-                  guidance_simulink_U.ref_accel_ffw[1] *
+  rtb_Sum1_idx = (guidance_simulink_P.A_Gain * guidance_simulink_U.ref_accel[1] *
                   guidance_simulink_P.scale5_Gain + rtb_Sum1_idx_0) +
-    guidance_simulink_P.V_Gain * guidance_simulink_U.ref_speed_ffw[1] *
+    guidance_simulink_P.V_Gain * guidance_simulink_U.ref_speed[1] *
     guidance_simulink_P.scale4_Gain;
 
   /* Saturate: '<Root>/TRAJ_MAX_BANK' */

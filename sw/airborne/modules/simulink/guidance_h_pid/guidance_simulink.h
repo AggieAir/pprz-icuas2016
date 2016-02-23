@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.15
+ * Model version                  : 1.17
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Tue Feb 23 12:40:50 2016
+ * C/C++ source code generated on : Tue Feb 23 12:52:16 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
@@ -36,11 +36,12 @@
 
 /* External inputs (root inport signals with auto storage) */
 typedef struct {
-  real32_T pos_err[2];                 /* '<Root>/pos_err' */
-  real32_T speed_err[2];               /* '<Root>/speed_err' */
-  real32_T ref_speed_ffw[2];           /* '<Root>/ref_speed_ffw' */
+  real32_T positionNed_i[2];           /* '<Root>/positionNed_i' */
+  real32_T speedNed_i[2];              /* '<Root>/speedNed_i' */
+  real32_T ref_speed[2];               /* '<Root>/ref_speed' */
   boolean_T is_in_flight;              /* '<Root>/is_in_flight' */
-  real32_T ref_accel_ffw[2];           /* '<Root>/ref_accel_ffw' */
+  real32_T ref_accel[2];               /* '<Root>/ref_accel' */
+  real32_T ref_pos[2];                 /* '<Root>/ref_pos' */
 } ExtU_guidance_simulink_T;
 
 /* External outputs (root outports fed by signals with auto storage) */

@@ -714,14 +714,17 @@ static void guidance_h_traj_run(bool_t in_flight)
   guidance_h.ref_f.accel.y =  (float)(guidance_h.ref.accel.y);
 
   // Update inputs
-  VECT2_DIFF(guidance_h_pos_err_f, guidance_h.ref_f.pos, *stateGetPositionNed_i());
-  guidance_simulink_U.pos_err[0] = guidance_h_pos_err_f.x;
-  guidance_simulink_U.pos_err[1] = guidance_h_pos_err_f.y;
+  //VECT2_DIFF(guidance_h_pos_err_f, guidance_h.ref_f.pos, *stateGetPositionNed_i());
+  //guidance_simulink_U.pos_err[0] = guidance_h_pos_err_f.x;
+  //guidance_simulink_U.pos_err[1] = guidance_h_pos_err_f.y;
+  guidance_simulink_U.positionNed_i[0] = (*stateGetPositionNed_i()).x;
+  guidance_simulink_U.positionNed_i[1] = (*stateGetPositionNed_i()).y;
 
-  VECT2_DIFF(guidance_h_speed_err_f, guidance_h.ref_f.speed, *stateGetSpeedNed_i());
-  guidance_simulink_U.speed_err[0] = guidance_h_speed_err_f.x;
-  guidance_simulink_U.speed_err[1] = guidance_h_speed_err_f.y;
-
+  //VECT2_DIFF(guidance_h_speed_err_f, guidance_h.ref_f.speed, *stateGetSpeedNed_i());
+  //guidance_simulink_U.speed_err[0] = guidance_h_speed_err_f.x;
+  //guidance_simulink_U.speed_err[1] = guidance_h_speed_err_f.y;
+  guidance_simulink_U.speedNed_i[0] = (*stateGetSpeedNed_i()).x;
+  guidance_simulink_U.speedNed_i[1] = (*stateGetSpeedNed_i()).y;
   /*
   struct NedCoor_i pos = *stateGetPositionNed_i();
   struct NedCoor_i speed = *stateGetPositionNed_i();
@@ -733,19 +736,19 @@ static void guidance_h_traj_run(bool_t in_flight)
   // Speed
   guidance_simulink_U.stateSpeedNed_f[0] = (float)speed.x;
   guidance_simulink_U.stateSpeedNed_f[1] = (float)speed.y;
-
+  */
   // Ref pos
   guidance_simulink_U.ref_pos[0] = guidance_h.ref_f.pos.x;
   guidance_simulink_U.ref_pos[1] = guidance_h.ref_f.pos.y;
-  */
+
 
   // Ref speed
-  guidance_simulink_U.ref_speed_ffw[0] = guidance_h.ref_f.speed.x;
-  guidance_simulink_U.ref_speed_ffw[1] = guidance_h.ref_f.speed.y;
+  guidance_simulink_U.ref_speed[0] = guidance_h.ref_f.speed.x;
+  guidance_simulink_U.ref_speed[1] = guidance_h.ref_f.speed.y;
 
   // Ref accel
-  guidance_simulink_U.ref_accel_ffw[0] = guidance_h.ref_f.accel.x;
-  guidance_simulink_U.ref_accel_ffw[1] = guidance_h.ref_f.accel.y;
+  guidance_simulink_U.ref_accel[0] = guidance_h.ref_f.accel.x;
+  guidance_simulink_U.ref_accel[1] = guidance_h.ref_f.accel.y;
 
   // In flight (integrator switch)
   guidance_simulink_U.is_in_flight = (uint8_t)in_flight;
