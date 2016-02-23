@@ -76,7 +76,7 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF);
 #define GUIDANCE_INDI FALSE
 #endif
 
-//#define GUIDANCE_SIMULINK 1
+#define GUIDANCE_SIMULINK 1
 
 #ifndef GUIDANCE_SIMULINK
 #define GUIDANCE_SIMULINK FALSE
@@ -521,6 +521,7 @@ static void guidance_h_update_reference(void)
 
 #define MAX_POS_ERR   POS_BFP_OF_REAL(16.)
 #define MAX_SPEED_ERR SPEED_BFP_OF_REAL(16.)
+
 #define MAX_POS_ERR_F POS_FLOAT_OF_BFP(MAX_POS_ERR)
 #define MAX_SPEED_ERR_F SPEED_FLOAT_OF_BFP(MAX_SPEED_ERR)
 
@@ -600,6 +601,8 @@ static void guidance_h_traj_run(bool_t in_flight)
   VECT2_STRIM(guidance_h_cmd_earth, -total_max_bank, total_max_bank);
 #else /* USE SIMULINK PID CODE */
 // float code
+
+#ifdef NO_SIMULINK
   /* update position setpoint */
   //guidance_h.sp_f.pos.x = POS_FLOAT_OF_BFP(guidance_h.sp.pos.x);
   guidance_h.sp_f.pos.x = (float)(guidance_h.sp.pos.x);
@@ -695,47 +698,98 @@ static void guidance_h_traj_run(bool_t in_flight)
   //guidance_h_cmd_earth.y =  ANGLE_BFP_OF_REAL(guidance_h_cmd_earth_f.y);
   guidance_h_cmd_earth.y =  (int32_t)(guidance_h_cmd_earth_f.y);
 
-  /*
+#else
+
+  guidance_h.sp_f.pos.x = (float)(guidance_h.sp.pos.x);
+  guidance_h.sp_f.pos.y = (float)(guidance_h.sp.pos.y);
+  guidance_h.sp_f.heading = (float)(guidance_h.sp.heading);
+
+  guidance_h.ref_f.pos.x = (float)(guidance_h.ref.pos.x);
+  guidance_h.ref_f.pos.y = (float)(guidance_h.ref.pos.y);
+
+  guidance_h.ref_f.speed.x = (float)(guidance_h.ref.speed.x);
+  guidance_h.ref_f.speed.y = (float)(guidance_h.ref.speed.y);
+
+  guidance_h.ref_f.accel.x =  (float)(guidance_h.ref.accel.x);
+  guidance_h.ref_f.accel.y =  (float)(guidance_h.ref.accel.y);
+
   // Update inputs
-  struct NedCoor_f pos = *stateGetPositionNed_f();
-  struct NedCoor_f speed = *stateGetPositionNed_f();
+  VECT2_DIFF(guidance_h_pos_err_f, guidance_h.ref_f.pos, *stateGetPositionNed_i());
+  guidance_simulink_U.pos_err[0] = guidance_h_pos_err_f.x;
+  guidance_simulink_U.pos_err[1] = guidance_h_pos_err_f.y;
+
+  VECT2_DIFF(guidance_h_speed_err_f, guidance_h.ref_f.speed, *stateGetSpeedNed_i());
+  guidance_simulink_U.speed_err[0] = guidance_h_speed_err_f.x;
+  guidance_simulink_U.speed_err[1] = guidance_h_speed_err_f.y;
+
+  /*
+  struct NedCoor_i pos = *stateGetPositionNed_i();
+  struct NedCoor_i speed = *stateGetPositionNed_i();
 
   // Position
-  guidance_simulink_U.statePosNed_f[0] = pos.x;
-  guidance_simulink_U.statePosNed_f[1] = pos.y;
+  guidance_simulink_U.statePosNed_f[0] = (float)pos.x;
+  guidance_simulink_U.statePosNed_f[1] = (float)pos.y;
 
   // Speed
-  guidance_simulink_U.stateSpeedNed_f[0] = speed.x;
-  guidance_simulink_U.stateSpeedNed_f[1] = speed.y;
+  guidance_simulink_U.stateSpeedNed_f[0] = (float)speed.x;
+  guidance_simulink_U.stateSpeedNed_f[1] = (float)speed.y;
 
   // Ref pos
-  guidance_simulink_U.ref_pos[0] = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x);
-  guidance_simulink_U.ref_pos[1] = POS_FLOAT_OF_BFP(guidance_h.ref.pos.y);
+  guidance_simulink_U.ref_pos[0] = guidance_h.ref_f.pos.x;
+  guidance_simulink_U.ref_pos[1] = guidance_h.ref_f.pos.y;
+  */
 
   // Ref speed
-  guidance_simulink_U.ref_speed[0] = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
-  guidance_simulink_U.ref_speed[1] = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
+  guidance_simulink_U.ref_speed_ffw[0] = guidance_h.ref_f.speed.x;
+  guidance_simulink_U.ref_speed_ffw[1] = guidance_h.ref_f.speed.y;
 
   // Ref accel
-  guidance_simulink_U.ref_accel[0] = ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.x);
-  guidance_simulink_U.ref_accel[1] = ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.y);
+  guidance_simulink_U.ref_accel_ffw[0] = guidance_h.ref_f.accel.x;
+  guidance_simulink_U.ref_accel_ffw[1] = guidance_h.ref_f.accel.y;
 
   // In flight (integrator switch)
-  guidance_simulink_U.is_in_flight = in_flight;
+  guidance_simulink_U.is_in_flight = (uint8_t)in_flight;
 
   // Update gains
-  guidance_simulink_P.P_Gain = ((float)guidance_h.gains.p)/10.0;
-  guidance_simulink_P.D_Gain = ((float)guidance_h.gains.d)/10.0;
-  guidance_simulink_P.I_Gain = ((float)guidance_h.gains.i)/10.0;
-  guidance_simulink_P.A_Gain = ((float)guidance_h.gains.a)/10.0;
+  guidance_simulink_P.P_Gain = guidance_h.gains_f.p;
+  guidance_simulink_P.D_Gain = guidance_h.gains_f.d;
+  guidance_simulink_P.I_Gain = guidance_h.gains_f.i;
+  guidance_simulink_P.A_Gain = guidance_h.gains_f.a;
 
   // Run control loops
   guidance_simulink_step();
 
   // Update outputs
-  guidance_h_cmd_earth.x = (int32_t)(guidance_simulink_Y.guidance_h_cmd_earth[0]*1000); // x-cmd
-  guidance_h_cmd_earth.y = (int32_t)(guidance_simulink_Y.guidance_h_cmd_earth[1]*1000);// y-cmd
-  */
+
+  // integrator
+  guidance_h_trim_att_integrator_f.x = guidance_simulink_Y.guidance_h_trim_att_integrator_[0];
+  guidance_h_trim_att_integrator_f.y = guidance_simulink_Y.guidance_h_trim_att_integrator_[1];
+
+  guidance_h_trim_att_integrator.x = (int32_t)guidance_h_trim_att_integrator_f.x;
+  guidance_h_trim_att_integrator.y = (int32_t)guidance_h_trim_att_integrator_f.y;
+
+  // angle command
+  guidance_h_cmd_earth_f.x = guidance_simulink_Y.guidance_h_cmd_earth[0]; // x-cmd
+  guidance_h_cmd_earth_f.y = guidance_simulink_Y.guidance_h_cmd_earth[1];// y-cmd
+
+  guidance_h_cmd_earth.x =  (int32_t)(guidance_h_cmd_earth_f.x);
+  guidance_h_cmd_earth.y =  (int32_t)(guidance_h_cmd_earth_f.y);
+
+  // pos err
+  guidance_h_pos_err_f.x = guidance_simulink_Y.pos_err_f[0];
+  guidance_h_pos_err_f.y = guidance_simulink_Y.pos_err_f[1];
+
+  guidance_h_pos_err.x = (int32_t)guidance_h_pos_err_f.x;
+  guidance_h_pos_err.y = (int32_t)guidance_h_pos_err_f.y;
+
+  // speed err
+  guidance_h_speed_err_f.x = guidance_simulink_Y.speed_err_f[0];
+  guidance_h_speed_err_f.y = guidance_simulink_Y.speed_err_f[1];
+
+  guidance_h_speed_err.x = (int32_t)guidance_h_speed_err_f.x;
+  guidance_h_speed_err.y = (int32_t)guidance_h_speed_err_f.y;
+#endif /* NO SIMULINK */
+
 
 #endif /* !GUIDANCE_SIMULINK */
 }

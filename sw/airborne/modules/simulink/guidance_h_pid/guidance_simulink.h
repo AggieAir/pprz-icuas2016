@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.12
+ * Model version                  : 1.15
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Mon Feb 22 15:59:21 2016
+ * C/C++ source code generated on : Tue Feb 23 12:40:50 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
@@ -36,17 +36,19 @@
 
 /* External inputs (root inport signals with auto storage) */
 typedef struct {
-  real32_T statePosNed_f[2];           /* '<Root>/statePosNed_f' */
-  real32_T stateSpeedNed_f[2];         /* '<Root>/stateSpeedNed_f' */
-  real32_T ref_pos[2];                 /* '<Root>/ref_pos ' */
-  real32_T ref_speed[2];               /* '<Root>/ref_speed' */
+  real32_T pos_err[2];                 /* '<Root>/pos_err' */
+  real32_T speed_err[2];               /* '<Root>/speed_err' */
+  real32_T ref_speed_ffw[2];           /* '<Root>/ref_speed_ffw' */
   boolean_T is_in_flight;              /* '<Root>/is_in_flight' */
-  real32_T ref_accel[2];               /* '<Root>/ref_accel' */
+  real32_T ref_accel_ffw[2];           /* '<Root>/ref_accel_ffw' */
 } ExtU_guidance_simulink_T;
 
 /* External outputs (root outports fed by signals with auto storage) */
 typedef struct {
   real32_T guidance_h_cmd_earth[2];    /* '<Root>/guidance_h_cmd_earth' */
+  real32_T guidance_h_trim_att_integrator_[2];/* '<Root>/guidance_h_trim_att_integrator_f' */
+  real32_T pos_err_f[2];               /* '<Root>/pos_err_f' */
+  real32_T speed_err_f[2];             /* '<Root>/speed_err_f' */
 } ExtY_guidance_simulink_T;
 
 /* Parameters (auto storage) */
@@ -63,6 +65,9 @@ struct P_guidance_simulink_T_ {
   real32_T P_Gain;                     /* Computed Parameter: P_Gain
                                         * Referenced by: '<Root>/P'
                                         */
+  real32_T scale1_Gain;                /* Computed Parameter: scale1_Gain
+                                        * Referenced by: '<Root>/scale1'
+                                        */
   real32_T MAX_SPEED_ERR_UpperSat;     /* Computed Parameter: MAX_SPEED_ERR_UpperSat
                                         * Referenced by: '<Root>/MAX_SPEED_ERR'
                                         */
@@ -72,17 +77,32 @@ struct P_guidance_simulink_T_ {
   real32_T D_Gain;                     /* Computed Parameter: D_Gain
                                         * Referenced by: '<Root>/D'
                                         */
+  real32_T scale2_Gain;                /* Computed Parameter: scale2_Gain
+                                        * Referenced by: '<Root>/scale2'
+                                        */
+  real32_T scale3_Gain;                /* Computed Parameter: scale3_Gain
+                                        * Referenced by: '<Root>/scale3'
+                                        */
   real32_T MAX_INTEGRATOR_UpperSat;    /* Computed Parameter: MAX_INTEGRATOR_UpperSat
                                         * Referenced by: '<Root>/MAX_INTEGRATOR'
                                         */
   real32_T MAX_INTEGRATOR_LowerSat;    /* Computed Parameter: MAX_INTEGRATOR_LowerSat
                                         * Referenced by: '<Root>/MAX_INTEGRATOR'
                                         */
+  real32_T scale6_Gain;                /* Computed Parameter: scale6_Gain
+                                        * Referenced by: '<Root>/scale6'
+                                        */
   real32_T A_Gain;                     /* Computed Parameter: A_Gain
                                         * Referenced by: '<Root>/A'
                                         */
+  real32_T scale5_Gain;                /* Computed Parameter: scale5_Gain
+                                        * Referenced by: '<Root>/scale5'
+                                        */
   real32_T V_Gain;                     /* Computed Parameter: V_Gain
                                         * Referenced by: '<Root>/V'
+                                        */
+  real32_T scale4_Gain;                /* Computed Parameter: scale4_Gain
+                                        * Referenced by: '<Root>/scale4'
                                         */
   real32_T TRAJ_MAX_BANK_UpperSat;     /* Computed Parameter: TRAJ_MAX_BANK_UpperSat
                                         * Referenced by: '<Root>/TRAJ_MAX_BANK'
