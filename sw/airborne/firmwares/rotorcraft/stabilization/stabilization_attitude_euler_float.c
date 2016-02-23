@@ -171,6 +171,18 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   stab_att_sp_euler.psi = ANGLE_FLOAT_OF_BFP(heading);
 }
 
+void stabilization_attitude_set_earth_cmd_f(struct FloatVect2 *cmd, float heading)
+{
+  struct FloatVect2 cmd_f = *cmd;
+  /* Rotate horizontal commands to body frame by psi */
+  float psi = stateGetNedToBodyEulers_f()->psi;
+  float s_psi = sinf(psi);
+  float c_psi = cosf(psi);
+  stab_att_sp_euler.phi = -s_psi * cmd_f.x + c_psi * cmd_f.y;
+  stab_att_sp_euler.theta = -c_psi * cmd_f.x - s_psi * cmd_f.y;
+  stab_att_sp_euler.psi = heading;
+}
+
 #define MAX_SUM_ERR 200
 
 void stabilization_attitude_run(bool_t  in_flight)

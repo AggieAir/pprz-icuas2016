@@ -1,23 +1,21 @@
 /*
- * File: test1_private.h
+ * File: guidance_simulink_private.h
  *
- * Code generated for Simulink model 'test1'.
+ * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.6
+ * Model version                  : 1.12
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Fri Feb 19 11:30:47 2016
+ * C/C++ source code generated on : Mon Feb 22 15:59:21 2016
  *
  * Target selection: ert.tlc
- * Embedded hardware selection: Generic->32-bit Embedded Processor
- * Emulation hardware selection:
- *    Differs from embedded hardware (STMicroelectronics->ST10/Super10)
+ * Embedded hardware selection: STMicroelectronics->ST10/Super10
  * Code generation objectives: Unspecified
  * Validation result: Not run
  */
 
-#ifndef RTW_HEADER_test1_private_h_
-#define RTW_HEADER_test1_private_h_
+#ifndef RTW_HEADER_guidance_simulink_private_h_
+#define RTW_HEADER_guidance_simulink_private_h_
 #include "rtwtypes.h"
 #ifndef __RTWTYPES_H__
 #error This file requires rtwtypes.h to be included
@@ -32,7 +30,7 @@
 #endif                                 /* RTWTYPES_ID_C08S16I16L32N16F1 */
 #endif                                 /* TMWTYPES_PREVIOUSLY_INCLUDED */
 #endif                                 /* __RTWTYPES_H__ */
-#endif                                 /* RTW_HEADER_test1_private_h_ */
+#endif                                 /* RTW_HEADER_guidance_simulink_private_h_ */
 
 /*
  * File trailer for generated code.

@@ -29,6 +29,9 @@
 
 
 #include "math/pprz_algebra_int.h"
+//#if GUIDANCE_FLOAT
+#include "math/pprz_algebra_float.h"
+//#endif
 
 #include "firmwares/rotorcraft/guidance/guidance_h_ref.h"
 #include "generated/airframe.h"
@@ -86,6 +89,32 @@ struct HorizontalGuidanceGains {
   int32_t a;
 };
 
+//#if GUIDANCE_FLOAT
+struct HorizontalGuidanceSetpoint_f {
+  /** horizontal position setpoint in NED.
+   *  floating point representation: Q23.8
+   *  accuracy 0.0039, range 8388km
+   */
+  struct FloatVect2 pos;
+  struct FloatVect2 speed;  ///< only used if GUIDANCE_H_USE_SPEED_REF
+  float heading;          ///< with #INT32_ANGLE_FRAC
+};
+
+struct HorizontalGuidanceReference_f {
+  struct FloatVect2 pos;     ///< with #INT32_POS_FRAC
+  struct FloatVect2 speed;   ///< with #INT32_SPEED_FRAC
+  struct FloatVect2 accel;   ///< with #INT32_ACCEL_FRAC
+};
+
+struct HorizontalGuidanceGains_f {
+  float p;
+  float d;
+  float i;
+  float v;
+  float a;
+};
+//#endif /* GUIDANCE_FLOAT */
+
 struct HorizontalGuidance {
   uint8_t mode;
   /* configuration options */
@@ -98,6 +127,12 @@ struct HorizontalGuidance {
   struct HorizontalGuidanceReference ref; ///< reference calculated from setpoints
 
   struct Int32Eulers rc_sp;    ///< with #INT32_ANGLE_FRAC
+
+//#ifdef GUIDANCE_FLOAT
+  struct HorizontalGuidanceGains_f gains_f; // gains
+  struct HorizontalGuidanceSetpoint_f sp_f; ///< setpoints
+  struct HorizontalGuidanceReference_f ref_f; ///< reference calculated from setpoints
+//#endif /* GUIDANCE_FLOAT */
 };
 
 extern struct HorizontalGuidance guidance_h;
@@ -111,6 +146,10 @@ extern void guidance_h_read_rc(bool_t in_flight);
 extern void guidance_h_run(bool_t in_flight);
 
 extern void guidance_h_set_igain(uint32_t igain);
+
+//#ifdef GUIDANCE_FLOAT
+extern void guidance_h_set_igain_f(float igain);
+//#endif /* GUIDANCE_FLOAT */
 
 /** Set horizontal position setpoint in GUIDED mode.
  * @param x North position (local NED frame) in meters.

@@ -76,11 +76,12 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF);
 #define GUIDANCE_INDI FALSE
 #endif
 
+#define GUIDANCE_SIMULINK 1
+
 #ifndef GUIDANCE_SIMULINK
 #define GUIDANCE_SIMULINK FALSE
 #else
-//#include "firmwares/rotorcraft/guidance/guidance_simulink.h"
-#include "modules/simulink/test1.h"
+#include "modules/simulink/guidance_h_pid/guidance_simulink.h"
 #endif
 
 struct HorizontalGuidance guidance_h;
@@ -95,11 +96,18 @@ struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_h_speed_err;
 struct Int32Vect2 guidance_h_trim_att_integrator;
 
+//#if GUIDANCE_FLOAT
+struct FloatVect2 guidance_h_pos_err_f;
+struct FloatVect2 guidance_h_speed_err_f;
+struct FloatVect2 guidance_h_trim_att_integrator_f;
+//#endif /* GUIDANCE_FLOAT */
+
 /** horizontal guidance command.
  * In north/east with #INT32_ANGLE_FRAC
  * @todo convert to real force command
  */
 struct Int32Vect2  guidance_h_cmd_earth;
+struct FloatVect2  guidance_h_cmd_earth_f;
 
 static void guidance_h_update_reference(void);
 #if !GUIDANCE_INDI
@@ -142,6 +150,28 @@ static void send_hover_loop(struct transport_tx *trans, struct link_device *dev)
                            &guidance_h_cmd_earth.x,
                            &guidance_h_cmd_earth.y,
                            &guidance_h.sp.heading);
+}
+
+static void send_hover_loop_f(struct transport_tx *trans, struct link_device *dev)
+{
+  struct NedCoor_f *pos_f = stateGetPositionNed_f();
+  struct NedCoor_f *speed_f = stateGetSpeedNed_f();
+  struct NedCoor_f *accel_f = stateGetAccelNed_f();
+  pprz_msg_send_HOVER_LOOP_FLOAT(trans, dev, AC_ID,
+                           &guidance_h.sp_f.pos.x,
+                           &guidance_h.sp_f.pos.y,
+                           &(pos_f->x), &(pos_f->y),
+                           &(speed_f->x), &(speed_f->y),
+                           &(accel_f->x), &(accel_f->y),
+                           &guidance_h_pos_err_f.x,
+                           &guidance_h_pos_err_f.y,
+                           &guidance_h_speed_err_f.x,
+                           &guidance_h_speed_err_f.y,
+                           &guidance_h_trim_att_integrator_f.x,
+                           &guidance_h_trim_att_integrator_f.y,
+                           &guidance_h_cmd_earth_f.x,
+                           &guidance_h_cmd_earth_f.y,
+                           &guidance_h.sp_f.heading);
 }
 
 static void send_href(struct transport_tx *trans, struct link_device *dev)
@@ -191,6 +221,12 @@ void guidance_h_init(void)
   transition_percentage = 0;
   transition_theta_offset = 0;
 
+  guidance_h.gains_f.p = (float)GUIDANCE_H_PGAIN;
+  guidance_h.gains_f.i = (float)GUIDANCE_H_IGAIN;
+  guidance_h.gains_f.d = (float)GUIDANCE_H_DGAIN;
+  guidance_h.gains_f.a = (float)GUIDANCE_H_AGAIN;
+  guidance_h.gains_f.v = (float)GUIDANCE_H_VGAIN;
+
   gh_ref_init();
 
 #if GUIDANCE_H_MODE_MODULE_SETTING == GUIDANCE_H_MODE_MODULE
@@ -200,12 +236,17 @@ void guidance_h_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_H_INT, send_gh);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HOVER_LOOP, send_hover_loop);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HOVER_LOOP_FLOAT, send_hover_loop_f);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_H_REF_INT, send_href);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_TUNE_HOVER, send_tune_hover);
 #endif
 
 #if GUIDANCE_INDI
   guidance_indi_enter();
+#endif
+
+#if GUIDANCE_SIMULINK
+  guidance_simulink_initialize();
 #endif
 }
 
@@ -421,8 +462,10 @@ void guidance_h_run(bool_t  in_flight)
         /* compute x,y earth commands */
         guidance_h_traj_run(in_flight);
         /* set final attitude setpoint */
-        stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
-                                               guidance_h.sp.heading);
+        //stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
+        //                                       guidance_h.sp.heading);
+        stabilization_attitude_set_earth_cmd_f(&guidance_h_cmd_earth_f, guidance_h.sp_f.heading);
+
 #endif
       }
       stabilization_attitude_run(in_flight);
@@ -478,6 +521,8 @@ static void guidance_h_update_reference(void)
 
 #define MAX_POS_ERR   POS_BFP_OF_REAL(16.)
 #define MAX_SPEED_ERR SPEED_BFP_OF_REAL(16.)
+#define MAX_POS_ERR_F POS_FLOAT_OF_BFP(MAX_POS_ERR)
+#define MAX_SPEED_ERR_F SPEED_FLOAT_OF_BFP(MAX_SPEED_ERR)
 
 #ifndef GUIDANCE_H_THRUST_CMD_FILTER
 #define GUIDANCE_H_THRUST_CMD_FILTER 10
@@ -490,6 +535,7 @@ static void guidance_h_update_reference(void)
 #if !GUIDANCE_INDI
 static void guidance_h_traj_run(bool_t in_flight)
 {
+#if !GUIDANCE_SIMULINK /* use classical PID */
   /* maximum bank angle: default 20 deg, max 40 deg*/
   static const int32_t traj_max_bank = Min(BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC),
                                        BFP_OF_REAL(RadOfDeg(40), INT32_ANGLE_FRAC));
@@ -506,7 +552,6 @@ static void guidance_h_traj_run(bool_t in_flight)
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
   /* run PID */
-#if !GUIDANCE_SIMULINK /* use classical PID */
   int32_t pd_x =
     ((guidance_h.gains.p * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h.gains.d * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
@@ -519,14 +564,6 @@ static void guidance_h_traj_run(bool_t in_flight)
   guidance_h_cmd_earth.y = pd_y +
     ((guidance_h.gains.v * guidance_h.ref.speed.y) >> 17) + /* speed feedforward gain */
     ((guidance_h.gains.a * guidance_h.ref.accel.y) >> 8);   /* acceleration feedforward gain */
-#else /* USE SIMULINK PID CODE */
-  guidance_h_cmd_earth.x =
-    ((guidance_h.gains.v * guidance_h.ref.speed.x) >> 17) + /* speed feedforward gain */
-    ((guidance_h.gains.a * guidance_h.ref.accel.x) >> 8);   /* acceleration feedforward gain */
-  guidance_h_cmd_earth.y =
-    ((guidance_h.gains.v * guidance_h.ref.speed.y) >> 17) + /* speed feedforward gain */
-    ((guidance_h.gains.a * guidance_h.ref.accel.y) >> 8);   /* acceleration feedforward gain */
-#endif /* !GUIDANCE_SIMULINK */
 
   /* trim max bank angle from PD */
   VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
@@ -536,7 +573,6 @@ static void guidance_h_traj_run(bool_t in_flight)
    * but do not integrate POS errors when the SPEED is already catching up.
    */
   if (in_flight) {
-#if !GUIDANCE_SIMULINK /* use classical PID */
     /* ANGLE_FRAC (12) * GAIN (8) * LOOP_FREQ (9) -> INTEGRATOR HIGH RES ANGLE_FRAX (28) */
     guidance_h_trim_att_integrator.x += (guidance_h.gains.i * pd_x);
     guidance_h_trim_att_integrator.y += (guidance_h.gains.i * pd_y);
@@ -545,22 +581,6 @@ static void guidance_h_traj_run(bool_t in_flight)
     /* add it to the command */
     guidance_h_cmd_earth.x += (guidance_h_trim_att_integrator.x >> 16);
     guidance_h_cmd_earth.y += (guidance_h_trim_att_integrator.y >> 16);
-#else /* USE SIMULINK PID CODE */
-    /* Run the control loops only if in flight */
-    // somehow prepare the variables
-    test1_U.In1[0] = (double)guidance_h_pos_err.x;
-    test1_U.In1[1] = (double)guidance_h_pos_err.y;
-
-    // iterate the module
-    test1_step();
-
-    // update the results
-    guidance_h_cmd_earth.x = guidance_h_cmd_earth.x + (int32_t)test1_Y.Out1[0];
-    guidance_h_cmd_earth.y = guidance_h_cmd_earth.y + (int32_t)test1_Y.Out1[1];
-
-    /* trim max bank angle from PD */
-    VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
-#endif /* !GUIDANCE_SIMULINK */
   } else {
     INT_VECT2_ZERO(guidance_h_trim_att_integrator);
   }
@@ -578,8 +598,124 @@ static void guidance_h_traj_run(bool_t in_flight)
   }
 
   VECT2_STRIM(guidance_h_cmd_earth, -total_max_bank, total_max_bank);
+#else /* USE SIMULINK PID CODE */
+// float code
+  /* update position setpoint */
+  guidance_h.sp_f.pos.x = POS_FLOAT_OF_BFP(guidance_h.sp.pos.x);
+  guidance_h.sp_f.pos.y = POS_FLOAT_OF_BFP(guidance_h.sp.pos.y);
+
+  /* update heading */
+  guidance_h.sp_f.heading = ANGLE_FLOAT_OF_BFP(guidance_h.sp.heading);
+
+  /* maximum bank angle: default 20 deg, max 40 deg*/
+  static const float traj_max_bank = Min(GUIDANCE_H_MAX_BANK, RadOfDeg(40));
+  static const float total_max_bank = RadOfDeg(45);
+
+  /* update ref position */
+  guidance_h.ref_f.pos.x = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x);
+  guidance_h.ref_f.pos.y = POS_FLOAT_OF_BFP(guidance_h.ref.pos.y);
+
+  /* compute position error    */
+  VECT2_DIFF(guidance_h_pos_err_f, guidance_h.ref_f.pos, *stateGetPositionNed_f());
+  /* saturate it               */
+  VECT2_STRIM(guidance_h_pos_err_f, -MAX_POS_ERR_F, MAX_POS_ERR_F);
+
+  /* update ref speed */
+  guidance_h.ref_f.speed.x = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
+  guidance_h.ref_f.speed.y = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
+
+  /* compute speed error    */
+  VECT2_DIFF(guidance_h_speed_err_f, guidance_h.ref_f.speed, *stateGetSpeedNed_f());
+  /* saturate it               */
+  VECT2_STRIM(guidance_h_speed_err_f, -MAX_SPEED_ERR_F, MAX_SPEED_ERR_F);
+
+  /* update ref accel */
+  guidance_h.ref_f.accel.x =  ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.x);
+  guidance_h.ref_f.accel.y =  ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.y);
+
+  /* run PID */
+  float pd_x_f =
+    ((guidance_h.gains_f.p * guidance_h_pos_err_f.x) / 1.0) +
+    ((guidance_h.gains_f.d * (guidance_h_speed_err_f.x / 1.0)) / (1.0));
+  float pd_y_f =
+    ((guidance_h.gains_f.p * guidance_h_pos_err_f.y) / (1.0)) +
+    ((guidance_h.gains_f.d * (guidance_h_speed_err.y / 1.0)) / (1.0));
+  guidance_h_cmd_earth_f.x = pd_x_f +
+    ((guidance_h.gains_f.v * guidance_h.ref_f.speed.x) / 1.0) + /* speed feedforward gain */
+    ((guidance_h.gains_f.a * guidance_h.ref_f.accel.x) / 1.0);   /* acceleration feedforward gain */
+  guidance_h_cmd_earth_f.y = pd_y_f +
+    ((guidance_h.gains_f.v * guidance_h.ref_f.speed.y) / 1.0) + /* speed feedforward gain */
+    ((guidance_h.gains_f.a * guidance_h.ref_f.accel.y) / 1.0);   /* acceleration feedforward gain */
+
+  /* trim max bank angle from PD */
+  VECT2_STRIM(guidance_h_cmd_earth_f, -traj_max_bank, traj_max_bank);
+
+  /* Update pos & speed error integral, zero it if not in_flight.
+   * Integrate twice as fast when not only POS but also SPEED are wrong,
+   * but do not integrate POS errors when the SPEED is already catching up.
+   */
+  if (in_flight) {
+    /* ANGLE_FRAC (12) * GAIN (8) * LOOP_FREQ (9) -> INTEGRATOR HIGH RES ANGLE_FRAX (28) */
+    guidance_h_trim_att_integrator_f.x += (guidance_h.gains_f.i * pd_x_f);
+    guidance_h_trim_att_integrator_f.y += (guidance_h.gains_f.i * pd_y_f);
+    /* saturate it  */
+    VECT2_STRIM(guidance_h_trim_att_integrator_f, -(traj_max_bank * 1.0), (traj_max_bank * 1.0));
+    /* add it to the command */
+    guidance_h_cmd_earth_f.x += (guidance_h_trim_att_integrator_f.x / 1.0);
+    guidance_h_cmd_earth_f.y += (guidance_h_trim_att_integrator_f.y / 1.0);
+  } else {
+    FLOAT_VECT2_ZERO(guidance_h_trim_att_integrator_f);
+  }
+
+  VECT2_STRIM(guidance_h_cmd_earth_f, -total_max_bank, total_max_bank);
+  guidance_h_cmd_earth.x =  ANGLE_BFP_OF_REAL(guidance_h_cmd_earth_f.x);
+  guidance_h_cmd_earth.y =  ANGLE_BFP_OF_REAL(guidance_h_cmd_earth_f.y);
+
+  /*
+  // Update inputs
+  struct NedCoor_f pos = *stateGetPositionNed_f();
+  struct NedCoor_f speed = *stateGetPositionNed_f();
+
+  // Position
+  guidance_simulink_U.statePosNed_f[0] = pos.x;
+  guidance_simulink_U.statePosNed_f[1] = pos.y;
+
+  // Speed
+  guidance_simulink_U.stateSpeedNed_f[0] = speed.x;
+  guidance_simulink_U.stateSpeedNed_f[1] = speed.y;
+
+  // Ref pos
+  guidance_simulink_U.ref_pos[0] = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x);
+  guidance_simulink_U.ref_pos[1] = POS_FLOAT_OF_BFP(guidance_h.ref.pos.y);
+
+  // Ref speed
+  guidance_simulink_U.ref_speed[0] = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
+  guidance_simulink_U.ref_speed[1] = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
+
+  // Ref accel
+  guidance_simulink_U.ref_accel[0] = ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.x);
+  guidance_simulink_U.ref_accel[1] = ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.y);
+
+  // In flight (integrator switch)
+  guidance_simulink_U.is_in_flight = in_flight;
+
+  // Update gains
+  guidance_simulink_P.P_Gain = ((float)guidance_h.gains.p)/10.0;
+  guidance_simulink_P.D_Gain = ((float)guidance_h.gains.d)/10.0;
+  guidance_simulink_P.I_Gain = ((float)guidance_h.gains.i)/10.0;
+  guidance_simulink_P.A_Gain = ((float)guidance_h.gains.a)/10.0;
+
+  // Run control loops
+  guidance_simulink_step();
+
+  // Update outputs
+  guidance_h_cmd_earth.x = (int32_t)(guidance_simulink_Y.guidance_h_cmd_earth[0]*1000); // x-cmd
+  guidance_h_cmd_earth.y = (int32_t)(guidance_simulink_Y.guidance_h_cmd_earth[1]*1000);// y-cmd
+  */
+
+#endif /* !GUIDANCE_SIMULINK */
 }
-#endif
+#endif /* !GUIDANCE_INDI */
 
 static void guidance_h_hover_enter(void)
 {
@@ -649,6 +785,12 @@ void guidance_h_set_igain(uint32_t igain)
 {
   guidance_h.gains.i = igain;
   INT_VECT2_ZERO(guidance_h_trim_att_integrator);
+}
+
+void guidance_h_set_igain_f(float igain)
+{
+  guidance_h.gains_f.i = igain;
+  FLOAT_VECT2_ZERO(guidance_h_trim_att_integrator_f);
 }
 
 bool_t guidance_h_set_guided_pos(float x, float y)

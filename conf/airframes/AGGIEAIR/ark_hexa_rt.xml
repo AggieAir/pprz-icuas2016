@@ -45,9 +45,11 @@ ARK RT
         <configure name="MODEM_BAUD" value="B57600"/>
       </subsystem>
 
-    <subsystem name="guidance" type="simulink"/>      
+
+    <subsystem name="guidance" type="simulink"/>
+
     <subsystem name="stabilization" type="float_euler"/>
-    
+
       <subsystem name="ins"           type="vectornav">
         <configure name="VN_PORT" value="UART2"/>
         <configure name="VN_BAUD" value="B921600"/>
@@ -63,7 +65,6 @@ ARK RT
       <configure name="XGEAR_BAUD" value="B3000000"/>
       <configure name="XGEAR_VTOL" value="1"/>
     </load>
-    <load name="simulink_test.xml"/>
   </modules>
 
   <!--These values are set for the Castle Creations HV Lite 60A ESCs-->
@@ -226,10 +227,17 @@ ARK RT
     <define name="USE_SPEED_REF" value="TRUE"/>
     <define name="REF_MAX_SPEED" value="8.0" unit="m/s"/>
     <define name="REF_MAX_ACCEL" value="5.66" unit="m/s2"/>
+    <!--
     <define name="PGAIN" value="27"/>
     <define name="DGAIN" value="21"/>
     <define name="AGAIN" value="17"/>
     <define name="IGAIN" value="16"/>
+    -->
+    <define name="PGAIN"    value="1"/>
+    <define name="DGAIN"    value="1"/>
+    <define name="IGAIN"    value="0"/>
+    <define name="AGAIN" value="0"/>
+    <define name="VGAIN" value="0"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">

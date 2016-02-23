@@ -37,6 +37,7 @@ extern void stabilization_attitude_enter(void);
 extern void stabilization_attitude_set_failsafe_setpoint(void);
 extern void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy);
 extern void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
+extern void stabilization_attitude_set_earth_cmd_f(struct FloatVect2 *cmd, float heading);
 extern void stabilization_attitude_run(bool_t in_flight);
 
 

@@ -34,7 +34,8 @@
       <message name="PAYLOAD_STATUS"         period="2.0"/>
       <message name="ISAAC_STATUS"           period="2.0"/>
       <message name="ACTUATORS"              period="0.5"/>
-      <message name="HOVER_LOOP"             period="0.4"/>
+      <message name="HOVER_LOOP"             period="0.1"/>
+      <message name="HOVER_LOOP_FLOAT"             period="0.1"/>
     </mode>
 
     <mode name="ppm">

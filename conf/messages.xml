@@ -2045,7 +2045,25 @@
     <field name="imageBuffer" type="uint8[]"/>
   </message>
 
-  <!--230 is free -->
+  <message name="HOVER_LOOP_FLOAT" id="230">
+    <field name="sp_x"      type="float" unit="m"    />
+    <field name="sp_y"      type="float" unit="m"    />
+    <field name="est_x"     type="float" unit="m"    />
+    <field name="est_y"     type="float" unit="m"    />
+    <field name="est_xd"    type="float" unit="m/s"  />
+    <field name="est_yd"    type="float" unit="m/s"  />
+    <field name="est_xdd"   type="float" unit="m/s2" />
+    <field name="est_ydd"   type="float" unit="m/s2" />
+    <field name="err_x"     type="float" unit="m"    />
+    <field name="err_y"     type="float" unit="m"    />
+    <field name="err_xd"    type="float" unit="m/s"  />
+    <field name="err_yd"    type="float" unit="m/s"  />
+    <field name="err_sum_x" type="float"/>
+    <field name="err_sum_y" type="float"/>
+    <field name="cmd_x"     type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="cmd_y"     type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="cmd_heading" type="float"/>
+  </message>
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>
