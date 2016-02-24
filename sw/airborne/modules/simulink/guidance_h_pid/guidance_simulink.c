@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.23
+ * Model version                  : 1.24
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Tue Feb 23 15:50:53 2016
+ * C/C++ source code generated on : Tue Feb 23 22:19:01 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
@@ -42,19 +42,6 @@ void guidance_simulink_step(void)
   real32_T rtb_Sum1_idx;
   real32_T rtb_Sum1_idx_0;
   real32_T u;
-
-  /* DiscreteIntegrator: '<Root>/Discrete-Time Integrator' incorporates:
-   *  Inport: '<Root>/is_in_flight'
-   */
-  if ((guidance_simulink_U.is_in_flight &&
-       (guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese <= 0)) ||
-      ((!guidance_simulink_U.is_in_flight) &&
-       (guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese == 1))) {
-    guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[0] =
-      guidance_simulink_P.DiscreteTimeIntegrator_IC;
-    guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[1] =
-      guidance_simulink_P.DiscreteTimeIntegrator_IC;
-  }
 
   /* Switch: '<Root>/Switch' incorporates:
    *  Constant: '<Root>/Constant'
@@ -283,20 +270,11 @@ void guidance_simulink_step(void)
   guidance_simulink_Y.speed_err_f[0] = rtb_MAX_SPEED_ERR_idx;
   guidance_simulink_Y.speed_err_f[1] = rtb_MAX_SPEED_ERR_idx_0;
 
-  /* Update for DiscreteIntegrator: '<Root>/Discrete-Time Integrator' incorporates:
-   *  Inport: '<Root>/is_in_flight'
-   */
+  /* Update for DiscreteIntegrator: '<Root>/Discrete-Time Integrator' */
   guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[0] +=
     guidance_simulink_P.DiscreteTimeIntegrator_gainval * rtb_Sum1_idx;
   guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[1] +=
     guidance_simulink_P.DiscreteTimeIntegrator_gainval * rtb_Sum1_idx_0;
-  if (guidance_simulink_U.is_in_flight) {
-    guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese = 1;
-  } else {
-    guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese = 0;
-  }
-
-  /* End of Update for DiscreteIntegrator: '<Root>/Discrete-Time Integrator' */
 }
 
 /* Model initialize function */
@@ -324,7 +302,6 @@ void guidance_simulink_initialize(void)
     guidance_simulink_P.DiscreteTimeIntegrator_IC;
   guidance_simulink_DW.DiscreteTimeIntegrator_DSTATE[1] =
     guidance_simulink_P.DiscreteTimeIntegrator_IC;
-  guidance_simulink_DW.DiscreteTimeIntegrator_PrevRese = 2;
 }
 
 /* Model terminate function */

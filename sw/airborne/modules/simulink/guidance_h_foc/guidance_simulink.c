@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.27
+ * Model version                  : 1.32
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Tue Feb 23 15:50:01 2016
+ * C/C++ source code generated on : Tue Feb 23 22:48:37 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
@@ -128,13 +128,15 @@ void guidance_simulink_step(void)
   /* DiscreteZeroPole: '<S1>/Discrete Zero-Pole' */
   {
     {
-      static const int_T colCidxRow0[9] = { 0, 3, 4, 5, 6, 7, 8, 9, 10 };
+      static const int_T colCidxRow0[30] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+        38, 39, 40 };
 
       const int_T *pCidx = &colCidxRow0[0];
       const real32_T *pC0 = guidance_simulink_P.DiscreteZeroPole_C;
       const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
       real32_T *y0 = &rtb_DiscreteZeroPole;
-      int_T numNonZero = 8;
+      int_T numNonZero = 29;
       *y0 = (*pC0++) * xd[*pCidx++];
       while (numNonZero--) {
         *y0 += (*pC0++) * xd[*pCidx++];
@@ -147,13 +149,15 @@ void guidance_simulink_step(void)
   /* DiscreteZeroPole: '<S2>/Discrete Zero-Pole' */
   {
     {
-      static const int_T colCidxRow0[9] = { 0, 3, 4, 5, 6, 7, 8, 9, 10 };
+      static const int_T colCidxRow0[30] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+        38, 39, 40 };
 
       const int_T *pCidx = &colCidxRow0[0];
       const real32_T *pC0 = guidance_simulink_P.DiscreteZeroPole_C_p;
       const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
       real32_T *y0 = &rtb_DiscreteZeroPole_b;
-      int_T numNonZero = 8;
+      int_T numNonZero = 29;
       *y0 = (*pC0++) * xd[*pCidx++];
       while (numNonZero--) {
         *y0 += (*pC0++) * xd[*pCidx++];
@@ -289,156 +293,598 @@ void guidance_simulink_step(void)
 
   /* Update for DiscreteZeroPole: '<S1>/Discrete Zero-Pole' */
   {
-    real32_T xnew[11];
+    real32_T xnew[41];
     xnew[0] = (guidance_simulink_P.DiscreteZeroPole_A[0])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
     xnew[0] += (guidance_simulink_P.DiscreteZeroPole_B[0])*rtb_Sum1[0];
     xnew[1] = (guidance_simulink_P.DiscreteZeroPole_A[1])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
     xnew[1] += (guidance_simulink_P.DiscreteZeroPole_B[1])*rtb_Sum1[0];
-    xnew[2] = 0.0;
-    xnew[3] = (guidance_simulink_P.DiscreteZeroPole_A[2])*
-      guidance_simulink_DW.DiscreteZeroPole_DSTATE[0]
-      + (guidance_simulink_P.DiscreteZeroPole_A[3])*
-      guidance_simulink_DW.DiscreteZeroPole_DSTATE[3]
-      + (guidance_simulink_P.DiscreteZeroPole_A[4])*
-      guidance_simulink_DW.DiscreteZeroPole_DSTATE[4];
+    xnew[2] = (guidance_simulink_P.DiscreteZeroPole_A[2])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[1];
+    xnew[3] = (guidance_simulink_P.DiscreteZeroPole_A[3])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
     xnew[3] += (guidance_simulink_P.DiscreteZeroPole_B[2])*rtb_Sum1[0];
-    xnew[4] = (guidance_simulink_P.DiscreteZeroPole_A[5])*
+    xnew[4] = (guidance_simulink_P.DiscreteZeroPole_A[4])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE[3];
-
-    {
-      static const int_T colAidxRow5[5] = { 0, 3, 4, 5, 6 };
-
-      const int_T *pAidx = &colAidxRow5[0];
-      const real32_T *pA6 = &guidance_simulink_P.DiscreteZeroPole_A[6];
-      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
-      real32_T *pxnew5 = &xnew[5];
-      int_T numNonZero = 4;
-      *pxnew5 = (*pA6++) * xd[*pAidx++];
-      while (numNonZero--) {
-        *pxnew5 += (*pA6++) * xd[*pAidx++];
-      }
-    }
-
+    xnew[5] = (guidance_simulink_P.DiscreteZeroPole_A[5])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
     xnew[5] += (guidance_simulink_P.DiscreteZeroPole_B[3])*rtb_Sum1[0];
-    xnew[6] = (guidance_simulink_P.DiscreteZeroPole_A[11])*
+    xnew[6] = (guidance_simulink_P.DiscreteZeroPole_A[6])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE[5];
-
-    {
-      static const int_T colAidxRow7[7] = { 0, 3, 4, 5, 6, 7, 8 };
-
-      const int_T *pAidx = &colAidxRow7[0];
-      const real32_T *pA12 = &guidance_simulink_P.DiscreteZeroPole_A[12];
-      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
-      real32_T *pxnew7 = &xnew[7];
-      int_T numNonZero = 6;
-      *pxnew7 = (*pA12++) * xd[*pAidx++];
-      while (numNonZero--) {
-        *pxnew7 += (*pA12++) * xd[*pAidx++];
-      }
-    }
-
+    xnew[7] = (guidance_simulink_P.DiscreteZeroPole_A[7])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
     xnew[7] += (guidance_simulink_P.DiscreteZeroPole_B[4])*rtb_Sum1[0];
-    xnew[8] = (guidance_simulink_P.DiscreteZeroPole_A[19])*
+    xnew[8] = (guidance_simulink_P.DiscreteZeroPole_A[8])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE[7];
+    xnew[9] = (guidance_simulink_P.DiscreteZeroPole_A[9])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+    xnew[9] += (guidance_simulink_P.DiscreteZeroPole_B[5])*rtb_Sum1[0];
+    xnew[10] = 0.0;
+    xnew[11] = (guidance_simulink_P.DiscreteZeroPole_A[10])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[0]
+      + (guidance_simulink_P.DiscreteZeroPole_A[11])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[11];
+    xnew[11] += (guidance_simulink_P.DiscreteZeroPole_B[6])*rtb_Sum1[0];
+    xnew[12] = 0.0;
+    xnew[13] = (guidance_simulink_P.DiscreteZeroPole_A[12])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[0]
+      + (guidance_simulink_P.DiscreteZeroPole_A[13])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[11]
+      + (guidance_simulink_P.DiscreteZeroPole_A[14])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[13]
+      + (guidance_simulink_P.DiscreteZeroPole_A[15])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[14];
+    xnew[13] += (guidance_simulink_P.DiscreteZeroPole_B[7])*rtb_Sum1[0];
+    xnew[14] = (guidance_simulink_P.DiscreteZeroPole_A[16])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[13];
 
     {
-      static const int_T colAidxRow9[9] = { 0, 3, 4, 5, 6, 7, 8, 9, 10 };
+      static const int_T colAidxRow15[6] = { 0, 11, 13, 14, 15, 16 };
 
-      const int_T *pAidx = &colAidxRow9[0];
-      const real32_T *pA20 = &guidance_simulink_P.DiscreteZeroPole_A[20];
+      const int_T *pAidx = &colAidxRow15[0];
+      const real32_T *pA17 = &guidance_simulink_P.DiscreteZeroPole_A[17];
       const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
-      real32_T *pxnew9 = &xnew[9];
-      int_T numNonZero = 8;
-      *pxnew9 = (*pA20++) * xd[*pAidx++];
+      real32_T *pxnew15 = &xnew[15];
+      int_T numNonZero = 5;
+      *pxnew15 = (*pA17++) * xd[*pAidx++];
       while (numNonZero--) {
-        *pxnew9 += (*pA20++) * xd[*pAidx++];
+        *pxnew15 += (*pA17++) * xd[*pAidx++];
       }
     }
 
-    xnew[9] += (guidance_simulink_P.DiscreteZeroPole_B[5])*rtb_Sum1[0];
-    xnew[10] = (guidance_simulink_P.DiscreteZeroPole_A[29])*
-      guidance_simulink_DW.DiscreteZeroPole_DSTATE[9];
+    xnew[15] += (guidance_simulink_P.DiscreteZeroPole_B[8])*rtb_Sum1[0];
+    xnew[16] = (guidance_simulink_P.DiscreteZeroPole_A[23])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[15];
+
+    {
+      static const int_T colAidxRow17[8] = { 0, 11, 13, 14, 15, 16, 17, 18 };
+
+      const int_T *pAidx = &colAidxRow17[0];
+      const real32_T *pA24 = &guidance_simulink_P.DiscreteZeroPole_A[24];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew17 = &xnew[17];
+      int_T numNonZero = 7;
+      *pxnew17 = (*pA24++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew17 += (*pA24++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[17] += (guidance_simulink_P.DiscreteZeroPole_B[9])*rtb_Sum1[0];
+    xnew[18] = (guidance_simulink_P.DiscreteZeroPole_A[32])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[17];
+
+    {
+      static const int_T colAidxRow19[10] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20 };
+
+      const int_T *pAidx = &colAidxRow19[0];
+      const real32_T *pA33 = &guidance_simulink_P.DiscreteZeroPole_A[33];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew19 = &xnew[19];
+      int_T numNonZero = 9;
+      *pxnew19 = (*pA33++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew19 += (*pA33++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[19] += (guidance_simulink_P.DiscreteZeroPole_B[10])*rtb_Sum1[0];
+    xnew[20] = (guidance_simulink_P.DiscreteZeroPole_A[43])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[19];
+
+    {
+      static const int_T colAidxRow21[12] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22 };
+
+      const int_T *pAidx = &colAidxRow21[0];
+      const real32_T *pA44 = &guidance_simulink_P.DiscreteZeroPole_A[44];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew21 = &xnew[21];
+      int_T numNonZero = 11;
+      *pxnew21 = (*pA44++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew21 += (*pA44++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[21] += (guidance_simulink_P.DiscreteZeroPole_B[11])*rtb_Sum1[0];
+    xnew[22] = (guidance_simulink_P.DiscreteZeroPole_A[56])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[21];
+
+    {
+      static const int_T colAidxRow23[14] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24 };
+
+      const int_T *pAidx = &colAidxRow23[0];
+      const real32_T *pA57 = &guidance_simulink_P.DiscreteZeroPole_A[57];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew23 = &xnew[23];
+      int_T numNonZero = 13;
+      *pxnew23 = (*pA57++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew23 += (*pA57++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[23] += (guidance_simulink_P.DiscreteZeroPole_B[12])*rtb_Sum1[0];
+    xnew[24] = (guidance_simulink_P.DiscreteZeroPole_A[71])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[23];
+
+    {
+      static const int_T colAidxRow25[16] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26 };
+
+      const int_T *pAidx = &colAidxRow25[0];
+      const real32_T *pA72 = &guidance_simulink_P.DiscreteZeroPole_A[72];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew25 = &xnew[25];
+      int_T numNonZero = 15;
+      *pxnew25 = (*pA72++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew25 += (*pA72++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[25] += (guidance_simulink_P.DiscreteZeroPole_B[13])*rtb_Sum1[0];
+    xnew[26] = (guidance_simulink_P.DiscreteZeroPole_A[88])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[25];
+
+    {
+      static const int_T colAidxRow27[18] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28 };
+
+      const int_T *pAidx = &colAidxRow27[0];
+      const real32_T *pA89 = &guidance_simulink_P.DiscreteZeroPole_A[89];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew27 = &xnew[27];
+      int_T numNonZero = 17;
+      *pxnew27 = (*pA89++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew27 += (*pA89++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[27] += (guidance_simulink_P.DiscreteZeroPole_B[14])*rtb_Sum1[0];
+    xnew[28] = (guidance_simulink_P.DiscreteZeroPole_A[107])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[27];
+
+    {
+      static const int_T colAidxRow29[20] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 };
+
+      const int_T *pAidx = &colAidxRow29[0];
+      const real32_T *pA108 = &guidance_simulink_P.DiscreteZeroPole_A[108];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew29 = &xnew[29];
+      int_T numNonZero = 19;
+      *pxnew29 = (*pA108++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew29 += (*pA108++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[29] += (guidance_simulink_P.DiscreteZeroPole_B[15])*rtb_Sum1[0];
+    xnew[30] = (guidance_simulink_P.DiscreteZeroPole_A[128])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[29];
+
+    {
+      static const int_T colAidxRow31[22] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+
+      const int_T *pAidx = &colAidxRow31[0];
+      const real32_T *pA129 = &guidance_simulink_P.DiscreteZeroPole_A[129];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew31 = &xnew[31];
+      int_T numNonZero = 21;
+      *pxnew31 = (*pA129++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew31 += (*pA129++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[31] += (guidance_simulink_P.DiscreteZeroPole_B[16])*rtb_Sum1[0];
+    xnew[32] = (guidance_simulink_P.DiscreteZeroPole_A[151])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[31];
+
+    {
+      static const int_T colAidxRow33[24] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34 };
+
+      const int_T *pAidx = &colAidxRow33[0];
+      const real32_T *pA152 = &guidance_simulink_P.DiscreteZeroPole_A[152];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew33 = &xnew[33];
+      int_T numNonZero = 23;
+      *pxnew33 = (*pA152++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew33 += (*pA152++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[33] += (guidance_simulink_P.DiscreteZeroPole_B[17])*rtb_Sum1[0];
+    xnew[34] = (guidance_simulink_P.DiscreteZeroPole_A[176])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[33];
+
+    {
+      static const int_T colAidxRow35[26] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 };
+
+      const int_T *pAidx = &colAidxRow35[0];
+      const real32_T *pA177 = &guidance_simulink_P.DiscreteZeroPole_A[177];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew35 = &xnew[35];
+      int_T numNonZero = 25;
+      *pxnew35 = (*pA177++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew35 += (*pA177++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[35] += (guidance_simulink_P.DiscreteZeroPole_B[18])*rtb_Sum1[0];
+    xnew[36] = (guidance_simulink_P.DiscreteZeroPole_A[203])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[35];
+
+    {
+      static const int_T colAidxRow37[28] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+        38 };
+
+      const int_T *pAidx = &colAidxRow37[0];
+      const real32_T *pA204 = &guidance_simulink_P.DiscreteZeroPole_A[204];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew37 = &xnew[37];
+      int_T numNonZero = 27;
+      *pxnew37 = (*pA204++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew37 += (*pA204++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[37] += (guidance_simulink_P.DiscreteZeroPole_B[19])*rtb_Sum1[0];
+    xnew[38] = (guidance_simulink_P.DiscreteZeroPole_A[232])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[37];
+
+    {
+      static const int_T colAidxRow39[30] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+        38, 39, 40 };
+
+      const int_T *pAidx = &colAidxRow39[0];
+      const real32_T *pA233 = &guidance_simulink_P.DiscreteZeroPole_A[233];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE[0];
+      real32_T *pxnew39 = &xnew[39];
+      int_T numNonZero = 29;
+      *pxnew39 = (*pA233++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew39 += (*pA233++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[39] += (guidance_simulink_P.DiscreteZeroPole_B[20])*rtb_Sum1[0];
+    xnew[40] = (guidance_simulink_P.DiscreteZeroPole_A[263])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE[39];
     (void) memcpy(&guidance_simulink_DW.DiscreteZeroPole_DSTATE[0], xnew,
-                  sizeof(real32_T)*11);
+                  sizeof(real32_T)*41);
   }
 
   /* Update for DiscreteZeroPole: '<S2>/Discrete Zero-Pole' */
   {
-    real32_T xnew[11];
+    real32_T xnew[41];
     xnew[0] = (guidance_simulink_P.DiscreteZeroPole_A_a[0])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
     xnew[0] += (guidance_simulink_P.DiscreteZeroPole_B_b[0])*rtb_Sum1[1];
     xnew[1] = (guidance_simulink_P.DiscreteZeroPole_A_a[1])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
     xnew[1] += (guidance_simulink_P.DiscreteZeroPole_B_b[1])*rtb_Sum1[1];
-    xnew[2] = 0.0;
-    xnew[3] = (guidance_simulink_P.DiscreteZeroPole_A_a[2])*
-      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0]
-      + (guidance_simulink_P.DiscreteZeroPole_A_a[3])*
-      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[3]
-      + (guidance_simulink_P.DiscreteZeroPole_A_a[4])*
-      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[4];
+    xnew[2] = (guidance_simulink_P.DiscreteZeroPole_A_a[2])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[1];
+    xnew[3] = (guidance_simulink_P.DiscreteZeroPole_A_a[3])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
     xnew[3] += (guidance_simulink_P.DiscreteZeroPole_B_b[2])*rtb_Sum1[1];
-    xnew[4] = (guidance_simulink_P.DiscreteZeroPole_A_a[5])*
+    xnew[4] = (guidance_simulink_P.DiscreteZeroPole_A_a[4])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[3];
-
-    {
-      static const int_T colAidxRow5[5] = { 0, 3, 4, 5, 6 };
-
-      const int_T *pAidx = &colAidxRow5[0];
-      const real32_T *pA6 = &guidance_simulink_P.DiscreteZeroPole_A_a[6];
-      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
-      real32_T *pxnew5 = &xnew[5];
-      int_T numNonZero = 4;
-      *pxnew5 = (*pA6++) * xd[*pAidx++];
-      while (numNonZero--) {
-        *pxnew5 += (*pA6++) * xd[*pAidx++];
-      }
-    }
-
+    xnew[5] = (guidance_simulink_P.DiscreteZeroPole_A_a[5])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
     xnew[5] += (guidance_simulink_P.DiscreteZeroPole_B_b[3])*rtb_Sum1[1];
-    xnew[6] = (guidance_simulink_P.DiscreteZeroPole_A_a[11])*
+    xnew[6] = (guidance_simulink_P.DiscreteZeroPole_A_a[6])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[5];
-
-    {
-      static const int_T colAidxRow7[7] = { 0, 3, 4, 5, 6, 7, 8 };
-
-      const int_T *pAidx = &colAidxRow7[0];
-      const real32_T *pA12 = &guidance_simulink_P.DiscreteZeroPole_A_a[12];
-      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
-      real32_T *pxnew7 = &xnew[7];
-      int_T numNonZero = 6;
-      *pxnew7 = (*pA12++) * xd[*pAidx++];
-      while (numNonZero--) {
-        *pxnew7 += (*pA12++) * xd[*pAidx++];
-      }
-    }
-
+    xnew[7] = (guidance_simulink_P.DiscreteZeroPole_A_a[7])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
     xnew[7] += (guidance_simulink_P.DiscreteZeroPole_B_b[4])*rtb_Sum1[1];
-    xnew[8] = (guidance_simulink_P.DiscreteZeroPole_A_a[19])*
+    xnew[8] = (guidance_simulink_P.DiscreteZeroPole_A_a[8])*
       guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[7];
+    xnew[9] = (guidance_simulink_P.DiscreteZeroPole_A_a[9])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+    xnew[9] += (guidance_simulink_P.DiscreteZeroPole_B_b[5])*rtb_Sum1[1];
+    xnew[10] = 0.0;
+    xnew[11] = (guidance_simulink_P.DiscreteZeroPole_A_a[10])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0]
+      + (guidance_simulink_P.DiscreteZeroPole_A_a[11])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[11];
+    xnew[11] += (guidance_simulink_P.DiscreteZeroPole_B_b[6])*rtb_Sum1[1];
+    xnew[12] = 0.0;
+    xnew[13] = (guidance_simulink_P.DiscreteZeroPole_A_a[12])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0]
+      + (guidance_simulink_P.DiscreteZeroPole_A_a[13])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[11]
+      + (guidance_simulink_P.DiscreteZeroPole_A_a[14])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[13]
+      + (guidance_simulink_P.DiscreteZeroPole_A_a[15])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[14];
+    xnew[13] += (guidance_simulink_P.DiscreteZeroPole_B_b[7])*rtb_Sum1[1];
+    xnew[14] = (guidance_simulink_P.DiscreteZeroPole_A_a[16])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[13];
 
     {
-      static const int_T colAidxRow9[9] = { 0, 3, 4, 5, 6, 7, 8, 9, 10 };
+      static const int_T colAidxRow15[6] = { 0, 11, 13, 14, 15, 16 };
 
-      const int_T *pAidx = &colAidxRow9[0];
-      const real32_T *pA20 = &guidance_simulink_P.DiscreteZeroPole_A_a[20];
+      const int_T *pAidx = &colAidxRow15[0];
+      const real32_T *pA17 = &guidance_simulink_P.DiscreteZeroPole_A_a[17];
       const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
-      real32_T *pxnew9 = &xnew[9];
-      int_T numNonZero = 8;
-      *pxnew9 = (*pA20++) * xd[*pAidx++];
+      real32_T *pxnew15 = &xnew[15];
+      int_T numNonZero = 5;
+      *pxnew15 = (*pA17++) * xd[*pAidx++];
       while (numNonZero--) {
-        *pxnew9 += (*pA20++) * xd[*pAidx++];
+        *pxnew15 += (*pA17++) * xd[*pAidx++];
       }
     }
 
-    xnew[9] += (guidance_simulink_P.DiscreteZeroPole_B_b[5])*rtb_Sum1[1];
-    xnew[10] = (guidance_simulink_P.DiscreteZeroPole_A_a[29])*
-      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[9];
+    xnew[15] += (guidance_simulink_P.DiscreteZeroPole_B_b[8])*rtb_Sum1[1];
+    xnew[16] = (guidance_simulink_P.DiscreteZeroPole_A_a[23])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[15];
+
+    {
+      static const int_T colAidxRow17[8] = { 0, 11, 13, 14, 15, 16, 17, 18 };
+
+      const int_T *pAidx = &colAidxRow17[0];
+      const real32_T *pA24 = &guidance_simulink_P.DiscreteZeroPole_A_a[24];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew17 = &xnew[17];
+      int_T numNonZero = 7;
+      *pxnew17 = (*pA24++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew17 += (*pA24++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[17] += (guidance_simulink_P.DiscreteZeroPole_B_b[9])*rtb_Sum1[1];
+    xnew[18] = (guidance_simulink_P.DiscreteZeroPole_A_a[32])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[17];
+
+    {
+      static const int_T colAidxRow19[10] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20 };
+
+      const int_T *pAidx = &colAidxRow19[0];
+      const real32_T *pA33 = &guidance_simulink_P.DiscreteZeroPole_A_a[33];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew19 = &xnew[19];
+      int_T numNonZero = 9;
+      *pxnew19 = (*pA33++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew19 += (*pA33++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[19] += (guidance_simulink_P.DiscreteZeroPole_B_b[10])*rtb_Sum1[1];
+    xnew[20] = (guidance_simulink_P.DiscreteZeroPole_A_a[43])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[19];
+
+    {
+      static const int_T colAidxRow21[12] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22 };
+
+      const int_T *pAidx = &colAidxRow21[0];
+      const real32_T *pA44 = &guidance_simulink_P.DiscreteZeroPole_A_a[44];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew21 = &xnew[21];
+      int_T numNonZero = 11;
+      *pxnew21 = (*pA44++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew21 += (*pA44++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[21] += (guidance_simulink_P.DiscreteZeroPole_B_b[11])*rtb_Sum1[1];
+    xnew[22] = (guidance_simulink_P.DiscreteZeroPole_A_a[56])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[21];
+
+    {
+      static const int_T colAidxRow23[14] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24 };
+
+      const int_T *pAidx = &colAidxRow23[0];
+      const real32_T *pA57 = &guidance_simulink_P.DiscreteZeroPole_A_a[57];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew23 = &xnew[23];
+      int_T numNonZero = 13;
+      *pxnew23 = (*pA57++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew23 += (*pA57++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[23] += (guidance_simulink_P.DiscreteZeroPole_B_b[12])*rtb_Sum1[1];
+    xnew[24] = (guidance_simulink_P.DiscreteZeroPole_A_a[71])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[23];
+
+    {
+      static const int_T colAidxRow25[16] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26 };
+
+      const int_T *pAidx = &colAidxRow25[0];
+      const real32_T *pA72 = &guidance_simulink_P.DiscreteZeroPole_A_a[72];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew25 = &xnew[25];
+      int_T numNonZero = 15;
+      *pxnew25 = (*pA72++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew25 += (*pA72++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[25] += (guidance_simulink_P.DiscreteZeroPole_B_b[13])*rtb_Sum1[1];
+    xnew[26] = (guidance_simulink_P.DiscreteZeroPole_A_a[88])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[25];
+
+    {
+      static const int_T colAidxRow27[18] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28 };
+
+      const int_T *pAidx = &colAidxRow27[0];
+      const real32_T *pA89 = &guidance_simulink_P.DiscreteZeroPole_A_a[89];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew27 = &xnew[27];
+      int_T numNonZero = 17;
+      *pxnew27 = (*pA89++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew27 += (*pA89++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[27] += (guidance_simulink_P.DiscreteZeroPole_B_b[14])*rtb_Sum1[1];
+    xnew[28] = (guidance_simulink_P.DiscreteZeroPole_A_a[107])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[27];
+
+    {
+      static const int_T colAidxRow29[20] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 };
+
+      const int_T *pAidx = &colAidxRow29[0];
+      const real32_T *pA108 = &guidance_simulink_P.DiscreteZeroPole_A_a[108];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew29 = &xnew[29];
+      int_T numNonZero = 19;
+      *pxnew29 = (*pA108++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew29 += (*pA108++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[29] += (guidance_simulink_P.DiscreteZeroPole_B_b[15])*rtb_Sum1[1];
+    xnew[30] = (guidance_simulink_P.DiscreteZeroPole_A_a[128])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[29];
+
+    {
+      static const int_T colAidxRow31[22] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+
+      const int_T *pAidx = &colAidxRow31[0];
+      const real32_T *pA129 = &guidance_simulink_P.DiscreteZeroPole_A_a[129];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew31 = &xnew[31];
+      int_T numNonZero = 21;
+      *pxnew31 = (*pA129++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew31 += (*pA129++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[31] += (guidance_simulink_P.DiscreteZeroPole_B_b[16])*rtb_Sum1[1];
+    xnew[32] = (guidance_simulink_P.DiscreteZeroPole_A_a[151])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[31];
+
+    {
+      static const int_T colAidxRow33[24] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34 };
+
+      const int_T *pAidx = &colAidxRow33[0];
+      const real32_T *pA152 = &guidance_simulink_P.DiscreteZeroPole_A_a[152];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew33 = &xnew[33];
+      int_T numNonZero = 23;
+      *pxnew33 = (*pA152++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew33 += (*pA152++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[33] += (guidance_simulink_P.DiscreteZeroPole_B_b[17])*rtb_Sum1[1];
+    xnew[34] = (guidance_simulink_P.DiscreteZeroPole_A_a[176])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[33];
+
+    {
+      static const int_T colAidxRow35[26] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 };
+
+      const int_T *pAidx = &colAidxRow35[0];
+      const real32_T *pA177 = &guidance_simulink_P.DiscreteZeroPole_A_a[177];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew35 = &xnew[35];
+      int_T numNonZero = 25;
+      *pxnew35 = (*pA177++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew35 += (*pA177++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[35] += (guidance_simulink_P.DiscreteZeroPole_B_b[18])*rtb_Sum1[1];
+    xnew[36] = (guidance_simulink_P.DiscreteZeroPole_A_a[203])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[35];
+
+    {
+      static const int_T colAidxRow37[28] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+        38 };
+
+      const int_T *pAidx = &colAidxRow37[0];
+      const real32_T *pA204 = &guidance_simulink_P.DiscreteZeroPole_A_a[204];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew37 = &xnew[37];
+      int_T numNonZero = 27;
+      *pxnew37 = (*pA204++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew37 += (*pA204++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[37] += (guidance_simulink_P.DiscreteZeroPole_B_b[19])*rtb_Sum1[1];
+    xnew[38] = (guidance_simulink_P.DiscreteZeroPole_A_a[232])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[37];
+
+    {
+      static const int_T colAidxRow39[30] = { 0, 11, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+        38, 39, 40 };
+
+      const int_T *pAidx = &colAidxRow39[0];
+      const real32_T *pA233 = &guidance_simulink_P.DiscreteZeroPole_A_a[233];
+      const real32_T *xd = &guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0];
+      real32_T *pxnew39 = &xnew[39];
+      int_T numNonZero = 29;
+      *pxnew39 = (*pA233++) * xd[*pAidx++];
+      while (numNonZero--) {
+        *pxnew39 += (*pA233++) * xd[*pAidx++];
+      }
+    }
+
+    xnew[39] += (guidance_simulink_P.DiscreteZeroPole_B_b[20])*rtb_Sum1[1];
+    xnew[40] = (guidance_simulink_P.DiscreteZeroPole_A_a[263])*
+      guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[39];
     (void) memcpy(&guidance_simulink_DW.DiscreteZeroPole_DSTATE_b[0], xnew,
-                  sizeof(real32_T)*11);
+                  sizeof(real32_T)*41);
   }
 }
 

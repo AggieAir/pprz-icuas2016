@@ -8,16 +8,16 @@
 #endif
 #define RC_CMD_THROTTLE radio_control.values[RADIO_THROTTLE]
 #define RC_CMD_THRESHOLD MAX_PPRZ*0.95
-  </header>
+</header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="CLIMB" x="0.0" y="5.0"/>
     <waypoint name="STDBY" x="-2.0" y="-5.0"/>
     <waypoint name="p1" x="3.6" y="-13.9"/>
-    <waypoint name="p2" x="27.5" y="-48.2"/>
-    <waypoint name="p3" x="16.7" y="-19.6"/>
-    <waypoint name="p4" x="13.7" y="-40.7"/>
-    <waypoint name="CAM" x="-20" y="-50" height="2."/>
+    <waypoint name="p2" x="40.1" y="-14.5"/>
+    <waypoint name="p3" x="22.8" y="-14.4"/>
+    <waypoint name="p4" x="21.8" y="-39.0"/>
+    <waypoint height="2." name="CAM" x="-20" y="-50"/>
     <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
   <blocks>
@@ -28,21 +28,18 @@
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
-      <!--<call fun="NavSetAltitudeReferenceHere()"/>-->
     </block>
     <block name="Start Engine">
       <exception cond="stage_time > 5" deroute="Takeoff"/>
       <call fun="NavResurrect()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Route1"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <attitude roll="0.0" pitch="0.0" throttle="0.1" until="stage_time > 2" vmode="throttle"/>
-      <while cond="RC_CMD_THRESHOLD > RC_CMD_THROTTLE">
-      <!-- just check the condition in a loop -->
-      </while>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
+      <attitude pitch="0.0" roll="0.0" throttle="0.1" until="stage_time > 2" vmode="throttle"/>
+      <while cond="RC_CMD_THRESHOLD > RC_CMD_THROTTLE"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Route1">
       <exception cond="stage_time > 5" deroute="line_p1_p2"/>
@@ -50,9 +47,9 @@
     </block>
     <block name="line_p1_p2">
       <go from="p1" hmode="route" wp="p2"/>
-      <stay wp="p2" until="stage_time>10"/>
+      <stay until="stage_time>10" wp="p2"/>
       <go from="p2" hmode="route" wp="p1"/>
-      <stay wp="p1" until="stage_time>10"/>
+      <stay until="stage_time>10" wp="p1"/>
       <deroute block="route"/>
     </block>
     <block name="route">
@@ -62,7 +59,7 @@
       <deroute block="stay_p1"/>
     </block>
     <block name="stay_p1">
-      <stay wp="p1" until="stage_time>10"/>
+      <stay until="stage_time>10" wp="p1"/>
       <deroute block="land"/>
     </block>
     <block name="land">
@@ -75,39 +72,11 @@
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Holding point">
       <call fun="NavKillThrottle()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
-    </block>
-  </blocks>
-<!--
-    <block name="Ground Check">
-      <call fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="home.png">
-      <stay wp="STDBY"/>
-    </block>
-    <block name="go_p2">
-      <call fun="nav_set_heading_deg(90)"/>
-      <go wp="p2"/>
-      <deroute block="stay_p1"/>
-    </block>
-    <block name="test yaw">
-      <go wp="p1"/>
-      <for var="i" from="1" to="16">
-        <heading alt="WaypointAlt(WP_p1)" course="90 * $i" until="stage_time > 3"/>
-      </for>
-      <deroute block="Standby"/>
-    </block>
-    <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
-      <circle radius="nav_radius" wp="CAM"/>
-    </block>
-    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call fun="NavSetWaypointHere(WP_TD)"/>
-    </block>
--->
-
+  </blocks>
 </flight_plan>

@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.23
+ * Model version                  : 1.24
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Tue Feb 23 15:50:53 2016
+ * C/C++ source code generated on : Tue Feb 23 22:19:01 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
