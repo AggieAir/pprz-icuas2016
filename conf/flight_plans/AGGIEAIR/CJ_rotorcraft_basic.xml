@@ -26,26 +26,17 @@
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
-      <while cond="LessThan(NavBlockTime(), 5)"/>
+      <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
       <!--<call fun="NavSetAltitudeReferenceHere()"/>-->
     </block>
-
-    <block name="Ground Check">
-      <call fun="NavKillThrottle()"/>
-      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
-    </block>
-
-    <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
-    </block>
     <block name="Start Engine">
+      <exception cond="stage_time > 5" deroute="Takeoff"/>
       <call fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Route1"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <attitude roll="0.0" pitch="0.0" throttle="0.1" until="stage_time > 2" vmode="throttle"/>
       <while cond="RC_CMD_THRESHOLD > RC_CMD_THROTTLE">
@@ -53,27 +44,55 @@
       </while>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+    <block name="Route1">
+      <exception cond="stage_time > 5" deroute="line_p1_p2"/>
       <stay wp="STDBY"/>
-    </block>
-    <block name="stay_p1">
-      <stay wp="p1"/>
-    </block>
-    <block name="go_p2">
-      <call fun="nav_set_heading_deg(90)"/>
-      <go wp="p2"/>
-      <deroute block="stay_p1"/>
     </block>
     <block name="line_p1_p2">
       <go from="p1" hmode="route" wp="p2"/>
       <stay wp="p2" until="stage_time>10"/>
       <go from="p2" hmode="route" wp="p1"/>
-      <deroute block="stay_p1"/>
+      <stay wp="p1" until="stage_time>10"/>
+      <deroute block="route"/>
     </block>
     <block name="route">
       <go from="p1" hmode="route" wp="p3"/>
       <go from="p3" hmode="route" wp="p4"/>
       <go from="p4" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="stay_p1">
+      <stay wp="p1" until="stage_time>10"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+<!--
+    <block name="Ground Check">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="go_p2">
+      <call fun="nav_set_heading_deg(90)"/>
+      <go wp="p2"/>
       <deroute block="stay_p1"/>
     </block>
     <block name="test yaw">
@@ -89,17 +108,6 @@
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <call fun="NavSetWaypointHere(WP_TD)"/>
     </block>
-    <block name="land">
-      <go wp="TD"/>
-    </block>
-    <block name="flare">
-      <exception cond="NavDetectGround()" deroute="Holding point"/>
-      <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
-    </block>
-    <block name="landed">
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
-    </block>
-  </blocks>
+-->
+
 </flight_plan>

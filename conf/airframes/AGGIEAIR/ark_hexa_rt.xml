@@ -48,6 +48,7 @@ ARK RT
 
     <subsystem name="guidance" type="simulink_foc"/>
 
+
     <subsystem name="stabilization" type="float_euler"/>
 
       <subsystem name="ins"           type="vectornav">
