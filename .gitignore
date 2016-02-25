@@ -156,6 +156,9 @@ paparazzi.sublime-workspace
 # /sw/tools/
 /sw/tools/wiki_gen/wiki_gen
 /sw/tools/mergelogs
+/sw/tools/simulink/guidance_simulink.slx
+/sw/tools/simulink/guidance_simulink_ert_rtw
+/sw/tools/simulink/slprj
 
 # /sw/ground_segment/misc
 /sw/ground_segment/misc/davis2ivy
