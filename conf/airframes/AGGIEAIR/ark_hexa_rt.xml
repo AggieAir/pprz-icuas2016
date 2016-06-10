@@ -46,7 +46,7 @@ ARK RT
       </subsystem>
 
 
-    <subsystem name="guidance" type="simulink_foc"/>
+    <subsystem name="guidance" type="simulink_foc_ho"/>
 
 
     <subsystem name="stabilization" type="float_euler"/>

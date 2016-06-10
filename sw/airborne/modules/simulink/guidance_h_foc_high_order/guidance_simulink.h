@@ -3,10 +3,10 @@
  *
  * Code generated for Simulink model 'guidance_simulink'.
  *
- * Model version                  : 1.28
+ * Model version                  : 1.33
  * Simulink Coder version         : 8.4 (R2013a) 13-Feb-2013
  * TLC version                    : 8.4 (Jan 18 2013)
- * C/C++ source code generated on : Tue Feb 23 19:58:07 2016
+ * C/C++ source code generated on : Thu Jun  9 18:41:20 2016
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: STMicroelectronics->ST10/Super10
@@ -40,8 +40,8 @@
 
 /* Block states (auto storage) for system '<Root>' */
 typedef struct {
-  real32_T DiscreteZeroPole_DSTATE[51];/* '<S1>/Discrete Zero-Pole' */
-  real32_T DiscreteZeroPole_DSTATE_b[51];/* '<S2>/Discrete Zero-Pole' */
+  real32_T DiscreteZeroPole_DSTATE[251];/* '<S1>/Discrete Zero-Pole' */
+  real32_T DiscreteZeroPole_DSTATE_b[251];/* '<S2>/Discrete Zero-Pole' */
 } DW_guidance_simulink_T;
 
 /* External inputs (root inport signals with auto storage) */
@@ -91,25 +91,25 @@ struct P_guidance_simulink_T_ {
   real32_T scale3_Gain;                /* Computed Parameter: scale3_Gain
                                         * Referenced by: '<Root>/scale3'
                                         */
-  real32_T DiscreteZeroPole_A[652];    /* Computed Parameter: DiscreteZeroPole_A
+  real32_T DiscreteZeroPole_A[15289];  /* Computed Parameter: DiscreteZeroPole_A
                                         * Referenced by: '<S1>/Discrete Zero-Pole'
                                         */
-  real32_T DiscreteZeroPole_B[26];     /* Computed Parameter: DiscreteZeroPole_B
+  real32_T DiscreteZeroPole_B[126];    /* Computed Parameter: DiscreteZeroPole_B
                                         * Referenced by: '<S1>/Discrete Zero-Pole'
                                         */
-  real32_T DiscreteZeroPole_C[49];     /* Computed Parameter: DiscreteZeroPole_C
+  real32_T DiscreteZeroPole_C[216];    /* Computed Parameter: DiscreteZeroPole_C
                                         * Referenced by: '<S1>/Discrete Zero-Pole'
                                         */
   real32_T DiscreteZeroPole_D;         /* Computed Parameter: DiscreteZeroPole_D
                                         * Referenced by: '<S1>/Discrete Zero-Pole'
                                         */
-  real32_T DiscreteZeroPole_A_a[652];  /* Computed Parameter: DiscreteZeroPole_A_a
+  real32_T DiscreteZeroPole_A_a[15289];/* Computed Parameter: DiscreteZeroPole_A_a
                                         * Referenced by: '<S2>/Discrete Zero-Pole'
                                         */
-  real32_T DiscreteZeroPole_B_b[26];   /* Computed Parameter: DiscreteZeroPole_B_b
+  real32_T DiscreteZeroPole_B_b[126];  /* Computed Parameter: DiscreteZeroPole_B_b
                                         * Referenced by: '<S2>/Discrete Zero-Pole'
                                         */
-  real32_T DiscreteZeroPole_C_p[49];   /* Computed Parameter: DiscreteZeroPole_C_p
+  real32_T DiscreteZeroPole_C_p[216];  /* Computed Parameter: DiscreteZeroPole_C_p
                                         * Referenced by: '<S2>/Discrete Zero-Pole'
                                         */
   real32_T DiscreteZeroPole_D_b;       /* Computed Parameter: DiscreteZeroPole_D_b
